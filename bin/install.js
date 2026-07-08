@@ -48,22 +48,10 @@ const OPTIONS = [
   }
 ];
 
-function showMenu() {
-  console.log(`${BOLD}Select where you want to install the engineering-docs plugin:${RESET}\n`);
-  OPTIONS.forEach((opt, idx) => {
-    console.log(`  ${CYAN}[${idx + 1}]${RESET} ${BOLD}${opt.name}${RESET}`);
-    console.log(`      Target: ${YELLOW}${opt.path}${RESET}\n`);
-  });
-  console.log(`  ${CYAN}[Q]${RESET} Quit\n`);
-
-  rl.question(`${BOLD}Enter your choice (1-${OPTIONS.length} or Q): ${RESET}`, handleChoice);
-}
-
 function copyFolderSync(from, to) {
   if (fs.cpSync) {
     fs.cpSync(from, to, { recursive: true, force: true });
   } else {
-    // Fallback for older Node versions
     if (!fs.existsSync(to)) {
       fs.mkdirSync(to, { recursive: true });
     }
@@ -76,6 +64,50 @@ function copyFolderSync(from, to) {
         fs.copyFileSync(srcEl, destEl);
       }
     });
+  }
+}
+
+function installTo(selected) {
+  const srcDir = path.join(__dirname, '..');
+
+  if (selected.isCursor) {
+    if (!fs.existsSync(selected.path)) {
+      fs.mkdirSync(selected.path, { recursive: true });
+    }
+
+    const skillsDir = path.join(srcDir, 'skills');
+    const skills = fs.readdirSync(skillsDir);
+
+    skills.forEach(skill => {
+      const skillPath = path.join(skillsDir, skill);
+      if (fs.lstatSync(skillPath).isDirectory()) {
+        const skillMd = path.join(skillPath, 'SKILL.md');
+        if (fs.existsSync(skillMd)) {
+          const targetFile = path.join(selected.path, `engineering-docs-${skill}.mdc`);
+          fs.copyFileSync(skillMd, targetFile);
+          console.log(`  ${GREEN}✓${RESET} Created Cursor rule: ${CYAN}engineering-docs-${skill}.mdc${RESET}`);
+        }
+      }
+    });
+  } else {
+    if (!fs.existsSync(selected.path)) {
+      fs.mkdirSync(selected.path, { recursive: true });
+    }
+
+    const filesToCopy = [
+      'plugin.json', 'AGENTS.md', 'CLAUDE.md', 'README.md', 'LICENSE', 'CONTRIBUTING.md',
+      'gemini-extension.json', 'GEMINI.md', 'marketplace.json'
+    ];
+    filesToCopy.forEach(file => {
+      const srcFile = path.join(srcDir, file);
+      if (fs.existsSync(srcFile)) {
+        fs.copyFileSync(srcFile, path.join(selected.path, file));
+      }
+    });
+
+    const srcSkills = path.join(srcDir, 'skills');
+    const destSkills = path.join(selected.path, 'skills');
+    copyFolderSync(srcSkills, destSkills);
   }
 }
 
@@ -98,50 +130,7 @@ function handleChoice(input) {
   console.log(`\n${GREEN}Installing to: ${RESET}${BOLD}${selected.path}${RESET}...\n`);
 
   try {
-    const srcDir = path.join(__dirname, '..');
-
-    if (selected.isCursor) {
-      // For Cursor/Windsurf, we copy each skill's SKILL.md into Cursor's rule format
-      if (!fs.existsSync(selected.path)) {
-        fs.mkdirSync(selected.path, { recursive: true });
-      }
-
-      const skillsDir = path.join(srcDir, 'skills');
-      const skills = fs.readdirSync(skillsDir);
-
-      skills.forEach(skill => {
-        const skillPath = path.join(skillsDir, skill);
-        if (fs.lstatSync(skillPath).isDirectory()) {
-          const skillMd = path.join(skillPath, 'SKILL.md');
-          if (fs.existsSync(skillMd)) {
-            // Write Cursor MDC file format (rule file)
-            const targetFile = path.join(selected.path, `engineering-docs-${skill}.mdc`);
-            fs.copyFileSync(skillMd, targetFile);
-            console.log(`  ${GREEN}✓${RESET} Created Cursor rule: ${CYAN}engineering-docs-${skill}.mdc${RESET}`);
-          }
-        }
-      });
-    } else {
-      // Standard plugin installation (copy root files + skills folder)
-      if (!fs.existsSync(selected.path)) {
-        fs.mkdirSync(selected.path, { recursive: true });
-      }
-
-      // Copy key root files
-      const filesToCopy = ['plugin.json', 'AGENTS.md', 'CLAUDE.md', 'README.md', 'LICENSE', 'CONTRIBUTING.md'];
-      filesToCopy.forEach(file => {
-        const srcFile = path.join(srcDir, file);
-        if (fs.existsSync(srcFile)) {
-          fs.copyFileSync(srcFile, path.join(selected.path, file));
-        }
-      });
-
-      // Copy skills directory
-      const srcSkills = path.join(srcDir, 'skills');
-      const destSkills = path.join(selected.path, 'skills');
-      copyFolderSync(srcSkills, destSkills);
-    }
-
+    installTo(selected);
     console.log(`\n${GREEN}${BOLD}✓ Installation Completed Successfully!${RESET}\n`);
     if (selected.isCursor) {
       console.log(`${YELLOW}Note: Restart Cursor or Windsurf to activate the new rules.${RESET}\n`);
@@ -155,4 +144,54 @@ function handleChoice(input) {
   rl.close();
 }
 
-showMenu();
+function showMenu() {
+  console.log(`${BOLD}Select where you want to install the engineering-docs plugin:${RESET}\n`);
+  OPTIONS.forEach((opt, idx) => {
+    console.log(`  ${CYAN}[${idx + 1}]${RESET} ${BOLD}${opt.name}${RESET}`);
+    console.log("      Target: " + YELLOW + opt.path + RESET + "\n");
+  });
+  console.log(`  ${CYAN}[Q]${RESET} Quit\n`);
+
+  rl.question(`${BOLD}Enter your choice (1-${OPTIONS.length} or Q): ${RESET}`, handleChoice);
+}
+
+// CLI Entry Point - Argument Parsing
+const args = process.argv.slice(2);
+
+function runDirectInstall(selectedOption) {
+  rl.close();
+  console.log(`\n${GREEN}Installing to: ${RESET}${BOLD}${selectedOption.path}${RESET}...\n`);
+  try {
+    installTo(selectedOption);
+    console.log(`\n${GREEN}${BOLD}✓ Installation Completed Successfully!${RESET}\n`);
+  } catch (err) {
+    console.error(`\n${RED}Error during installation:${RESET}`, err.message);
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
+if (args.includes('--gemini') || args.includes('-g')) {
+  runDirectInstall(OPTIONS[0]);
+} else if (args.includes('--claude') || args.includes('-c')) {
+  runDirectInstall(OPTIONS[1]);
+} else if (args.includes('--local') || args.includes('-l')) {
+  runDirectInstall(OPTIONS[2]);
+} else if (args.includes('--cursor') || args.includes('-r')) {
+  runDirectInstall(OPTIONS[3]);
+} else if (args.includes('--help') || args.includes('-h')) {
+  rl.close();
+  console.log(`Usage: npx engineering-docs [options]
+
+Options:
+  install             Show interactive menu (default)
+  --gemini, -g        Install globally for Gemini (Antigravity)
+  --claude, -c        Install globally for Claude Code
+  --local, -l         Install locally to the current workspace's .agents directory
+  --cursor, -r        Install locally to Cursor/Windsurf rules (.cursor/rules/)
+  --help, -h          Show this help menu
+`);
+  process.exit(0);
+} else {
+  showMenu();
+}
