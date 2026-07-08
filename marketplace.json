@@ -11,9 +11,8 @@
       "description": "11 world-class engineering documentation skills.",
       "author": { "name": "Fattain Naime" },
       "source": {
-        "source": "git-subdir",
+        "source": "git",
         "url": "https://github.com/fattain-naime/engineering-docs.git",
-        "path": "",
         "ref": "main"
       }
     }
