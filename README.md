@@ -26,34 +26,51 @@ Built to the standard of a 20+ year senior engineer. Grounded in ISO/IEC/IEEE 29
 
 ## Installation
 
-### Gemini (Antigravity)
+### The Quickest Way (npx Installer)
+
+You can run the interactive CLI installer instantly to copy the plugin to your agent's config directory:
 
 ```bash
-# Global install (available across all workspaces)
-cp -r engineering-docs ~/.gemini/config/plugins/engineering-docs
-
-# Workspace install (current project only)
-cp -r engineering-docs .agents/skills/engineering-docs
+npx github:fattain-naime/engineering-docs
 ```
 
-### Claude Code
+The installer will guide you to choose between:
+1. **Gemini (Antigravity)** - Global Installation
+2. **Claude Code** - Global Installation
+3. **Local Project Workspace** (`.agents/skills/`)
+4. **Cursor/Windsurf** - Local Project Workspace (`.cursor/rules/`)
+
+---
+
+### Manual Installation
+
+#### Gemini (Antigravity)
+
+Clone or copy this folder into your global plugins directory:
 
 ```bash
-cp -r engineering-docs ~/.claude/plugins/engineering-docs
+git clone https://github.com/fattain-naime/engineering-docs.git ~/.gemini/config/plugins/engineering-docs
 ```
 
-Or add to your `.claude/CLAUDE.md`:
-```markdown
-@engineering-docs/CLAUDE.md
+#### Claude Code (Custom Marketplace)
+
+You can add this repository as a custom marketplace source directly inside Claude Code:
+
+```bash
+/plugin marketplace add fattain-naime/engineering-docs
+/plugin install engineering-docs
 ```
 
-### Cursor / Windsurf
+Or copy the folder manually:
+
+```bash
+git clone https://github.com/fattain-naime/engineering-docs.git ~/.claude/plugins/engineering-docs
+```
+
+#### Cursor / Windsurf
 
 Copy the `skills/` directory contents into your `.cursor/rules/` or `.windsurfrules` directory, one rule file per skill.
 
-### GitHub Copilot / Codex
-
-Copy the `AGENTS.md` content into your repository's `AGENTS.md` or `.github/copilot-instructions.md`.
 
 ---
 
