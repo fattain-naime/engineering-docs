@@ -9,11 +9,10 @@
     {
       "name": "engineering-docs",
       "description": "11 world-class engineering documentation skills.",
-      "author": { "name": "Fattain Naime" },
-      "source": {
-        "source": "git",
-        "url": "https://github.com/fattain-naime/engineering-docs.git",
-        "ref": "main"
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "Fattain Naime"
       }
     }
   ]
