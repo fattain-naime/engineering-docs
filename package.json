@@ -6,7 +6,7 @@
   "bin": {
     "engineering-docs": "./bin/install.js"
   },
-  "author": "Fattain Naime",
+  "author": "Fattain Naime <iamnaime@builderhall.com>",
   "license": "MIT",
   "repository": {
     "type": "git",

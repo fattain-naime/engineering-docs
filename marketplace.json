@@ -3,7 +3,8 @@
   "name": "engineering-docs",
   "description": "11 world-class engineering documentation skills covering the complete software lifecycle.",
   "owner": {
-    "name": "Fattain Naime"
+    "name": "Fattain Naime",
+    "email": "iamnaime@builderhall.com"
   },
   "plugins": [
     {
@@ -12,7 +13,8 @@
       "version": "1.0.0",
       "source": "./",
       "author": {
-        "name": "Fattain Naime"
+        "name": "Fattain Naime",
+        "email": "iamnaime@builderhall.com"
       }
     }
   ]

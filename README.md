@@ -103,6 +103,18 @@ The agent will automatically detect intent and apply the correct skill.
 | `incident-postmortem` | Google SRE Blameless Post-mortem Culture |
 | `deployment-plan` | DORA Metrics, Blue-Green / Canary / Rolling deployment patterns |
 
+## Multi-Agent Compatibility
+
+`engineering-docs` is optimized and fully compatible with all major agentic frameworks:
+
+| Platform | Manifest File | Directory / Target |
+| :--- | :--- | :--- |
+| **Gemini (Antigravity)** | `gemini-extension.json` & `GEMINI.md` | `~/.gemini/config/plugins/` |
+| **Claude Code** | `.claude-plugin/plugin.json` | `~/.claude/plugins/` |
+| **Cursor / Windsurf** | `.cursor-plugin/plugin.json` | `./.cursor/rules/` |
+| **Kimi Code** | `.kimi-plugin/plugin.json` | Local or Global directory |
+| **Copilot / Codex** | `.codex-plugin/plugin.json` | Root configuration |
+
 ---
 
 ## Contributing
@@ -110,6 +122,12 @@ The agent will automatically detect intent and apply the correct skill.
 See `CONTRIBUTING.md` for skill authoring standards. Each skill must include:
 - `SKILL.md` with valid YAML frontmatter
 - `template.md` that is fully self-guiding
+
+---
+
+## Author
+
+- **Fattain Naime** - [iamnaime@builderhall.com](mailto:iamnaime@builderhall.com)
 
 ---
 
