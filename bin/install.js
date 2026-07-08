@@ -45,6 +45,10 @@ const OPTIONS = [
     name: 'Cursor/Windsurf - Local Project Workspace (.cursor/rules/)',
     path: path.join(process.cwd(), '.cursor', 'rules'),
     isCursor: true
+  },
+  {
+    name: 'Kimi Code - Global Installation',
+    path: path.join(homeDir, '.kimi-code', 'plugins', 'engineering-docs')
   }
 ];
 
@@ -179,6 +183,8 @@ if (args.includes('--gemini') || args.includes('-g')) {
   runDirectInstall(OPTIONS[2]);
 } else if (args.includes('--cursor') || args.includes('-r')) {
   runDirectInstall(OPTIONS[3]);
+} else if (args.includes('--kimi') || args.includes('-k')) {
+  runDirectInstall(OPTIONS[4]);
 } else if (args.includes('--help') || args.includes('-h')) {
   rl.close();
   console.log(`Usage: npx engineering-docs [options]
@@ -189,6 +195,7 @@ Options:
   --claude, -c        Install globally for Claude Code
   --local, -l         Install locally to the current workspace's .agents directory
   --cursor, -r        Install locally to Cursor/Windsurf rules (.cursor/rules/)
+  --kimi, -k          Install globally for Kimi Code
   --help, -h          Show this help menu
 `);
   process.exit(0);
