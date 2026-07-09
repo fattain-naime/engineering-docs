@@ -57,17 +57,26 @@ What are the critical failure modes? What is the fallback if this approach does 
 
 ## Application
 
-### Phase 1: Define the Proposition (20 min)
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any feasibility study, you MUST interrogate the user's initial input, identify technical unknowns, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Core technical doubts**: What is the most risky or uncertain part of this proposal?
+2. **Current stack capabilities**: What languages, frameworks, or cloud infrastructures are already in use that this must integrate with?
+3. **Timeline and budget boundaries**: What are the strict limits on time or resources for this evaluation?
+4. **Alternative approaches**: Are there any other alternative routes you have briefly considered?
+*Wait for the user's response to these questions before drafting the final feasibility study.*
+
+### Phase 2: Define the Proposition (20 min)
 State clearly what is being evaluated and what success looks like.
 
-### Phase 2: Technical Assessment (45 min)
+### Phase 3: Technical Assessment (45 min)
 Evaluate the technology, architecture, and integration complexity.
 
-### Phase 3: Resource and Timeline Assessment (30 min)
+### Phase 4: Resource and Timeline Assessment (30 min)
 Map required skills, team availability, infrastructure, and realistic timeline.
 
-### Phase 4: Risk Analysis (30 min)
+### Phase 5: Risk Analysis (30 min)
 Identify critical risks, blockers, and fallback options.
 
-### Phase 5: Recommendation (15 min)
+### Phase 6: Recommendation (15 min)
 Deliver a clear Go / Conditional Go / No Go with evidence summary.

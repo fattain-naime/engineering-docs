@@ -58,6 +58,16 @@ Do not stop at the proximate cause. The proximate cause is almost always "a bad 
 
 ## Application
 
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any postmortem, you MUST interrogate the user's initial input, identify gaps, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Symptom & Detection**: How was the incident first noticed (e.g. customer support ticket, automated alarm, internal observation)?
+2. **Timeline points**: What are the key timestamps (incident start, detection, mitigation, complete resolution)?
+3. **Immediate fix**: What temporary or permanent mitigation was performed to restore the service?
+4. **Failure impact**: What is the estimated business or database impact (e.g. amount of failed requests, transaction losses)?
+*Wait for the user's response to these questions before drafting the final postmortem.*
+
+### Phase 2: Document Generation
 1. Write the timeline from the first symptom to full resolution with exact timestamps.
 2. Perform Five Whys to identify root causes at every layer.
 3. Quantify the impact precisely.

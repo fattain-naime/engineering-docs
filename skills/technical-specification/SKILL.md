@@ -70,6 +70,15 @@ This skill aligns with ISO/IEC/IEEE 29148, which supersedes IEEE 830-1998. Key p
 
 ## Application
 
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any specification, you MUST interrogate the user's initial input, identify gaps, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Scope boundaries**: What is explicitly in-scope vs. out-of-scope for the release?
+2. **Key workflows**: What are the 1-2 most critical user pathways?
+3. **Performance/Security NFR constraints**: Are there specific response time SLA targets, peak load requirements, or data compliance mandates (e.g. PCI, GDPR)?
+4. **Integration systems**: What external systems must this interface with?
+*Wait for the user's response to these questions before drafting the final specification.*
+
 Work through the template.md section by section. For each requirement:
 1. Assign a unique ID (`FR-XXX` or `NFR-XXX`)
 2. Write the requirement using EARS syntax
@@ -77,20 +86,20 @@ Work through the template.md section by section. For each requirement:
 4. Tag the stakeholder who owns it
 5. Mark any unresolved assumption with `🔶 Assumption` or any unknown with `🔵 Open Question`
 
-### Phase 1: Context and Scope (30 min)
+### Phase 2: Context and Scope (30 min)
 Establish who commissioned this, what the system boundaries are, what is in scope and explicitly out of scope.
 
-### Phase 2: Stakeholder Analysis (30 min)
+### Phase 3: Stakeholder Analysis (30 min)
 Identify every stakeholder class - users, operators, integrators, regulators. Define their primary goals and constraints.
 
-### Phase 3: Functional Requirements (1-2 hrs)
+### Phase 4: Functional Requirements (1-2 hrs)
 Write all FR-XXX requirements in EARS syntax with measurable acceptance criteria.
 
-### Phase 4: Non-Functional Requirements (1 hr)
+### Phase 5: Non-Functional Requirements (1 hr)
 Write all NFR-XXX requirements covering: performance, scalability, security, availability, reliability, compliance, maintainability, portability.
 
-### Phase 5: Constraints, Dependencies, Assumptions (30 min)
+### Phase 6: Constraints, Dependencies, Assumptions (30 min)
 Document technical constraints (language, platform, framework), external dependencies, and explicit assumptions.
 
-### Phase 6: Traceability Matrix (30 min)
+### Phase 7: Traceability Matrix (30 min)
 Map each requirement to at least one test case or acceptance criterion.

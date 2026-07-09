@@ -51,6 +51,16 @@ Before deploying to production, verify a defined set of criteria. If any criteri
 
 ## Application
 
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any deployment plan, you MUST interrogate the user's initial input, identify deployment risks, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Target Environment & Infrastructure**: What hosting platform (AWS, Docker, VM, PaaS) and OS runner are we deploying to?
+2. **Current deployment workflow**: What tools (GitHub Actions, manual rsync, Ansible) execute the deploy?
+3. **Downtime limits**: Is any brief service interruption acceptable, or is a zero-downtime strategy (Blue-Green, Canary) mandatory?
+4. **Data Migrations**: Does this release involve schema migrations, data transformations, or breaking database updates?
+*Wait for the user's response to these questions before drafting the final deployment plan.*
+
+### Phase 2: Document Generation
 1. Choose the deployment strategy based on the risk profile and infrastructure.
 2. Document the exact execution runsheet - every command, every verification step.
 3. Define explicit go/no-go criteria with measurable thresholds.

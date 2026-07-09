@@ -9,3 +9,5 @@
 @./skills/deployment-plan/SKILL.md
 @./skills/technical-runbook/SKILL.md
 @./skills/incident-postmortem/SKILL.md
+@./skills/design-system-specification/SKILL.md
+@./skills/test-strategy-document/SKILL.md

@@ -74,14 +74,23 @@ Target Level 2 or Level 3 (HATEOAS for discovery-driven APIs):
 
 ## Application
 
-### Phase 1: Resource Model (20 min)
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any API design document, you MUST interrogate the user's initial input, identify gaps, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Core Resources**: What are the main nouns/resources and their relationships?
+2. **Protocol & Encoding**: Is this REST (JSON over HTTP), GraphQL, or an event-driven system?
+3. **Authentication & Security**: How are users/clients authenticated (Bearer tokens, API keys, basic auth) and authorized?
+4. **Volume & Limits**: Are there expected rate limit parameters, data payload sizing constraints, or pagination needs?
+*Wait for the user's response to these questions before drafting the final API design document.*
+
+### Phase 2: Resource Model (20 min)
 Identify all resources, their relationships, and the operations each supports.
 
-### Phase 2: Endpoint Design (30-60 min)
+### Phase 3: Endpoint Design (30-60 min)
 Define each endpoint: method, path, request schema, response schema, status codes.
 
-### Phase 3: Cross-Cutting Concerns (20 min)
+### Phase 4: Cross-Cutting Concerns (20 min)
 Authentication, versioning, rate limiting, pagination, error handling.
 
-### Phase 4: OpenAPI 3.1 Snippet (30 min)
+### Phase 5: OpenAPI 3.1 Snippet (30 min)
 Produce an OpenAPI-compatible YAML snippet for the core endpoints.

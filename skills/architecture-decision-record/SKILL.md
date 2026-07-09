@@ -56,6 +56,16 @@ This skill uses a variant of the MADR (Markdown Architectural Decision Records) 
 
 ## Application
 
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any ADR, you MUST interrogate the user's initial input, identify gaps, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Decision Context**: What problem or driver led to the need for this decision?
+2. **Alternatives Considered**: What other options did you explore (at least 2), and why were they rejected?
+3. **Downstream Consequences**: What are the negative consequences (technical debt, overhead, limits) of accepting this decision?
+4. **Implementation Scope**: Does this change our architectural standards or codebase conventions?
+*Wait for the user's response to these questions before drafting the final ADR.*
+
+### Phase 2: Document Generation
 1. Assign the next available ADR number for the project (check existing ADR log or `docs/adr/` directory)
 2. Fill out each section with precision - especially Alternatives Considered
 3. Get review from at least one other senior engineer before marking `Accepted`

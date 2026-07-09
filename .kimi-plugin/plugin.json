@@ -1,7 +1,7 @@
 {
   "name": "engineering-docs",
   "version": "1.0.3",
-  "description": "11 world-class engineering documentation skills covering the complete software lifecycle.",
+  "description": "13 world-class engineering documentation skills covering the complete software lifecycle.",
   "author": {
     "name": "Fattain Naime",
     "email": "iamnaime@builderhall.com"
@@ -24,7 +24,7 @@
   "skillInstructions": "Kimi Code tool mapping for Engineering Docs skills:\n\n- When an Engineering Docs skill says to ask the user, ask clarifying questions, or wait for the user's choice, call Kimi Code's `AskUserQuestion` tool.\n- Use Kimi Code's native `Skill` tool when invoking skills.\n- Use Kimi Code's `Read`, `Write`, `Edit`, `Bash`, `Grep`, `Glob`, `FetchURL`, `WebSearch` and MCP tools by their actual exposed names.",
   "interface": {
     "displayName": "Engineering Docs",
-    "shortDescription": "11 world-class engineering documentation skills for software development lifecycles",
+    "shortDescription": "13 world-class engineering documentation skills for software development lifecycles",
     "longDescription": "Streamline technical specifications, system architecture documents, database designs, API designs, runbooks, and incident post-mortems using structured workflow templates.",
     "developerName": "Fattain Naime",
     "capabilities": [

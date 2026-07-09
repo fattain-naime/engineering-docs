@@ -55,17 +55,26 @@ These three sections separate a senior engineer's design doc from a junior one:
 
 ## Application
 
-### Phase 1: Problem and Context (20 min)
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any technical blueprint, you MUST interrogate the user's initial input, identify gaps, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **User pathways**: What is the primary user journey or trigger for this feature?
+2. **Database/Storage context**: Does this require new database tables, fields, indexes, or changes to existing schema?
+3. **Core API structure**: Will this introduce new endpoints or modify existing request/response formats?
+4. **Third-party systems**: Does this rely on any external APIs, webhooks, or messaging brokers?
+*Wait for the user's response to these questions before drafting the final blueprint.*
+
+### Phase 2: Problem and Context (20 min)
 State the problem, motivation, and goals precisely. Define explicit non-goals.
 
-### Phase 2: Proposed Design (60-90 min)
+### Phase 3: Proposed Design (60-90 min)
 Describe the solution at the right level of detail: high-level approach, key algorithms or patterns, data model changes, API contract changes.
 
-### Phase 3: Alternatives Considered (20 min)
+### Phase 4: Alternatives Considered (20 min)
 Document at least two alternatives and why they were rejected with specific reasoning.
 
-### Phase 4: Security and Risk (20 min)
+### Phase 5: Security and Risk (20 min)
 Apply basic STRIDE thinking to the proposed design. What new attack surface does this introduce?
 
-### Phase 5: Test Plan and Rollback (20 min)
+### Phase 6: Test Plan and Rollback (20 min)
 Define how correctness is verified and what the rollback procedure is if this fails in production.

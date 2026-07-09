@@ -1,7 +1,7 @@
 {
   "name": "engineering-docs",
   "version": "1.0.3",
-  "description": "11 world-class engineering documentation skills covering the complete software lifecycle: spec, feasibility, architecture, design, API, database, ADR, security, deployment, operations, and incident review.",
+  "description": "13 world-class engineering documentation skills covering the complete software lifecycle: spec, feasibility, architecture, design, API, database, ADR, security, testing, deployment, operations, and incident review.",
   "author": {
     "name": "Fattain Naime",
     "email": "iamnaime@builderhall.com"

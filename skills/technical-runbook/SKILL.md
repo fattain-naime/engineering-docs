@@ -50,6 +50,16 @@ A runbook that is not updated when the system changes becomes worse than no runb
 
 ## Application
 
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any runbook, you MUST interrogate the user's initial input, identify operational unknowns, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Critical Alerts**: What are the most common alerts that trigger for this service?
+2. **Monitoring stack**: What log aggregation (ELK, Datadog), dashboarding (Grafana), or APM tools are in use?
+3. **Escalation contacts**: Who is the primary engineer on-call, secondary contact, or manager?
+4. **Manual operations**: What manual steps (e.g. database restarts, clearing Redis cache) are frequently performed to resolve issues?
+*Wait for the user's response to these questions before drafting the final runbook.*
+
+### Phase 2: Document Generation
 1. Start with the service overview (what it does, SLA, dependencies).
 2. Document every active alert with a response procedure.
 3. Walk through the most common failure modes from recent incident history.

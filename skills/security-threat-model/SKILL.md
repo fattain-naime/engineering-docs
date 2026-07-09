@@ -66,17 +66,26 @@ A mitigation reduces risk but rarely eliminates it. Document the residual risk a
 
 ## Application
 
-### Phase 1: System and Scope Definition (20 min)
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any threat model, you MUST interrogate the user's initial input, identify trust boundaries, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **User privilege classes**: Who are the actors (e.g. anonymous visitor, staff, vendor, superadmin) and what are their specific privilege limits?
+2. **Regulatory & Compliance boundaries**: Are there specific security compliance standards (e.g. PCI-DSS, GDPR, HIPAA) that apply to this system?
+3. **Data sensitivity**: What sensitive data (PII, tokens, credit card info, passwords) is processed or stored?
+4. **Key external endpoints**: What external APIs or webhook callbacks are exposed?
+*Wait for the user's response to these questions before drafting the final security threat model.*
+
+### Phase 2: System and Scope Definition (20 min)
 Define what is in scope. Draw the data flow diagram and mark trust boundaries.
 
-### Phase 2: STRIDE Analysis per Component (60-90 min)
+### Phase 3: STRIDE Analysis per Component (60-90 min)
 For each component and data flow, enumerate all threats in each STRIDE category.
 
-### Phase 3: Risk Assessment (20 min)
+### Phase 4: Risk Assessment (20 min)
 Score each threat for probability and impact.
 
-### Phase 4: Mitigation Design (30-45 min)
+### Phase 5: Mitigation Design (30-45 min)
 For each High/Critical threat, define a concrete, implementable control.
 
-### Phase 5: Risk Register and Action Items (20 min)
+### Phase 6: Risk Register and Action Items (20 min)
 Produce the prioritized risk register with owners and deadlines.

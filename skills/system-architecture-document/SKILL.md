@@ -62,23 +62,32 @@ ADR states: `Proposed` → `Accepted` → `Deprecated` → `Superseded by ADR-XX
 
 ## Application
 
-### Phase 1: System Context (30 min)
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any architecture document, you MUST interrogate the user's initial input, identify design ambiguities, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **User load & performance targets**: What are the estimated concurrent users, transaction throughput (TPS), or data storage scale targets?
+2. **Infrastructure/Hosting constraints**: What cloud environment (AWS, GCP, bare metal, etc.) or deployment setup (Docker/K8s, serverless) is planned?
+3. **Third-party integrations**: What external databases, API services, or legacy backend components must this system interact with?
+4. **Resiliency/Availability goals**: What are the target uptime SLAs, disaster recovery goals (RPO/RTO), or multi-region requirements?
+*Wait for the user's response to these questions before drafting the final architecture document.*
+
+### Phase 2: System Context (30 min)
 Define system boundaries, actors, and external system dependencies. Produce Level 1 C4 diagram.
 
-### Phase 2: Container Architecture (60 min)
+### Phase 3: Container Architecture (60 min)
 Decompose into deployable units. Produce Level 2 C4 diagram with technology choices.
 
-### Phase 3: Component Architecture (60-120 min)
+### Phase 4: Component Architecture (60-120 min)
 Decompose key containers into major internal components. Produce Level 3 C4 diagrams for critical containers only.
 
-### Phase 4: Deployment View (45 min)
+### Phase 5: Deployment View (45 min)
 Map containers to infrastructure. Document network topology, regions, and external services.
 
-### Phase 5: Integration and Data Flow (30 min)
+### Phase 6: Integration and Data Flow (30 min)
 Map all integration points. Document data flow, trust boundaries, and API contracts.
 
-### Phase 6: Non-Functional Requirements and Quality Attributes (30 min)
+### Phase 7: Non-Functional Requirements and Quality Attributes (30 min)
 Document architectural decisions driven by performance, scalability, security, and reliability NFRs.
 
-### Phase 7: ADR Log (30 min per ADR)
+### Phase 8: ADR Log (30 min per ADR)
 Document each significant architectural decision.

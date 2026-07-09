@@ -55,20 +55,29 @@ Produce a database design document that specifies the complete logical and physi
 
 ## Application
 
-### Phase 1: Entity Identification (20 min)
+### Phase 1: Socratic Clarification & Brainstorming (Mandatory Interview)
+Before writing any database design document, you MUST interrogate the user's initial input, identify gaps, and ask **3-5 targeted clarifying questions** to dig deeper. Do NOT generate the template yet.
+Ask questions to resolve:
+1. **Target Engine**: What database management system (MariaDB, PostgreSQL, MySQL, SQLite) is being used?
+2. **Access patterns**: What are the most common or high-frequency read and write operations?
+3. **Data scaling**: What is the anticipated growth rate of tables (e.g. thousands vs. millions of rows)?
+4. **Data retention**: Are there regulatory or audit requirements for data archiving, audit logging, or soft-deletes?
+*Wait for the user's response to these questions before drafting the final database design document.*
+
+### Phase 2: Entity Identification (20 min)
 Identify all domain entities and their attributes.
 
-### Phase 2: Relationship Mapping (20 min)
+### Phase 3: Relationship Mapping (20 min)
 Define relationships, cardinality, and ownership. Produce ERD.
 
-### Phase 3: Table Definitions (30-60 min)
+### Phase 4: Table Definitions (30-60 min)
 Write complete DDL for each table with column types, constraints, and indexes.
 
-### Phase 4: Data Dictionary (20 min)
+### Phase 5: Data Dictionary (20 min)
 Document every table and non-obvious column in plain language.
 
-### Phase 5: Query Patterns and Index Validation (20 min)
+### Phase 6: Query Patterns and Index Validation (20 min)
 Identify the 5-10 hottest queries and verify indexes cover them.
 
-### Phase 6: Migration Plan (20 min)
+### Phase 7: Migration Plan (20 min)
 Document how the schema will be applied and how to roll back.

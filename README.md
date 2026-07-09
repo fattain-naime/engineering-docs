@@ -1,6 +1,6 @@
 # Engineering Docs
 
-`engineering-docs` is a complete software engineering documentation and system design methodology for your coding agents. It provides a set of 11 composable, auto-triggering skills and manifests that ensure your agent designs, specifies, models, deploys, and operates code to the standard of a 20+ year principal engineer.
+`engineering-docs` is a complete software engineering documentation and system design methodology for your coding agents. It provides a set of **13 composable, auto-triggering skills** and manifests that ensure your agent designs, specifies, models, deploys, and operates code to the standard of a 20+ year principal engineer.
 
 ---
 
@@ -16,14 +16,14 @@ Select your environment: [Gemini (Antigravity)](#gemini-antigravity), [Claude Co
 
 ---
 
-## How It Works
+## How It Works (Socratic & Interactive)
 
 It starts from the moment you ask your agent to draft, design, or outline any feature, database schema, API endpoint, or infrastructure rollout. Instead of generating vague bullet points or raw code directly, the agent automatically triggers the correct skill:
 
-1. It **structures the context** using industry-standard engineering formats (ISO/IEC/IEEE 29148, C4 Model, STRIDE).
-2. It **surfaces gaps** by explicitly marking assumptions (`🔶 Assumption`) and unknowns (`🔵 Open Question`).
-3. It **generates self-guiding templates** complete with Mermaid diagrams, edge-case test matrices, and automated rollback checklists.
-4. Because the manifests auto-trigger based on semantic intent, you do not need to manually configure them. Your agent simply documents like a principal engineer.
+1. **Interactive Socratic Brainstorming**: The agent will first interrogate your initial prompt, identify technical/scope unknowns, and **ask you 3-5 targeted clarifying questions** to dig deeper before creating any document templates.
+2. **Context Structuring**: Once aligned, the agent structures the design using industry-standard formats (ISO/IEC/IEEE 29148, C4 Model, STRIDE).
+3. **Gap Identification**: Gaps and assumptions are explicitly marked with `🔶 Assumption` and `🔵 Open Question` tags.
+4. **Self-Guiding Documentation**: The agent outputs fully populated, premium templates containing Mermaid diagrams, edge-case test matrices, and automated rollback checklists.
 
 ---
 
@@ -38,12 +38,14 @@ The skills library is organized into four key phases of the software engineering
 ### 🏛️ 2. Architectural Design
 *   **[system-architecture-document](skills/system-architecture-document)** — Document full system architecture using Kruchten's 4+1 View Model and Simon Brown's C4 Model (Context, Container, and Component Mermaid diagrams).
 *   **[technical-blueprint](skills/technical-blueprint)** — Google/Stripe-quality design docs (TDD) focusing on detailed design, data modeling, and trade-off comparisons.
+*   **[design-system-specification](skills/design-system-specification)** — Design a production-ready visual style guide detailing color tokens, typography scales, spacing systems (8px grid), component states, and accessibility rules.
 *   **[api-design-document](skills/api-design-document)** — Design production-ready API contracts (REST/OpenAPI 3.1) with consistent schemas, Richardson Maturity targets, and RFC 7807 problem details.
 *   **[database-design-document](skills/database-design-document)** — Model logical schemas, ERDs, and data dictionaries down to indexes, cascades, and migration rollback scripts.
 *   **[architecture-decision-record](skills/architecture-decision-record)** — Write immutable, append-only logs (MADR standard) capturing the rationale, alternatives, and trade-offs of architectural decisions.
 
 ### 🛡️ 3. Risk & Security
 *   **[security-threat-model](skills/security-threat-model)** — Systematically analyze system components for security risks using Microsoft STRIDE and OWASP threat models.
+*   **[test-strategy-document](skills/test-strategy-document)** — Outline comprehensive QA plans mapping out unit, integration, and E2E layers, mocking contracts, test isolation rollbacks, and automated CI pipeline runsheets.
 
 ### 🚀 4. Deployment & Operations
 *   **[deployment-plan](skills/deployment-plan)** — Create highly detailed production runsheets specifying rollout phases, go/no-go gates, Sentry/Grafana metrics, and explicit rollback steps.
