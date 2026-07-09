@@ -8,6 +8,9 @@
   },
   "author": "Fattain Naime <iamnaime@builderhall.com>",
   "license": "MIT",
+  "scripts": {
+    "test": "echo \"success\""
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fattain-naime/engineering-docs.git"
