@@ -44,7 +44,7 @@
 | :--- | :--- |
 | Transactions failed | [N transactions] |
 | Estimated revenue impact | [$X] (estimated) |
-| SLA violated | `Yes` / `No` — [Which SLA, by how much] |
+| SLA violated | `Yes` / `No` - [Which SLA, by how much] |
 | Customer complaints received | [N] |
 | Support tickets opened | [N] |
 

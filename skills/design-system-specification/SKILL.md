@@ -1,4 +1,4 @@
----
+﻿---
 name: design-system-specification
 argument-hint: "[Product or website name]"
 description: Design a production-ready Design System and UI/UX visual style guide. Covers design tokens (colors, typography, spacing, shadows, radius), components (buttons, inputs, cards, tables), layouts, interaction/hover states, accessibility (WCAG 2.2), and dark/light mode rules. Use when starting a new website/app design or standardizing existing branding.
@@ -16,6 +16,8 @@ scenarios:
   - "Create a style guide for a developer-focused analytics dashboard"
   - "Design the typography and token layout for a clean marketing website"
 estimated_time: "2-4 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

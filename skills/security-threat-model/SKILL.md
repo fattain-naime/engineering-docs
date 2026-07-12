@@ -17,6 +17,8 @@ scenarios:
   - "Security review of our new file upload feature"
   - "What are the security risks of adding a third-party payment processor webhook integration?"
 estimated_time: "2-4 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose
@@ -55,7 +57,7 @@ Trust boundaries are the locations in a system where data crosses from one trust
 Always draw trust boundaries before enumerating threats.
 
 ### Risk Scoring
-Risk = Probability × Impact. Use a simple 3×3 matrix:
+Risk = Probability * Impact. Use a simple 3x3 matrix:
 - **Critical:** High probability + High impact (act immediately)
 - **High:** High probability + Medium impact OR Medium probability + High impact
 - **Medium:** Various mid-tier combinations

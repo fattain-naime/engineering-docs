@@ -1,4 +1,4 @@
----
+﻿---
 name: database-design-document
 argument-hint: "[domain or system name]"
 description: Design a production database schema including ERD, table definitions, data dictionary, indexing strategy, normalization decisions, and migration plan. Use when designing a new database, adding major entities, or documenting an existing schema.
@@ -16,6 +16,8 @@ scenarios:
   - "Document the complete database design for our payment gateway"
   - "I need an ERD and schema spec for a new inventory management module"
 estimated_time: "1-3 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

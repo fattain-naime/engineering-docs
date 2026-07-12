@@ -16,6 +16,8 @@ scenarios:
   - "I need an SRS for our new multi-tenant user authentication system"
   - "Define the requirements for a real-time inventory sync between our warehouse and ERP"
 estimated_time: "3-5 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

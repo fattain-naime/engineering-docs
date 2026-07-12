@@ -1,4 +1,4 @@
----
+﻿---
 name: technical-feasibility-study
 argument-hint: "[concept or proposed solution]"
 description: Assess whether a proposed technical solution is viable given the current stack, team, timeline, and constraints. Produces a go/no-go recommendation with evidence. Use before committing engineering resources to design or implementation.
@@ -16,6 +16,8 @@ scenarios:
   - "Evaluate the technical feasibility of adding real-time collaborative editing to our platform"
   - "Can we integrate with the XYZ payment processor given our current PHP stack?"
 estimated_time: "2-3 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

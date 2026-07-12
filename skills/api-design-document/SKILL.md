@@ -1,4 +1,4 @@
----
+﻿---
 name: api-design-document
 argument-hint: "[API or service name]"
 description: Design a production-ready API specification aligned with OpenAPI 3.1 standards. Covers resource modeling, endpoint design, request/response contracts, authentication, versioning strategy, error handling, rate limiting, and pagination. Use when designing a new REST, GraphQL, or event-driven API.
@@ -16,6 +16,8 @@ scenarios:
   - "Write an API design document for our merchant webhook management endpoints"
   - "Design the API contract for a new B2B partner integration"
 estimated_time: "1-3 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

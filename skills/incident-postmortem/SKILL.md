@@ -1,4 +1,4 @@
----
+﻿---
 name: incident-postmortem
 argument-hint: "[incident name or ID]"
 description: Write a blameless post-incident review (post-mortem / RCA) that documents what happened, the timeline, root cause analysis, impact assessment, and concrete action items to prevent recurrence. Follows Google SRE blameless post-mortem culture.
@@ -16,6 +16,8 @@ scenarios:
   - "Document the root cause of the database connection exhaustion incident"
   - "Create a blameless review of the API timeout that affected 15% of users"
 estimated_time: "30-60 minutes"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

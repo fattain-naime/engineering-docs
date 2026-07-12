@@ -1,4 +1,4 @@
----
+﻿---
 name: technical-runbook
 argument-hint: "[service or system name]"
 description: Write a production operations runbook that provides on-call engineers with step-by-step procedures for operating, monitoring, and recovering a system. Covers system overview, alert response procedures, common failure modes, diagnostic commands, escalation paths, and maintenance procedures. Modeled on Google SRE runbook standards.
@@ -16,6 +16,8 @@ scenarios:
   - "Create an operations manual for our webhook delivery worker service"
   - "Document how to operate and troubleshoot our Redis session cache"
 estimated_time: "1-2 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

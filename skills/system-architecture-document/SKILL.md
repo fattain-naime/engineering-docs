@@ -1,4 +1,4 @@
----
+﻿---
 name: system-architecture-document
 argument-hint: "[system name]"
 description: Create a System Architecture Document (SAD) with C4 model diagrams, 4+1 view decomposition, integration maps, NFR constraints, and an Architecture Decision Record log. Use when documenting how an entire system or major subsystem is structured.
@@ -16,6 +16,8 @@ scenarios:
   - "Create a SAD for our new microservices-based notification system"
   - "I need a C4 diagram and architecture overview for our SaaS billing platform"
 estimated_time: "4-8 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

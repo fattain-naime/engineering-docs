@@ -1,4 +1,4 @@
----
+﻿---
 name: architecture-decision-record
 argument-hint: "[the decision being recorded]"
 description: Create a standalone Architecture Decision Record (ADR) for a single significant architectural decision. Captures context, decision, alternatives considered, and consequences. ADRs are immutable - once accepted, they are never edited, only superseded by a new ADR.
@@ -17,6 +17,8 @@ scenarios:
   - "Record the decision to adopt the Repository pattern for all database access"
   - "Document why we chose JWT over opaque tokens for our API authentication"
 estimated_time: "15-30 minutes"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

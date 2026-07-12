@@ -5,8 +5,8 @@ Thank you for contributing! This repository standardizes software engineering do
 ## Skill Structure
 
 Every skill is a standalone folder inside `skills/` containing:
-1. `SKILL.md` — The skill manifest (YAML frontmatter + workflow phases)
-2. `template.md` — The self-guiding, fill-in template
+1. `SKILL.md` - The skill manifest (YAML frontmatter + workflow phases)
+2. `template.md` - The self-guiding, fill-in template
 
 ## 1. Manifest (`SKILL.md`) Rules
 

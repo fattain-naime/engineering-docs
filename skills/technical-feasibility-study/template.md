@@ -174,13 +174,13 @@
 
 The proposal is viable **only if** the following conditions are met before design begins:
 
-1. [Condition 1] — Owner: [Name] — By: [Date]
-2. [Condition 2] — Owner: [Name] — By: [Date]
+1. [Condition 1] - Owner: [Name] - By: [Date]
+2. [Condition 2] - Owner: [Name] - By: [Date]
 
 ### Recommended Next Steps
 
-1. [Action] — Owner: [Name] — By: [Date]
-2. [Action] — Owner: [Name] — By: [Date]
+1. [Action] - Owner: [Name] - By: [Date]
+2. [Action] - Owner: [Name] - By: [Date]
 
 ---
 

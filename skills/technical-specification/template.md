@@ -6,7 +6,7 @@
 **Date:** YYYY-MM-DD
 **Author(s):** [Name, Role]
 **Reviewers:** [Name, Role] | [Name, Role]
-**Stakeholder Sign-off:** [Name, Role] — `Pending` | `Approved`
+**Stakeholder Sign-off:** [Name, Role] - `Pending` | `Approved`
 
 ---
 
@@ -39,8 +39,8 @@
 
 > 🔴 Explicitly stating what is NOT built is as important as what is. This prevents scope creep.
 
-- [Excluded capability 1 — reason: will be addressed in Phase 2]
-- [Excluded capability 2 — reason: owned by external system X]
+- [Excluded capability 1 - reason: will be addressed in Phase 2]
+- [Excluded capability 2 - reason: owned by external system X]
 
 ### 3.3 System Boundary
 

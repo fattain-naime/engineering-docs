@@ -1,6 +1,6 @@
 # Engineering Docs
 
-`engineering-docs` is a complete software engineering documentation and system design methodology for your coding agents. It provides a set of **13 composable, auto-triggering skills** and manifests that ensure your agent designs, specifies, models, deploys, and operates code to the standard of a 20+ year principal engineer.
+`engineering-docs` is a complete software engineering documentation and system design methodology for your coding agents. It provides **21 composable, auto-triggering skills** and manifests that ensure your agent designs, specifies, models, deploys, and operates code to the standard of a 20+ year principal engineer.
 
 ---
 
@@ -29,28 +29,41 @@ It starts from the moment you ask your agent to draft, design, or outline any fe
 
 ## What's Inside
 
-The skills library is organized into four key phases of the software engineering lifecycle:
+The skills library covers the **complete software engineering lifecycle** across five phases:
 
-### 📋 1. Specification & Feasibility
-*   **[technical-specification](skills/technical-specification)** — Produce complete, ISO/IEC/IEEE 29148-aligned Software Requirements Specifications (SRS/TSD). Formulates strict functional and non-functional requirements (NFRs) using EARS syntax.
-*   **[technical-feasibility-study](skills/technical-feasibility-study)** — Assess the technical viability, resource requirements, timelines, and operational risks of a concept before writing code.
+### 0. Discovery & Planning
 
-### 🏛️ 2. Architectural Design
-*   **[system-architecture-document](skills/system-architecture-document)** — Document full system architecture using Kruchten's 4+1 View Model and Simon Brown's C4 Model (Context, Container, and Component Mermaid diagrams).
-*   **[technical-blueprint](skills/technical-blueprint)** — Google/Stripe-quality design docs (TDD) focusing on detailed design, data modeling, and trade-off comparisons.
-*   **[design-system-specification](skills/design-system-specification)** — Design a production-ready visual style guide detailing color tokens, typography scales, spacing systems (8px grid), component states, and accessibility rules.
-*   **[api-design-document](skills/api-design-document)** — Design production-ready API contracts (REST/OpenAPI 3.1) with consistent schemas, Richardson Maturity targets, and RFC 7807 problem details.
-*   **[database-design-document](skills/database-design-document)** — Model logical schemas, ERDs, and data dictionaries down to indexes, cascades, and migration rollback scripts.
-*   **[architecture-decision-record](skills/architecture-decision-record)** — Write immutable, append-only logs (MADR standard) capturing the rationale, alternatives, and trade-offs of architectural decisions.
+Start here when you have an idea and need to figure out what to build and for whom.
 
-### 🛡️ 3. Risk & Security
-*   **[security-threat-model](skills/security-threat-model)** — Systematically analyze system components for security risks using Microsoft STRIDE and OWASP threat models.
-*   **[test-strategy-document](skills/test-strategy-document)** — Outline comprehensive QA plans mapping out unit, integration, and E2E layers, mocking contracts, test isolation rollbacks, and automated CI pipeline runsheets.
+*   **[using-engineering-docs](skills/using-engineering-docs)** - The orchestrator skill. Give it a raw idea and it interviews you, selects the right skills, and sequences all 21 documents automatically. Never manually pick a skill again.
+*   **[project-plan](skills/project-plan)** - Delivery timeline, milestones, RACI matrix, and work-breakdown structure. The project manager's source of truth.
+*   **[user-personas-behavior](skills/user-personas-behavior)** - Structured user personas with jobs-to-be-done, behavioral patterns, success metrics, and analytics measurement plan.
 
-### 🚀 4. Deployment & Operations
-*   **[deployment-plan](skills/deployment-plan)** — Create highly detailed production runsheets specifying rollout phases, go/no-go gates, Sentry/Grafana metrics, and explicit rollback steps.
-*   **[technical-runbook](skills/technical-runbook)** — Operations manuals (Google SRE Book standard) linking alerts to diagnostics, mitigations, and escalation paths.
-*   **[incident-postmortem](skills/incident-postmortem)** — Write blameless post-incident reviews (RCA) using Five Whys to transform operational outages into systemic hardening.
+### 1. Specification & Feasibility
+*   **[technical-specification](skills/technical-specification)** - Complete, ISO/IEC/IEEE 29148-aligned Software Requirements Specifications (SRS/TSD) using EARS syntax for functional and non-functional requirements.
+*   **[technical-feasibility-study](skills/technical-feasibility-study)** - Assess the technical viability, resource requirements, timelines, and operational risks of a concept before writing code.
+
+### 2. Architectural & Product Design
+*   **[ux-flow-specification](skills/ux-flow-specification)** - User flow diagrams, screen states, information architecture, and interaction patterns for every user-facing feature.
+*   **[design-system-specification](skills/design-system-specification)** - Production-ready visual style guide: color tokens, typography scales, spacing system, component states, and accessibility rules.
+*   **[system-architecture-document](skills/system-architecture-document)** - Full system architecture using the C4 Model and 4+1 View Model with Mermaid diagrams.
+*   **[architecture-decision-record](skills/architecture-decision-record)** - Immutable MADR-standard logs capturing the rationale, alternatives, and trade-offs of architectural decisions.
+*   **[database-design-document](skills/database-design-document)** - Logical schemas, ERDs, and data dictionaries down to indexes, cascades, and migration rollback scripts.
+*   **[api-design-document](skills/api-design-document)** - Production-ready REST/OpenAPI 3.1 API contracts with Richardson Maturity targets and RFC 7807 error handling.
+*   **[admin-access-control-specification](skills/admin-access-control-specification)** - Role matrix, RBAC policy, privilege level definitions, break-glass procedures, and audit logging plan.
+*   **[technical-blueprint](skills/technical-blueprint)** - Google/Stripe-quality Technical Design Documents (TDD) for individual features: data modeling, component design, and trade-off comparisons.
+
+### 3. Risk & Quality
+*   **[security-threat-model](skills/security-threat-model)** - STRIDE + OWASP threat analysis identifying attack surfaces, trust boundaries, and concrete mitigations.
+*   **[test-strategy-document](skills/test-strategy-document)** - QA plans mapping unit, integration, and E2E layers with mocking contracts, test isolation rules, and CI pipeline runsheets.
+*   **[implementation-plan](skills/implementation-plan)** - Dependency-ordered technical build sequence with phase gates, interface contracts, and parallel-track identification.
+
+### 4. Deployment & Operations
+*   **[deployment-plan](skills/deployment-plan)** - Detailed production runsheets: rollout phases, go/no-go gates, monitoring thresholds, and explicit rollback procedures.
+*   **[slo-error-budget-document](skills/slo-error-budget-document)** - SLI definitions, SLO targets, error budget policy, burn-rate alert thresholds, and consequences of budget exhaustion.
+*   **[technical-runbook](skills/technical-runbook)** - Operations manuals (Google SRE standard) linking alerts to diagnostics, mitigations, and escalation paths.
+*   **[disaster-recovery-plan](skills/disaster-recovery-plan)** - RTO/RPO targets, backup strategy, failover procedures, and business continuity playbook.
+*   **[incident-postmortem](skills/incident-postmortem)** - Blameless post-incident reviews (RCA) using Five Whys to transform operational outages into systemic hardening.
 
 ---
 
@@ -58,13 +71,13 @@ The skills library is organized into four key phases of the software engineering
 
 `engineering-docs` provides native configurations for all major agentic frameworks:
 
-| Platform | Manifest Format | Global Installation Path |
+| Platform | Manifest Format | Installation Path |
 | :--- | :--- | :--- |
-| **Gemini (Antigravity)** | `gemini-extension.json` & `GEMINI.md` | `~/.gemini/config/plugins/engineering-docs/` |
-| **Claude Code** | `.claude-plugin/plugin.json` & `marketplace.json` | `~/.claude/plugins/engineering-docs/` |
-| **Cursor / Windsurf** | `.cursor-plugin/plugin.json` | Copy `.mdc` rules to `./.cursor/rules/` |
-| **Kimi Code** | `.kimi-plugin/plugin.json` | Local/Global plugin directory |
-| **Copilot / Codex** | `.codex-plugin/plugin.json` | Workspace root |
+| **Gemini (Antigravity)** | `gemini-extension.json` + `GEMINI.md` | `~/.gemini/config/plugins/engineering-docs/` |
+| **Claude Code** | `.claude-plugin/plugin.json` + `CLAUDE.md` | `~/.claude/plugins/engineering-docs/` |
+| **Cursor / Windsurf** | `.cursor-plugin/plugin.json` | `./.cursor/rules/engineering-docs-*.mdc` |
+| **Kimi Code** | Plugin directory | `~/.kimi-code/plugins/engineering-docs/` |
+| **Codex / GitHub Copilot** | Plugin directory | `./.codex/engineering-docs/` |
 
 ---
 
@@ -133,7 +146,66 @@ Or install inside Kimi Code:
 /plugins install https://github.com/fattain-naime/engineering-docs
 ```
 
+#### Codex / GitHub Copilot
+
+Run the direct installation command:
+
+```bash
+npx engineering-docs --codex
+```
+
+This installs the plugin to `.codex/engineering-docs/` in your current workspace.
+
 ---
+
+## Cross-Platform Scripts
+
+Alternative to `npx` - use the bundled shell scripts directly:
+
+### Windows (PowerShell)
+
+```powershell
+# Interactive menu
+pwsh scripts\setup.ps1
+
+# Direct install
+pwsh scripts\setup.ps1 -Target gemini
+pwsh scripts\setup.ps1 -Target claude
+pwsh scripts\setup.ps1 -Target local
+pwsh scripts\setup.ps1 -Target cursor
+pwsh scripts\setup.ps1 -Target kimi
+pwsh scripts\setup.ps1 -Target codex
+```
+
+### Linux / macOS (Bash)
+
+```bash
+# Make executable first
+chmod +x scripts/setup.sh
+
+# Interactive menu
+./scripts/setup.sh
+
+# Direct install
+./scripts/setup.sh --gemini
+./scripts/setup.sh --claude
+./scripts/setup.sh --local
+./scripts/setup.sh --cursor
+./scripts/setup.sh --kimi
+./scripts/setup.sh --codex
+```
+
+### Safe-Write Behavior
+
+All install methods (npx, PowerShell, bash) use **safe-write** for the three agent config files:
+
+| File | Behavior |
+|---|---|
+| `AGENTS.md` | Created at destination only if it does not already exist |
+| `GEMINI.md` | Created at destination only if it does not already exist |
+| `CLAUDE.md` | Created at destination only if it does not already exist |
+
+If a file already exists at the destination, the install script skips it and logs a message. **Your customizations are always preserved.**
 
 ## Philosophy
 
@@ -153,7 +225,7 @@ We welcome community skills! Please review [CONTRIBUTING.md](CONTRIBUTING.md) fo
 
 ## Author
 
-- **Fattain Naime** — [iamnaime.info.bd](https://iamnaime.info.bd)
+- **Fattain Naime** - [iamnaime.info.bd](https://iamnaime.info.bd)
 - **Repository**: [https://github.com/fattain-naime/engineering-docs](https://github.com/fattain-naime/engineering-docs)
 
 ---

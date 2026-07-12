@@ -13,12 +13,13 @@ const YELLOW = '\x1b[33m';
 const RED = '\x1b[31m';
 
 console.log(`
-${CYAN}${BOLD}┌──────────────────────────────────────────────┐
-│                                              │
-│       ENGINEERING DOCUMENTATION PLUGINS      │
-│          Auto-Trigger Skill Installer        │
-│                                              │
-└──────────────────────────────────────────────┘${RESET}
+${CYAN}${BOLD}+-------------------------------------------------+
+|                                                 |
+|     ENGINEERING DOCUMENTATION PLUGIN            |
+|        Auto-Trigger Skill Installer             |
+|              v1.1.0 - 21 Skills                 |
+|                                                 |
++-------------------------------------------------+${RESET}
 `);
 
 const rl = readline.createInterface({
@@ -38,7 +39,7 @@ const OPTIONS = [
     path: path.join(homeDir, '.claude', 'plugins', 'engineering-docs')
   },
   {
-    name: 'Local Project Workspace - .agents/ (Antigravity/Claude)',
+    name: 'Local Project Workspace - .agents/ (Antigravity/Claude/Codex)',
     path: path.join(process.cwd(), '.agents', 'skills', 'engineering-docs')
   },
   {
@@ -49,8 +50,15 @@ const OPTIONS = [
   {
     name: 'Kimi Code - Global Installation',
     path: path.join(homeDir, '.kimi-code', 'plugins', 'engineering-docs')
+  },
+  {
+    name: 'Codex / GitHub Copilot - Local Project Workspace (.codex/)',
+    path: path.join(process.cwd(), '.codex', 'engineering-docs')
   }
 ];
+
+// Agent config files that use safe-write (skip if already present at destination)
+const AGENT_CONFIGS = ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md'];
 
 function copyFolderSync(from, to) {
   if (fs.cpSync) {
@@ -71,6 +79,23 @@ function copyFolderSync(from, to) {
   }
 }
 
+/**
+ * Safe-write agent config files. Only copies AGENTS.md / GEMINI.md / CLAUDE.md
+ * if they do NOT already exist at the destination.
+ */
+function safeWriteAgentConfigs(srcDir, destDir) {
+  AGENT_CONFIGS.forEach(configFile => {
+    const srcFile = path.join(srcDir, configFile);
+    const destFile = path.join(destDir, configFile);
+    if (fs.existsSync(destFile)) {
+      console.log(`  ${YELLOW}skipped ${configFile}${RESET} (already exists - your customization preserved)`);
+    } else if (fs.existsSync(srcFile)) {
+      fs.copyFileSync(srcFile, destFile);
+      console.log(`  ${GREEN}created ${configFile}${RESET}`);
+    }
+  });
+}
+
 function installTo(selected) {
   const srcDir = path.join(__dirname, '..');
 
@@ -78,18 +103,15 @@ function installTo(selected) {
     if (!fs.existsSync(selected.path)) {
       fs.mkdirSync(selected.path, { recursive: true });
     }
-
     const skillsDir = path.join(srcDir, 'skills');
-    const skills = fs.readdirSync(skillsDir);
-
-    skills.forEach(skill => {
+    fs.readdirSync(skillsDir).forEach(skill => {
       const skillPath = path.join(skillsDir, skill);
       if (fs.lstatSync(skillPath).isDirectory()) {
         const skillMd = path.join(skillPath, 'SKILL.md');
         if (fs.existsSync(skillMd)) {
           const targetFile = path.join(selected.path, `engineering-docs-${skill}.mdc`);
           fs.copyFileSync(skillMd, targetFile);
-          console.log(`  ${GREEN}✓${RESET} Created Cursor rule: ${CYAN}engineering-docs-${skill}.mdc${RESET}`);
+          console.log(`  ${GREEN}created${RESET} Cursor rule: ${CYAN}engineering-docs-${skill}.mdc${RESET}`);
         }
       }
     });
@@ -98,20 +120,27 @@ function installTo(selected) {
       fs.mkdirSync(selected.path, { recursive: true });
     }
 
-    const filesToCopy = [
-      'plugin.json', 'AGENTS.md', 'CLAUDE.md', 'README.md', 'LICENSE', 'CONTRIBUTING.md',
-      'gemini-extension.json', 'GEMINI.md', 'marketplace.json'
-    ];
-    filesToCopy.forEach(file => {
+    // Copy static files (not agent configs)
+    ['plugin.json', 'README.md', 'LICENSE', 'CONTRIBUTING.md',
+     'gemini-extension.json', 'marketplace.json', 'package.json'].forEach(file => {
       const srcFile = path.join(srcDir, file);
       if (fs.existsSync(srcFile)) {
         fs.copyFileSync(srcFile, path.join(selected.path, file));
       }
     });
 
-    const srcSkills = path.join(srcDir, 'skills');
-    const destSkills = path.join(selected.path, 'skills');
-    copyFolderSync(srcSkills, destSkills);
+    // Copy directories
+    ['skills', 'assets', 'scripts', '.claude-plugin', '.cursor-plugin', 'bin'].forEach(dir => {
+      const srcSubDir = path.join(srcDir, dir);
+      if (fs.existsSync(srcSubDir)) {
+        copyFolderSync(srcSubDir, path.join(selected.path, dir));
+      }
+    });
+
+    console.log(`  ${GREEN}plugin files copied${RESET}`);
+
+    // Safe-write agent config files
+    safeWriteAgentConfigs(srcDir, selected.path);
   }
 }
 
@@ -135,7 +164,7 @@ function handleChoice(input) {
 
   try {
     installTo(selected);
-    console.log(`\n${GREEN}${BOLD}✓ Installation Completed Successfully!${RESET}\n`);
+    console.log(`\n${GREEN}${BOLD}Installation Completed Successfully!${RESET}\n`);
     if (selected.isCursor) {
       console.log(`${YELLOW}Note: Restart Cursor or Windsurf to activate the new rules.${RESET}\n`);
     } else {
@@ -152,14 +181,13 @@ function showMenu() {
   console.log(`${BOLD}Select where you want to install the engineering-docs plugin:${RESET}\n`);
   OPTIONS.forEach((opt, idx) => {
     console.log(`  ${CYAN}[${idx + 1}]${RESET} ${BOLD}${opt.name}${RESET}`);
-    console.log("      Target: " + YELLOW + opt.path + RESET + "\n");
+    console.log('      Target: ' + YELLOW + opt.path + RESET + '\n');
   });
   console.log(`  ${CYAN}[Q]${RESET} Quit\n`);
-
   rl.question(`${BOLD}Enter your choice (1-${OPTIONS.length} or Q): ${RESET}`, handleChoice);
 }
 
-// CLI Entry Point - Argument Parsing
+// CLI Entry Point
 const args = process.argv.slice(2);
 
 function runDirectInstall(selectedOption) {
@@ -167,7 +195,12 @@ function runDirectInstall(selectedOption) {
   console.log(`\n${GREEN}Installing to: ${RESET}${BOLD}${selectedOption.path}${RESET}...\n`);
   try {
     installTo(selectedOption);
-    console.log(`\n${GREEN}${BOLD}✓ Installation Completed Successfully!${RESET}\n`);
+    console.log(`\n${GREEN}${BOLD}Installation Completed Successfully!${RESET}\n`);
+    if (selectedOption.isCursor) {
+      console.log(`${YELLOW}Note: Restart Cursor or Windsurf to activate the new rules.${RESET}\n`);
+    } else {
+      console.log(`${YELLOW}Note: Reload your agent or restart the CLI session to load the new plugin.${RESET}\n`);
+    }
   } catch (err) {
     console.error(`\n${RED}Error during installation:${RESET}`, err.message);
     process.exit(1);
@@ -185,6 +218,8 @@ if (args.includes('--gemini') || args.includes('-g')) {
   runDirectInstall(OPTIONS[3]);
 } else if (args.includes('--kimi') || args.includes('-k')) {
   runDirectInstall(OPTIONS[4]);
+} else if (args.includes('--codex') || args.includes('-x')) {
+  runDirectInstall(OPTIONS[5]);
 } else if (args.includes('--help') || args.includes('-h')) {
   rl.close();
   console.log(`Usage: npx engineering-docs [options]
@@ -193,10 +228,14 @@ Options:
   install             Show interactive menu (default)
   --gemini, -g        Install globally for Gemini (Antigravity)
   --claude, -c        Install globally for Claude Code
-  --local, -l         Install locally to the current workspace's .agents directory
+  --local, -l         Install locally to the current workspace .agents directory
   --cursor, -r        Install locally to Cursor/Windsurf rules (.cursor/rules/)
   --kimi, -k          Install globally for Kimi Code
+  --codex, -x         Install locally to .codex/ (Codex / Copilot)
   --help, -h          Show this help menu
+
+Safe-write: AGENTS.md, GEMINI.md, and CLAUDE.md are only written to the
+destination if they do NOT already exist there. Your customizations are preserved.
 `);
   process.exit(0);
 } else {

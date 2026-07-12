@@ -1,4 +1,4 @@
----
+﻿---
 name: deployment-plan
 argument-hint: "[service or release name]"
 description: Write a production deployment plan covering environment specs, deployment strategy (Blue-Green, Canary, Rolling, or Direct), step-by-step execution runsheet, go/no-go criteria, monitoring plan, and rollback procedure. Use before any non-trivial production release.
@@ -16,6 +16,8 @@ scenarios:
   - "Plan a blue-green deployment for upgrading our PHP runtime from 8.1 to 8.3"
   - "Create a deployment runsheet for our database migration adding 3 new tables"
 estimated_time: "1-2 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose

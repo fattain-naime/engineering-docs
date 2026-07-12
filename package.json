@@ -1,7 +1,7 @@
 {
   "name": "engineering-docs",
-  "version": "1.0.6",
-  "description": "11 world-class engineering documentation skills covering the complete software lifecycle: spec, feasibility, architecture, design, API, database, ADR, security, deployment, operations, and incident review.",
+  "version": "1.1.0",
+  "description": "21 engineering documentation skills covering the complete software lifecycle: project planning, personas, specs, feasibility, UX flow, architecture, design system, API, database, ADR, access control, security, testing, implementation, deployment, SLO, operations, disaster recovery, and incident review.",
   "main": "bin/install.js",
   "bin": {
     "engineering-docs": "bin/install.js"

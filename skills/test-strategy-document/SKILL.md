@@ -1,4 +1,4 @@
----
+﻿---
 name: test-strategy-document
 argument-hint: "[Product or service name]"
 description: Create a production-ready Testing Strategy and QA Execution Plan. Covers testing levels (unit, integration, E2E, performance), mocking boundaries, test environment matrix, code coverage thresholds, and automated CI pipeline runsheets. Use when establishing a QA framework for a new system or feature set.
@@ -16,6 +16,8 @@ scenarios:
   - "Write a QA execution plan for the merchant API gateway integration"
   - "Define the E2E and integration test specifications for our checkout process"
 estimated_time: "1-2 hours"
+license: MIT
+compatibility: Designed for Gemini (Antigravity), Claude Code, Cursor/Windsurf, Kimi Code, Codex/Copilot
 ---
 
 ## Purpose
