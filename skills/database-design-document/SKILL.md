@@ -1,4 +1,4 @@
-﻿---
+---
 name: database-design-document
 argument-hint: "[domain or system name]"
 description: Design a production database schema including ERD, table definitions, data dictionary, indexing strategy, normalization decisions, and migration plan. Use when designing a new database, adding major entities, or documenting an existing schema.
@@ -31,7 +31,7 @@ Produce a database design document that specifies the complete logical and physi
 **Works best with:** The domain or system being modeled.
 **Also valuable:** Business rules, cardinality constraints, known query patterns, performance requirements, existing tables that must integrate.
 
-**Example invocation:** `Design the database schema for OwnPay's merchant management system. Merchants have multiple brands, each with their own settings, domains, and staff users. Users have roles with specific permissions. Brands can have multiple currencies and payment methods.`
+**Example invocation:** `Design the database schema for PayFlow's merchant management system. Merchants have multiple brands, each with their own settings, domains, and staff users. Users have roles with specific permissions. Brands can have multiple currencies and payment methods.`
 
 ## Key Concepts
 

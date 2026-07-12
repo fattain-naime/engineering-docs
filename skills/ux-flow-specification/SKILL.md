@@ -1,4 +1,4 @@
-﻿---
+---
 name: ux-flow-specification
 argument-hint: "[product or feature name]"
 description: Document the complete user experience of a product - information architecture, user journeys, screen-by-screen flows, and every UI state (loading, empty, error, success) - independent of visual styling. Use to define exactly how a user moves through a product before or alongside implementation, so navigation and edge-case behavior are decided upfront rather than improvised.

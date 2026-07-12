@@ -23,7 +23,7 @@
 
 > One paragraph. State the system being specified, the business need it addresses, who the primary stakeholders are, and the critical success criteria. A reader should understand the full scope of this document in 60 seconds.
 
-**Example:** This document specifies the requirements for a webhook delivery subsystem integrated into the OwnPay payment gateway. The system must reliably deliver event notifications to merchant-configured endpoints, retry on failure with exponential backoff, support HMAC-SHA256 request signing, and sustain a throughput of 10,000 events per minute at 99.5% delivery success rate.
+**Example:** This document specifies the requirements for a webhook delivery subsystem integrated into the PayFlow payment gateway. The system must reliably deliver event notifications to merchant-configured endpoints, retry on failure with exponential backoff, support HMAC-SHA256 request signing, and sustain a throughput of 10,000 events per minute at 99.5% delivery success rate.
 
 ---
 

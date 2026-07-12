@@ -1,4 +1,4 @@
-﻿---
+---
 name: technical-feasibility-study
 argument-hint: "[concept or proposed solution]"
 description: Assess whether a proposed technical solution is viable given the current stack, team, timeline, and constraints. Produces a go/no-go recommendation with evidence. Use before committing engineering resources to design or implementation.

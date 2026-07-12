@@ -1,4 +1,4 @@
-﻿---
+---
 name: using-engineering-docs
 argument-hint: "[your project idea, in your own words]"
 description: The entry point for this plugin. Give it a raw project idea or concept - a sentence, a paragraph, informal notes - and it takes over from there: runs a discovery conversation about the idea itself, decides which of the plugin's document skills actually apply to this project and in what order, and then generates that full document set one skill at a time, running each skill's own clarifying interview automatically. Use this when you have an idea and don't yet know which documents you need - not when you already know you want a specific document (call that skill directly instead).

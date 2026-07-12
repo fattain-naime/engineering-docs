@@ -1,4 +1,4 @@
-﻿---
+---
 name: user-personas-behavior
 argument-hint: "[product name]"
 description: Define who a product is for, what they're trying to accomplish, how success is measured, and what to instrument to know if it's working. Covers user personas (goal- and behavior-based, not demographic), jobs-to-be-done, success metrics/KPIs, and an analytics/event-tracking plan. Use before or alongside requirements gathering so "who is this for and how do we know it's working" is answered explicitly.

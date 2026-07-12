@@ -1,4 +1,4 @@
-﻿---
+---
 name: project-plan
 argument-hint: "[project or product name]"
 description: Create a project delivery plan covering scope, milestones, timeline, work breakdown, resourcing, stakeholder roles (RACI), dependencies, and a project-level risk register. Use at the start of any project to define who is building what, in what order, by when - before any code is written.

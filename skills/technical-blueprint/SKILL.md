@@ -1,4 +1,4 @@
-﻿---
+---
 name: technical-blueprint
 argument-hint: "[feature or component name]"
 description: Write a Technical Design Document (TDD) / Software Design Document (SDD) that details how a specific feature or component will be built. Covers problem statement, proposed design, data model, API contracts, alternatives considered, security threat analysis, test plan, and rollback plan. Use when an engineer or team needs to align on the implementation approach before writing code.

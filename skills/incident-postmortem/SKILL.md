@@ -1,4 +1,4 @@
-﻿---
+---
 name: incident-postmortem
 argument-hint: "[incident name or ID]"
 description: Write a blameless post-incident review (post-mortem / RCA) that documents what happened, the timeline, root cause analysis, impact assessment, and concrete action items to prevent recurrence. Follows Google SRE blameless post-mortem culture.

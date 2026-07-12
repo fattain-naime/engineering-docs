@@ -1,4 +1,4 @@
-﻿---
+---
 name: api-design-document
 argument-hint: "[API or service name]"
 description: Design a production-ready API specification aligned with OpenAPI 3.1 standards. Covers resource modeling, endpoint design, request/response contracts, authentication, versioning strategy, error handling, rate limiting, and pagination. Use when designing a new REST, GraphQL, or event-driven API.

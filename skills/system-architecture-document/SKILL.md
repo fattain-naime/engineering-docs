@@ -1,4 +1,4 @@
-﻿---
+---
 name: system-architecture-document
 argument-hint: "[system name]"
 description: Create a System Architecture Document (SAD) with C4 model diagrams, 4+1 view decomposition, integration maps, NFR constraints, and an Architecture Decision Record log. Use when documenting how an entire system or major subsystem is structured.
@@ -35,7 +35,7 @@ Produce a System Architecture Document (SAD) that gives every stakeholder - from
 **Works best with:** The name of the system or subsystem being documented.
 **Also valuable:** Existing diagrams, technology stack decisions, known integration points, existing ADRs, NFR targets.
 
-**Example invocation:** `Create a system architecture document for OwnPay, a multi-brand payment gateway with a PHP 8.3 backend, MySQL database, custom plugin system, and white-label domain routing.`
+**Example invocation:** `Create a system architecture document for PayFlow, a multi-brand payment gateway with a PHP 8.3 backend, MySQL database, custom plugin system, and white-label domain routing.`
 
 ## Key Concepts
 

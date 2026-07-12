@@ -1,4 +1,4 @@
-﻿---
+---
 name: architecture-decision-record
 argument-hint: "[the decision being recorded]"
 description: Create a standalone Architecture Decision Record (ADR) for a single significant architectural decision. Captures context, decision, alternatives considered, and consequences. ADRs are immutable - once accepted, they are never edited, only superseded by a new ADR.

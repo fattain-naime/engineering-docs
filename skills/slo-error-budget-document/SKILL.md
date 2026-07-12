@@ -1,4 +1,4 @@
-﻿---
+---
 name: slo-error-budget-document
 argument-hint: "[service or API name]"
 description: Define Service Level Indicators (SLIs), Service Level Objectives (SLOs), and error budgets for a service, including multi-window multi-burn-rate alerting and an error budget policy. Use when establishing reliability targets, negotiating an external SLA, or deciding how much risk a team can spend on shipping velocity versus reliability work.

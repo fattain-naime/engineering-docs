@@ -1,4 +1,4 @@
-﻿---
+---
 name: technical-runbook
 argument-hint: "[service or system name]"
 description: Write a production operations runbook that provides on-call engineers with step-by-step procedures for operating, monitoring, and recovering a system. Covers system overview, alert response procedures, common failure modes, diagnostic commands, escalation paths, and maintenance procedures. Modeled on Google SRE runbook standards.
@@ -12,7 +12,7 @@ best_for:
   - "Preparing on-call documentation before a service is handed to a new team"
   - "Creating the reference document linked from monitoring alerts"
 scenarios:
-  - "Write a runbook for the OwnPay payment gateway application"
+  - "Write a runbook for the PayFlow payment gateway application"
   - "Create an operations manual for our webhook delivery worker service"
   - "Document how to operate and troubleshoot our Redis session cache"
 estimated_time: "1-2 hours"
@@ -31,7 +31,7 @@ Produce a runbook that enables any trained engineer - with no prior knowledge of
 **Works best with:** The name of the service being documented.
 **Also valuable:** The alert definitions, common failure modes, diagnostic commands, architecture overview, and escalation contacts.
 
-**Example invocation:** `Write a runbook for the OwnPay payment gateway. It's a PHP 8.3 app on Nginx/PHP-FPM, MySQL primary + replica, Redis for sessions/cache, and a queue worker process for async jobs. Alerts fire for: high 5xx rate, slow DB queries, queue depth > 1000, and PHP-FPM pool exhaustion.`
+**Example invocation:** `Write a runbook for the PayFlow payment gateway. It's a PHP 8.3 app on Nginx/PHP-FPM, MySQL primary + replica, Redis for sessions/cache, and a queue worker process for async jobs. Alerts fire for: high 5xx rate, slow DB queries, queue depth > 1000, and PHP-FPM pool exhaustion.`
 
 ## Key Concepts
 

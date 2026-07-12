@@ -1,4 +1,4 @@
-﻿---
+---
 name: disaster-recovery-plan
 argument-hint: "[system or service name]"
 description: Write a disaster recovery and business continuity plan defining RTO/RPO targets, backup and failover procedures, DR tiers, and a recovery drill cadence for surviving major infrastructure loss, data corruption, ransomware, or regional outages. Use before launch of any system holding critical or financial data, or to formalize continuity commitments for compliance (PCI-DSS, SOC 2, ISO 22301).

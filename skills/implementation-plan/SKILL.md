@@ -1,4 +1,4 @@
-﻿---
+---
 name: implementation-plan
 argument-hint: "[project or system name]"
 description: Create a phased implementation roadmap that sequences the technical build of an entire project - build order, module dependencies, environment/tooling setup, per-phase Definition of Ready/Done, and integration checkpoints. Use after the project plan and architecture exist, to turn "what we're building and when" into "in what technical order we actually build it."

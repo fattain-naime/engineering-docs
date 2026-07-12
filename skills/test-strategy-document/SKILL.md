@@ -1,4 +1,4 @@
-﻿---
+---
 name: test-strategy-document
 argument-hint: "[Product or service name]"
 description: Create a production-ready Testing Strategy and QA Execution Plan. Covers testing levels (unit, integration, E2E, performance), mocking boundaries, test environment matrix, code coverage thresholds, and automated CI pipeline runsheets. Use when establishing a QA framework for a new system or feature set.

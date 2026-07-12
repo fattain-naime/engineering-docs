@@ -1,4 +1,4 @@
-﻿---
+---
 name: deployment-plan
 argument-hint: "[service or release name]"
 description: Write a production deployment plan covering environment specs, deployment strategy (Blue-Green, Canary, Rolling, or Direct), step-by-step execution runsheet, go/no-go criteria, monitoring plan, and rollback procedure. Use before any non-trivial production release.
@@ -31,7 +31,7 @@ Produce a deployment plan that specifies exactly how, when, and by whom a releas
 **Works best with:** The name of the service being deployed and a description of what is changing.
 **Also valuable:** Current production environment specs, existing deployment pipeline, known risks or dependencies, SLA requirements.
 
-**Example invocation:** `Write a deployment plan for releasing OwnPay v2.4.0 to production. This release includes 3 database migrations (additive only), a new webhook delivery queue worker, and updates to the checkout templates. We use a single production server with PHP-FPM and MySQL. Zero downtime is required.`
+**Example invocation:** `Write a deployment plan for releasing PayFlow v2.4.0 to production. This release includes 3 database migrations (additive only), a new webhook delivery queue worker, and updates to the checkout templates. We use a single production server with PHP-FPM and MySQL. Zero downtime is required.`
 
 ## Key Concepts
 
