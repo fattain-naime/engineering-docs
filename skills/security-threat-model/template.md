@@ -1,3 +1,13 @@
+---
+title: Security Threat Model
+skill: security-threat-model
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Security Threat Model
 
 **System / Feature:** [Name]
@@ -34,7 +44,20 @@
 
 ---
 
-## 2. System Overview
+## 2. Threat Actor Profiles
+
+> Who would attack this system and why? Tailor the threat analysis to the actors most likely to target it.
+
+| Actor Profile | Motivation | Skill Level | Resources | Likelihood | In Scope? |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Opportunistic attacker | Financial gain, curiosity | Low (automated tools) | Low | High | Yes |
+| Targeted attacker (competitor, fraud ring) | Competitive advantage, financial theft | Moderate-High | Moderate | Medium | Yes |
+| Insider (employee, contractor) | Disgruntlement, financial gain, espionage | Varies (has access) | High (has credentials) | Low | [Yes/No] |
+| Advanced Persistent Threat (APT) | Espionage, disruption | High | High (state-sponsored) | Very Low | [Yes/No] |
+
+---
+
+## 3. System Overview
 
 ### 2.1 Description
 
@@ -97,13 +120,52 @@ graph LR
 
 ---
 
-## 3. STRIDE Threat Analysis
+## 4. Supply Chain Threats
+
+> Risks from third-party dependencies, services, and build tools.
+
+| Component | Threat | Impact | Mitigation |
+| :--- | :--- | :--- | :--- |
+| [e.g., npm/Composer dependencies] | Known CVE in transitive dependency | RCE, data exfiltration | Automated dependency scanning (Dependabot/Snyk); pin versions; audit updates |
+| [e.g., Third-party payment API] | Vendor service compromise | Data exposure, financial loss | Least-privilege API keys; monitor for anomalies; fallback procedure |
+| [e.g., CI/CD pipeline] | Compromised build script | Backdoor in production artifacts | Signed builds; access controls on CI/CD; reproducible builds |
+| [e.g., Docker base images] | Malicious base image | Supply chain backdoor | Use official/digested images; scan with Trivy/Snyk; pin digests |
+
+---
+
+## 5. Attack Trees
+
+> For high-risk threats, decompose the attack into a tree of sub-goals.
+
+### Attack Tree: [Threat Name - e.g., "Steal merchant API credentials"]
+
+```
+Goal: Steal merchant API credentials
+├── 1. Phishing
+│   ├── 1.1 Spear-phish merchant admin
+│   └── 1.2 Clone login page, capture credentials
+├── 2. Credential stuffing
+│   ├── 2.1 Use leaked credentials from other breaches
+│   └── 2.2 Brute-force weak passwords
+├── 3. Exploit application vulnerability
+│   ├── 3.1 IDOR to read other merchants' API keys
+│   └── 3.2 SQL injection to extract credentials table
+└── 4. Insider access
+    ├── 4.1 Compromised employee account
+    └── 4.2 Malicious employee with DB access
+```
+
+**Mitigations for each path:** [Reference specific controls in STRIDE analysis below]
+
+---
+
+## 6. STRIDE Threat Analysis
 
 > For each component and data flow, enumerate threats in each STRIDE category.
 
 ---
 
-### 3.1 Spoofing Threats
+### 6.1 Spoofing Threats
 
 | ID | Component / Flow | Threat Description | Attack Scenario | Probability | Impact | Risk | Mitigation | Residual Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -114,7 +176,7 @@ graph LR
 
 ---
 
-### 3.2 Tampering Threats
+### 6.2 Tampering Threats
 
 | ID | Component / Flow | Threat Description | Attack Scenario | Probability | Impact | Risk | Mitigation | Residual Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -125,7 +187,7 @@ graph LR
 
 ---
 
-### 3.3 Repudiation Threats
+### 6.3 Repudiation Threats
 
 | ID | Component / Flow | Threat Description | Attack Scenario | Probability | Impact | Risk | Mitigation | Residual Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -135,7 +197,7 @@ graph LR
 
 ---
 
-### 3.4 Information Disclosure Threats
+### 6.4 Information Disclosure Threats
 
 | ID | Component / Flow | Threat Description | Attack Scenario | Probability | Impact | Risk | Mitigation | Residual Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -146,7 +208,7 @@ graph LR
 
 ---
 
-### 3.5 Denial of Service Threats
+### 6.5 Denial of Service Threats
 
 | ID | Component / Flow | Threat Description | Attack Scenario | Probability | Impact | Risk | Mitigation | Residual Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -156,7 +218,7 @@ graph LR
 
 ---
 
-### 3.6 Elevation of Privilege Threats
+### 6.6 Elevation of Privilege Threats
 
 | ID | Component / Flow | Threat Description | Attack Scenario | Probability | Impact | Risk | Mitigation | Residual Risk |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -167,21 +229,32 @@ graph LR
 
 ---
 
-## 4. Risk Register (Prioritized)
+## 7. Risk Register (Prioritized)
 
-| Threat ID | Description | Risk Level | Owner | Mitigation Status | Target Date |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| S-001 | Credential stuffing on login | Critical | [Name] | `Implemented` / `In Progress` / `Planned` / `Accepted` | YYYY-MM-DD |
-| S-003 | Spoofed webhook | Critical | [Name] | `Implemented` | - |
-| T-001 | SQL injection | Critical | [Name] | `Implemented` | - |
-| T-003 | Malicious file upload | Critical | [Name] | `In Progress` | YYYY-MM-DD |
-| I-002 | IDOR on resources | Critical | [Name] | `Implemented` | - |
-| E-002 | Mass assignment | Critical | [Name] | `Implemented` | - |
-| [Lower risk items...] | | High / Medium / Low | | | |
+| Threat ID | Description | Risk Level | Owner | Mitigation Status | Mitigation Effort | Target Date |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| S-001 | Credential stuffing on login | Critical | [Name] | `Implemented` / `In Progress` / `Planned` / `Accepted` | [Low/Med/High] | YYYY-MM-DD |
+| S-003 | Spoofed webhook | Critical | [Name] | `Implemented` | [Low/Med/High] | - |
+| T-001 | SQL injection | Critical | [Name] | `Implemented` | [Low/Med/High] | - |
+| T-003 | Malicious file upload | Critical | [Name] | `In Progress` | [Low/Med/High] | YYYY-MM-DD |
+| I-002 | IDOR on resources | Critical | [Name] | `Implemented` | [Low/Med/High] | - |
+| E-002 | Mass assignment | Critical | [Name] | `Implemented` | [Low/Med/High] | - |
+| [Lower risk items...] | | High / Medium / Low | | | | |
 
 ---
 
-## 5. Security Controls Verified
+## 8. Accepted Risks
+
+> Risks that have been explicitly accepted by the business with full understanding of the impact. These are not ignored - they are consciously chosen.
+
+| Threat ID | Description | Risk Level | Justification for Acceptance | Accepted By | Review Date |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| [e.g., D-003] | [e.g., DDoS on public API] | Medium | [e.g., CDN provider includes DDoS mitigation; residual risk is low] | [Name, Role] | YYYY-MM-DD |
+| [e.g., R-003] | [e.g., Audit log tampering by DBA] | Low | [e.g., DBA access is restricted to 2 people; background-checked; monitoring in place] | [Name, Role] | YYYY-MM-DD |
+
+---
+
+## 9. Security Controls Verified
 
 > Checklist of security controls that MUST be verified before this feature ships.
 
@@ -201,7 +274,7 @@ graph LR
 
 ---
 
-## 6. Recommended Security Testing
+## 10. Recommended Security Testing
 
 | Test | Method | When | Owner |
 | :--- | :--- | :--- | :--- |

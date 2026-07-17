@@ -1,3 +1,13 @@
+---
+title: Architecture Decision Record
+skill: architecture-decision-record
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # ADR-[NNN]: [Short Imperative Title - e.g., "Use PostgreSQL as Primary Database"]
 
 **Status:** `Proposed` | `Accepted` | `Deprecated` | `Superseded by ADR-[NNN]`
@@ -6,6 +16,19 @@
 **Deciders:** [Names of engineers involved in this decision]
 **Technical Story:** [Link to ticket / issue / discussion thread]
 **Supersedes:** ADR-[NNN] *(if applicable - otherwise remove this line)*
+**Review Date:** YYYY-MM-DD *(when this decision should be formally re-evaluated — remove if not applicable)*
+**Expiration:** YYYY-MM-DD *(if this decision has a built-in expiry — remove if not applicable)*
+
+---
+
+## Related ADRs
+
+| ADR | Relationship | Notes |
+| :--- | :--- | :--- |
+| [e.g., ADR-0003] | `Depends on` / `Conflicts with` / `Influenced by` | [How it relates] |
+| [e.g., ADR-0007] | `Supersedes` / `Superseded by` | [If applicable] |
+
+> Link any ADRs that interact with this decision. Decisions do not exist in isolation.
 
 ---
 
@@ -99,12 +122,26 @@
 
 ---
 
+## Assumptions That Could Invalidate This Decision
+
+> List the assumptions this decision depends on. If any assumption proves false, the decision should be revisited.
+
+| # | Assumption | How to Verify | Consequence If False |
+| :--- | :--- | :--- | :--- |
+| 1 | [e.g., Team will remain at current size] | [e.g., Quarterly headcount review] | [e.g., Need a more managed solution] |
+| 2 | [e.g., Library X continues active maintenance] | [e.g., Monitor GitHub activity monthly] | [e.g., Migrate to alternative Y] |
+| 3 | [e.g., Traffic stays below 10K RPS for 2 years] | [e.g., Monthly traffic review] | [e.g., Re-evaluate architecture for scale] |
+
+---
+
 ## Compliance and Governance
 
 > Only include if relevant.
 
 - [e.g., This decision satisfies PCI-DSS Requirement 8.3 (strong authentication for all access to the cardholder data environment)]
 - [e.g., Reviewed and approved by Security on YYYY-MM-DD]
+
+**Compliance enforcement:** [How is this decision enforced in practice? e.g., CI check, code review policy, architecture review board, automated linting rule]
 
 ---
 

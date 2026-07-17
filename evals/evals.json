@@ -1,0 +1,244 @@
+{
+  "skill_name": "engineering-docs",
+  "version": "1.2.0",
+  "description": "Evaluation test cases for the engineering-docs plugin orchestrator and core document skills. Covers greenfield mode, brownfield mode, and direct skill invocation.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "orchestrator-greenfield",
+      "category": "orchestrator",
+      "prompt": "I want to build a website to sell umbrellas for rainy weather. Help me turn this into everything needed to build it.",
+      "should_trigger": "using-engineering-docs",
+      "expected_skills": [
+        "business-concept",
+        "project-plan",
+        "user-personas-behavior",
+        "technical-specification",
+        "system-architecture-document",
+        "test-strategy-document",
+        "implementation-plan",
+        "deployment-plan"
+      ],
+      "assertions": [
+        "The orchestrator detects Mode A (greenfield) — no existing .engineering-docs/ folder",
+        "Phase 0 business concept interview is conducted before any technical skill runs",
+        "Standing constraint questions are asked (team size, hosting, budget, timeline, regulatory, integrations)",
+        "Questions are asked one at a time, not batched",
+        "At least 8 documents are produced in the .engineering-docs/ directory",
+        "Each document has YAML metadata frontmatter (title, skill, status, last_updated, depends_on)",
+        "Master index (index.md) is generated with reading order and document statuses",
+        "index.md contains a 'if you only read three documents' pointer",
+        "No secrets, credentials, or API keys appear in any generated document",
+        "Conditional skills are evaluated and the rationale for inclusion/exclusion is documented",
+        "Cross-document consistency checks are run after each document is produced"
+      ],
+      "anti_assertions": [
+        "The orchestrator does NOT skip Phase 0 and jump straight to technical documents",
+        "The orchestrator does NOT batch multiple clarifying questions in a single message",
+        "The orchestrator does NOT generate every possible document regardless of project scope",
+        "The orchestrator does NOT silently overwrite existing documents on re-run"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "orchestrator-brownfield",
+      "category": "orchestrator",
+      "prompt": "We have an existing e-commerce app and want to add a payment system. Help me document what's needed.",
+      "should_trigger": "using-engineering-docs",
+      "expected_skills": [
+        "technical-blueprint",
+        "api-design-document",
+        "security-threat-model",
+        "test-strategy-document"
+      ],
+      "assertions": [
+        "The orchestrator detects Mode B (brownfield) from the 'existing' and 'add' language",
+        "Only the relevant subset of skills is invoked — not the full 22-skill pipeline",
+        "The orchestrator infers or asks about the current system state before writing docs",
+        "New documents append to the existing set with the next available sequence numbers",
+        "No existing documents are overwritten",
+        "The security-threat-model is included because payments touch PII and financial data",
+        "The business-concept skill is NOT re-run (Mode B skips Phase 0)",
+        "The master index is updated to reflect the new documents added"
+      ],
+      "anti_assertions": [
+        "The orchestrator does NOT run the full greenfield pipeline including business-concept",
+        "The orchestrator does NOT ask standing constraint questions that were already answered"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "business-concept-direct",
+      "category": "direct-skill",
+      "prompt": "I have an idea for a mobile app that helps people find parking spots. Help me define the business concept.",
+      "should_trigger": "business-concept",
+      "expected_outputs": [
+        "1-business-plan.md"
+      ],
+      "assertions": [
+        "Problem statement is concrete — not vague or generic",
+        "Target users are defined with personas or user segments",
+        "Value proposition explains differentiation from alternatives (including doing nothing)",
+        "Standing constraints are established (team size, hosting, budget, timeline, regulatory, integrations)",
+        "Success criteria are measurable (not aspirational platitudes)",
+        "Monetization model is specified (subscription, freemium, ads, etc.)",
+        "Must-have vs nice-to-have scope is separated",
+        "The output file is written to .engineering-docs/1-business-plan.md",
+        "The document has YAML metadata frontmatter with status: draft",
+        "Questions are asked one at a time in a Socratic interview style"
+      ],
+      "anti_assertions": [
+        "The skill does NOT skip the interview and generate a template with placeholder values",
+        "The skill does NOT jump into technical architecture or technology choices"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "technical-spec-direct",
+      "category": "direct-skill",
+      "prompt": "Write a technical specification for a user authentication system with OAuth2 and JWT tokens.",
+      "should_trigger": "technical-specification",
+      "expected_outputs": [
+        "technical-specification.md"
+      ],
+      "assertions": [
+        "Requirements use EARS syntax (ubiquitous, event-driven, conditional, state-driven)",
+        "Functional requirements have unique IDs (e.g., FR-001, FR-002)",
+        "Non-functional requirements are measurable with specific targets (not 'the system shall be fast')",
+        "Acceptance criteria are defined for each requirement",
+        "A traceability matrix links requirements to test cases or acceptance criteria",
+        "The document follows ISO/IEC/IEEE 29148 structure",
+        "Stakeholder needs are separated from system requirements",
+        "Assumptions are tagged with the assumption marker",
+        "Open questions are tagged and not silently resolved",
+        "The document has YAML metadata frontmatter"
+      ],
+      "anti_assertions": [
+        "The skill does NOT produce vague requirements like 'the system shall be scalable'",
+        "The skill does NOT skip the clarifying interview about OAuth2 provider, token expiry, scope model, etc."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "architecture-direct",
+      "category": "direct-skill",
+      "prompt": "Document the system architecture for a microservices-based e-commerce platform.",
+      "should_trigger": "system-architecture-document",
+      "expected_outputs": [
+        "system-architecture.md"
+      ],
+      "assertions": [
+        "The diagramming model is selected based on project needs (C4, 4+1, or plain narrative) with reasoning stated",
+        "At least one Mermaid architecture diagram is included",
+        "Alternatives considered are documented (not just the chosen approach)",
+        "Non-functional requirements are addressed with specific constraints",
+        "Technology stack is justified with rationale for each choice",
+        "Trust boundaries and data flow are identified",
+        "Integration points with external systems are documented",
+        "The document covers at least C4 Level 1 (System Context) and Level 2 (Container)",
+        "The document has YAML metadata frontmatter"
+      ],
+      "anti_assertions": [
+        "The skill does NOT default to one notation without asking about audience and stability needs",
+        "The skill does NOT produce architecture diagrams without explaining what each component does"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "security-direct",
+      "category": "direct-skill",
+      "prompt": "Create a security threat model for our payment processing system.",
+      "should_trigger": "security-threat-model",
+      "expected_outputs": [
+        "security-threat-model.md"
+      ],
+      "assertions": [
+        "STRIDE framework is applied — all six categories (Spoofing, Tampering, Repudiation, Information Disclosure, DoS, Elevation of Privilege) are addressed",
+        "Trust boundaries are identified with Data Flow Diagrams or narrative descriptions",
+        "Attack vectors are enumerated per component or boundary crossing",
+        "Risk scoring is provided (likelihood x impact or equivalent)",
+        "Mitigations are concrete and actionable — not generic advice like 'use encryption'",
+        "The threat model covers payment-specific risks (card data, refund abuse, webhook spoofing)",
+        "The document has YAML metadata frontmatter"
+      ],
+      "anti_assertions": [
+        "The skill does NOT produce a generic security checklist without tailoring to the payment system",
+        "The skill does NOT skip the interview about the system's data flows and trust boundaries"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "test-strategy-direct",
+      "category": "direct-skill",
+      "prompt": "Write a test strategy for our React + Node.js application.",
+      "should_trigger": "test-strategy-document",
+      "expected_outputs": [
+        "test-strategy.md"
+      ],
+      "assertions": [
+        "Testing pyramid is defined with ratios (unit ~70%, integration ~20%, E2E ~10%)",
+        "Mocking strategy is specified — what gets mocked, what gets faked, what boundaries exist",
+        "CI pipeline runsheet is included with specific test stages and gates",
+        "Test environment matrix is defined (local, CI, staging, etc.)",
+        "Coverage thresholds are specified with numeric targets (e.g., 80% line coverage)",
+        "BDD/Gherkin acceptance criteria format is addressed",
+        "Test data management strategy is included",
+        "The document has YAML metadata frontmatter"
+      ],
+      "anti_assertions": [
+        "The skill does NOT produce a strategy that only covers unit tests and ignores integration/E2E",
+        "The skill does NOT specify coverage thresholds without explaining what they measure"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "implementation-plan-direct",
+      "category": "direct-skill",
+      "prompt": "Create an implementation plan for building a real-time chat application.",
+      "should_trigger": "implementation-plan",
+      "expected_outputs": [
+        "implementation-plan.md"
+      ],
+      "assertions": [
+        "Build phases are dependency-ordered (not calendar-ordered or preference-ordered)",
+        "Each phase has a Definition of Ready and Definition of Done",
+        "Integration checkpoints are defined between phases",
+        "Vertical slices are identified — thin end-to-end paths through the stack",
+        "Parallel workstreams are identified for phases with no mutual dependency",
+        "Foundation work (data model, auth, CI/CD) is sequenced before feature work",
+        "The plan accounts for the real-time WebSocket/socket.io requirements specific to chat",
+        "The document has YAML metadata frontmatter"
+      ],
+      "anti_assertions": [
+        "The skill does NOT sequence by horizontal layers (all DB, then all API, then all UI)",
+        "The skill does NOT produce vague phase boundaries like 'mostly done'"
+      ]
+    }
+  ],
+  "meta": {
+    "total_evals": 8,
+    "categories": {
+      "orchestrator": 2,
+      "direct-skill": 6
+    },
+    "always_core_skills_covered": [
+      "business-concept",
+      "project-plan",
+      "user-personas-behavior",
+      "technical-specification",
+      "system-architecture-document",
+      "implementation-plan",
+      "test-strategy-document",
+      "deployment-plan"
+    ],
+    "conditional_skills_covered": [
+      "security-threat-model",
+      "technical-blueprint",
+      "api-design-document"
+    ],
+    "assertion_types": {
+      "positive": "The output must contain or demonstrate this quality",
+      "negative": "The output must NOT exhibit this behavior"
+    }
+  }
+}

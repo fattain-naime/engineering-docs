@@ -1,3 +1,13 @@
+---
+title: Technical Specification Document
+skill: technical-specification
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Technical Specification Document
 
 **Document ID:** TSD-[SYSTEM-IDENTIFIER]-[VERSION]
@@ -73,11 +83,24 @@
 
 ---
 
-## 6. Functional Requirements
+## 6. EARS Syntax Reference
+
+> All requirements in this document use Easy Approach to Requirements Syntax (EARS). Below are the four patterns with examples.
+
+| Pattern | Template | Example |
+| :--- | :--- | :--- |
+| **Ubiquitous** | The `<system>` shall `<action>`. | The webhook system shall retry failed deliveries up to 3 times. |
+| **Event-driven** | When `<event>`, the `<system>` shall `<action>`. | When a payment succeeds, the system shall send a webhook notification within 30 seconds. |
+| **Conditional** | Where `<condition>`, the `<system>` shall `<action>`. | Where the merchant account is in sandbox mode, the system shall not charge real instruments. |
+| **State-driven** | While `<state>`, the `<system>` shall `<action>`. | While the delivery status is `retrying`, the system shall apply exponential backoff. |
+
+---
+
+## 7. Functional Requirements
 
 > Each requirement uses EARS syntax. Assign a unique FR-XXX ID. Every FR must have at least one verifiable acceptance criterion.
 
-### 6.1 [Feature / Subsystem Name]
+### 7.1 [Feature / Subsystem Name]
 
 #### FR-001: [Requirement Name]
 
@@ -110,7 +133,7 @@
 
 > 🔵 Open Question: [Unresolved requirement that needs stakeholder clarification before implementation]
 
-### 6.2 [Next Feature / Subsystem]
+### 7.2 [Next Feature / Subsystem]
 
 #### FR-010: [Requirement Name]
 
@@ -118,11 +141,11 @@
 
 ---
 
-## 7. Non-Functional Requirements
+## 8. Non-Functional Requirements
 
 > Every NFR must be measurable. "The system shall be fast" is not a valid NFR. "The system shall respond to 99th percentile API requests within 200ms" is.
 
-### 7.1 Performance
+### 8.1 Performance
 
 #### NFR-001: Response Latency
 
@@ -140,7 +163,7 @@
 
 ---
 
-### 7.2 Scalability
+### 8.2 Scalability
 
 #### NFR-010: Horizontal Scale
 
@@ -150,7 +173,7 @@
 
 ---
 
-### 7.3 Availability and Reliability
+### 8.3 Availability and Reliability
 
 #### NFR-020: Uptime SLA
 
@@ -168,7 +191,7 @@
 
 ---
 
-### 7.4 Security
+### 8.4 Security
 
 #### NFR-030: Authentication
 
@@ -194,7 +217,7 @@
 
 ---
 
-### 7.5 Compliance
+### 8.5 Compliance
 
 #### NFR-040: [Regulatory Standard - e.g., PCI-DSS, GDPR, HIPAA]
 
@@ -204,7 +227,7 @@
 
 ---
 
-### 7.6 Maintainability
+### 8.6 Maintainability
 
 #### NFR-050: Observability
 
@@ -214,15 +237,15 @@
 
 ---
 
-## 8. External Interface Requirements
+## 9. External Interface Requirements
 
-### 8.1 APIs Consumed (Dependencies)
+### 9.1 APIs Consumed (Dependencies)
 
 | System | Interface Type | Purpose | Data Format | Auth Method |
 | :--- | :--- | :--- | :--- | :--- |
 | [External System A] | REST / gRPC / Event | [Why] | JSON / Protobuf | [API Key / OAuth2] |
 
-### 8.2 APIs Provided (Exposed)
+### 9.2 APIs Provided (Exposed)
 
 | Endpoint / Topic | Interface Type | Consumers | Data Format | Auth Method |
 | :--- | :--- | :--- | :--- | :--- |
@@ -230,28 +253,200 @@
 
 ---
 
-## 9. Data Requirements
+## 10. Data Requirements
 
-### 9.1 Data Inputs
+### 10.1 Data Inputs
 
 | Data Entity | Source | Format | Volume | Frequency |
 | :--- | :--- | :--- | :--- | :--- |
 | [Entity name] | [Source system] | [JSON/CSV] | [N records] | [Per request/daily] |
 
-### 9.2 Data Outputs
+### 10.2 Data Outputs
 
 | Data Entity | Destination | Format | Retention | Privacy Classification |
 | :--- | :--- | :--- | :--- | :--- |
 | [Entity name] | [Destination] | [JSON/DB] | [30 days] | `Public` / `Internal` / `Confidential` / `Restricted` |
 
-### 9.3 Data Retention and Deletion
+### 10.3 Data Retention and Deletion
 
 - Records of type `[X]` shall be retained for `[N days/years]` per `[policy/regulation]`.
 - On user deletion request, `[which data]` shall be purged within `[N hours]` per GDPR Article 17.
 
 ---
 
-## 10. Constraints
+## 11. Data Model
+
+> Document the logical data model using an ERD. Each entity must have its key attributes and relationships defined.
+
+### 11.1 Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+  ENTITY_A {
+    string id PK
+    string name
+    string status
+    datetime created_at
+  }
+  ENTITY_B {
+    string id PK
+    string entity_a_id FK
+    decimal amount
+    string currency
+    datetime created_at
+  }
+
+  ENTITY_A ||--o{ ENTITY_B : "has many"
+```
+
+### 11.2 Entity Summary
+
+| Entity | Description | Sensitivity | Retention |
+| :--- | :--- | :--- | :--- |
+| [Entity A] | [What it represents] | `Confidential` / `Internal` / `Public` | [N days/years] |
+
+---
+
+## 12. Error Handling
+
+### 12.1 Error Code Taxonomy
+
+> Every error the system can produce must have a unique, documented code.
+
+| Error Code | HTTP Status | Category | Description | Retryable? |
+| :--- | :--- | :--- | :--- | :--- |
+| `VALIDATION_FAILED` | 422 | Client | Request body failed field validation | No |
+| `RESOURCE_NOT_FOUND` | 404 | Client | Requested resource does not exist | No |
+| `RATE_LIMIT_EXCEEDED` | 429 | Client | Too many requests | Yes (after Retry-After) |
+| `EXTERNAL_SERVICE_UNAVAILABLE` | 502 | Dependency | Upstream service returned error | Yes (exponential backoff) |
+| `INTERNAL_ERROR` | 500 | Server | Unexpected server fault | Yes (with backoff) |
+
+### 12.2 Error Response Format (RFC 7807)
+
+All error responses must follow this schema:
+
+```json
+{
+  "type": "https://errors.[domain].com/[error-code]",
+  "title": "[Human-readable short description]",
+  "status": 422,
+  "detail": "[Longer description of what went wrong and how to fix it]",
+  "instance": "/v1/[resource]/[id]",
+  "request_id": "req_[unique-id]",
+  "errors": [
+    { "field": "[field_name]", "code": "[validation_code]", "message": "[Description]" }
+  ]
+}
+```
+
+### 12.3 Retry Policies
+
+| Error Category | Max Retries | Backoff Strategy | Max Wait | Dead-Letter |
+| :--- | :--- | :--- | :--- | :--- |
+| Transient (502, 503, timeout) | 3 | Exponential with jitter | 30 seconds | Yes - move to DLQ |
+| Rate limit (429) | 3 | Respect `Retry-After` header | 60 seconds | No - retry later |
+| Client error (4xx) | 0 | N/A | N/A | No - return to caller |
+
+---
+
+## 13. API Design Standards
+
+> Apply when the system exposes or consumes APIs.
+
+### 13.1 Naming Conventions
+
+| Rule | Correct | Incorrect |
+| :--- | :--- | :--- |
+| Resources are plural nouns | `/payments`, `/merchants` | `/payment`, `/getPayment` |
+| Use kebab-case for multi-word paths | `/payment-links` | `/paymentLinks` |
+| HTTP methods are the verbs | `POST /payments` | `POST /create-payment` |
+
+### 13.2 Versioning Strategy
+
+**Strategy:** `URI Versioning` | `Header Versioning`
+
+**Version lifecycle:**
+1. New version introduced alongside old
+2. Old version marked deprecated with `Deprecation` and `Sunset` headers
+3. Minimum support window: [N months] after successor is GA
+4. Old version removed after sunset date
+
+### 13.3 Pagination
+
+Every list endpoint must be paginated:
+
+| Parameter | Type | Default | Max | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `page` | integer | 1 | - | Page number (1-indexed) |
+| `per_page` | integer | 20 | 100 | Records per page |
+
+---
+
+## 14. Migration / Backward Compatibility
+
+> Apply when the system replaces or integrates with an existing system.
+
+### 14.1 Data Migration
+
+| Source Entity | Target Entity | Transformation | Validation Criteria |
+| :--- | :--- | :--- | :--- |
+| [Source table/file] | [Target table/entity] | [Mapping rules] | [How to verify correctness] |
+
+### 14.2 Backward Compatibility
+
+| Existing Contract | Compatibility Requirement | Window | Deprecation Plan |
+| :--- | :--- | :--- | :--- |
+| [API endpoint / data format] | [What must remain compatible] | [Duration] | [How deprecated] |
+
+### 14.3 Cutover Strategy
+
+**Approach:** `Parallel Run` | `Canary` | `Big-Bang`
+
+**Rollback procedure:** [Steps to revert if migration fails]
+
+---
+
+## 15. Monitoring and Alerting Requirements
+
+### 15.1 Metrics
+
+| Metric | Source | Threshold | Alert Severity |
+| :--- | :--- | :--- | :--- |
+| Request rate (RPS) | Load balancer / app | > [N] RPS sustained | P3 - Warning |
+| Error rate (5xx) | Application logs | > [X]% over 5 min | P1 - Critical |
+| p99 latency | APM | > [X]ms over 5 min | P2 - High |
+| Queue depth | Queue monitor | > [N] messages | P2 - High |
+| DB connection pool utilization | Database metrics | > 80% | P2 - High |
+
+### 15.2 SLOs / SLIs
+
+| SLI | SLO Target | Error Budget (30-day) | Breach Action |
+| :--- | :--- | :--- | :--- |
+| Availability (% non-5xx responses) | [X]% | [N] minutes downtime | Freeze non-critical deploys |
+| Latency (p99 response time) | < [X]ms | [N] minutes above threshold | Performance investigation |
+
+### 15.3 Dashboards
+
+| Dashboard | Audience | Key Panels |
+| :--- | :--- | :--- |
+| Operational | On-call engineer | Request rate, error rate, latency, queue depth, DB connections |
+| Business | Product / Stakeholder | Transaction volume, success rate, revenue impact |
+
+---
+
+## 16. Test Case Specification
+
+> Every requirement (FR-XXX, NFR-XXX) must map to at least one test case.
+
+| Test Case ID | Linked Requirement | Type | Preconditions | Steps | Expected Result | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| TC-001 | FR-001 | Integration | [Precondition] | 1. [Step] 2. [Step] | [Observable outcome] | `Planned` |
+| TC-002 | NFR-001 | Performance | [Precondition] | 1. [Load test setup] 2. [Run] | p99 <= [X]ms at [N] concurrent | `Planned` |
+| TC-003 | NFR-030 | Security | [Precondition] | 1. [Pen-test step] 2. [Step] | Zero high-severity findings | `Planned` |
+
+---
+
+## 17. Constraints
 
 | Constraint Type | Description | Rationale |
 | :--- | :--- | :--- |
@@ -262,7 +457,7 @@
 
 ---
 
-## 11. Assumptions
+## 18. Assumptions
 
 > 🔶 All assumptions here must be validated before implementation begins.
 
@@ -272,7 +467,7 @@
 
 ---
 
-## 12. Dependencies
+## 19. Dependencies
 
 | Dependency | Type | Blocking? | Owner | Expected By |
 | :--- | :--- | :--- | :--- | :--- |
@@ -280,7 +475,7 @@
 
 ---
 
-## 13. Open Questions
+## 20. Open Questions
 
 > 🔵 These must be resolved before the specification is considered complete.
 
@@ -290,16 +485,16 @@
 
 ---
 
-## 14. Traceability Matrix
+## 21. Traceability Matrix
 
-| Requirement ID | Description | Linked Test Case(s) | Linked Design Section | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| FR-001 | [Short description] | TC-001, TC-002 | [Blueprint Section X] | `Not Started` |
-| NFR-001 | [Short description] | TC-010 | [Blueprint Section Y] | `Not Started` |
+| Requirement ID | Description | Linked Test Case(s) | Linked Design Section | Constraint Type | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| FR-001 | [Short description] | TC-001, TC-002 | [Blueprint Section X] | - | `Not Started` |
+| NFR-001 | [Short description] | TC-010 | [Blueprint Section Y] | `hard` / `soft` | `Not Started` |
 
 ---
 
-## 15. Sign-off
+## 22. Sign-off
 
 | Role | Name | Signature / Approval | Date |
 | :--- | :--- | :--- | :--- |

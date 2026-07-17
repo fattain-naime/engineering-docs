@@ -1,3 +1,13 @@
+---
+title: Technical Feasibility Study
+skill: technical-feasibility-study
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Technical Feasibility Study
 
 **Concept / Proposal:** [Name of the technology, approach, or system being evaluated]
@@ -72,6 +82,32 @@
 | Blocker | Severity | Resolvable? | Resolution Path |
 | :--- | :--- | :--- | :--- |
 | [Identified technical obstacle] | `Critical` / `Major` / `Minor` | `Yes` / `No` / `Unknown` | [How to resolve if possible] |
+
+### 3.5 Benchmarking Results
+
+> If multiple technologies or approaches were compared, document the benchmark methodology and results.
+
+| Technology / Approach | Test Workload | Throughput | Latency (p50/p95/p99) | Resource Usage | Confidence |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| [e.g., Approach A] | [e.g., 10K concurrent users, 1KB payloads] | [e.g., 5,000 req/s] | [e.g., 12ms / 45ms / 120ms] | [e.g., 2 CPU, 4GB RAM] | `High` / `Medium` / `Low` |
+| [e.g., Approach B] | [Same workload] | [e.g., 3,200 req/s] | [e.g., 18ms / 62ms / 200ms] | [e.g., 2 CPU, 2GB RAM] | `High` / `Medium` / `Low` |
+
+**Benchmark methodology:** [How tests were run, what was controlled, reproducibility notes]
+
+### 3.6 PoC Specification
+
+> If a PoC is recommended or was conducted, specify it here.
+
+| Field | Detail |
+| :--- | :--- |
+| **Objective** | [What specific question does this PoC answer?] |
+| **Scope (in)** | [What is being tested] |
+| **Scope (out)** | [What is explicitly excluded] |
+| **Time-box** | [e.g., 2 weeks maximum] |
+| **Success criteria** | [Pass/fail conditions defined before PoC starts] |
+| **Output** | [What artifact proves the result: benchmark, prototype, integration demo] |
+| **Decision if pass** | [Proceed to implementation] |
+| **Decision if fail** | [Trigger fallback: Approach B / hire specialist / pivot] |
 
 ---
 
@@ -157,7 +193,53 @@
 
 ---
 
-## 8. Recommendation
+## 8. Total Cost of Ownership (TCO) Projection
+
+| Cost Category | Year 1 | Year 3 (cumulative) | Notes |
+| :--- | :--- | :--- | :--- |
+| **Infrastructure** | [$X] | [$X] | [Compute, storage, networking] |
+| **Licensing / SaaS fees** | [$X] | [$X] | [Third-party services, tools] |
+| **Personnel (skills gap)** | [$X] | [$X] | [Training, hiring, contractors] |
+| **Operational overhead** | [$X] | [$X] | [Monitoring, on-call, maintenance] |
+| **Migration / transition** | [$X] | [$X] | [One-time costs] |
+| **Total** | **[$X]** | **[$X]** | |
+
+> Compare TCO against the current state (status quo) and at least one alternative approach.
+
+---
+
+## 9. Vendor Lock-in Assessment
+
+| Concern | Risk Level | Mitigation |
+| :--- | :--- | :--- |
+| **Proprietary API dependency** | `Low` / `Medium` / `High` | [e.g., Abstract behind interface; use open standards] |
+| **Data portability** | `Low` / `Medium` / `High` | [e.g., Regular data exports; standard formats] |
+| **Contract / pricing risk** | `Low` / `Medium` / `High` | [e.g., Multi-year pricing agreement; exit clause] |
+| **Ecosystem dependency** | `Low` / `Medium` / `High` | [e.g., Depends on single cloud provider's managed service] |
+| **Switching cost** | `Low` / `Medium` / `High` | [e.g., Estimated N person-weeks to migrate away] |
+
+**Overall lock-in risk:** `Low` / `Medium` / `High`
+**Acceptable?** `Yes` / `No` / `Yes, with mitigations above`
+
+---
+
+## 10. Decision Matrix
+
+> Weighted scoring of feasibility dimensions. Scores are 1-5 (1 = major concern, 5 = fully feasible).
+
+| Dimension | Weight | Score (1-5) | Weighted Score | Key Evidence |
+| :--- | :--- | :--- | :--- | :--- |
+| Technical Feasibility | [e.g., 30%] | [Score] | [Score x Weight] | [Key finding] |
+| Resource Feasibility | [e.g., 20%] | [Score] | [Score x Weight] | [Key finding] |
+| Operational Feasibility | [e.g., 20%] | [Score] | [Score x Weight] | [Key finding] |
+| Risk Level (inverted) | [e.g., 30%] | [Score] | [Score x Weight] | [Key finding] |
+| **Total** | **100%** | | **[Sum]** | |
+
+> The matrix makes reasoning transparent. If the total says "Go" but the assessor's instinct says "No Go," investigate the discrepancy rather than overriding.
+
+---
+
+## 11. Recommendation
 
 > **Recommendation: `Go` | `Conditional Go` | `No Go`**
 
@@ -184,7 +266,7 @@ The proposal is viable **only if** the following conditions are met before desig
 
 ---
 
-## 9. Sign-off
+## 13. Sign-off
 
 | Role | Name | Decision | Date |
 | :--- | :--- | :--- | :--- |

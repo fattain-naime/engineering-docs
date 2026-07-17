@@ -1,3 +1,13 @@
+---
+title: Test Strategy & QA Plan
+skill: test-strategy-document
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Test Strategy & QA Plan
 
 **Product Name:** [Product / Service Name]
@@ -86,25 +96,107 @@ public function tearDown(): void {
 
 ---
 
-## 4. Acceptance Test Scenarios (Gherkin BDD)
+## 4. Performance Testing
+
+| Test Type | Tool | Load Profile | Thresholds | Frequency |
+| :--- | :--- | :--- | :--- | :--- |
+| **Load test** | [e.g., k6] | [e.g., 500 concurrent users, 10 min] | [e.g., p95 < 200ms, error rate < 0.1%] | [e.g., Nightly] |
+| **Stress test** | [e.g., k6] | [e.g., 2000 concurrent users, 5 min] | [e.g., System degrades gracefully, no crash] | [e.g., Release candidate] |
+| **Soak test** | [e.g., k6] | [e.g., 200 concurrent users, 4 hours] | [e.g., No memory leaks, stable latency] | [e.g., Weekly] |
+| **Spike test** | [e.g., k6] | [e.g., 0 → 1000 users in 30 seconds] | [e.g., Recovery within 60 seconds] | [e.g., Release candidate] |
+
+**Pass/Fail gate:** [e.g., Load test must pass before merge to main. Failure blocks deployment.]
+
+---
+
+## 5. Contract Testing
+
+| Integration | Consumer | Provider | Tool | Verification Frequency |
+| :--- | :--- | :--- | :--- | :--- |
+| [e.g., Payment API] | [e.g., Checkout service] | [e.g., Payment service] | [e.g., Pact] | [e.g., Every PR on both sides] |
+| [e.g., Public API] | [e.g., External consumers] | [e.g., API gateway] | [e.g., Dredd + OpenAPI spec] | [e.g., Every PR] |
+
+**Breaking change policy:** [e.g., Any contract change requires a version bump and migration guide. CI fails if consumer contract is violated.]
+
+---
+
+## 6. Test Data Management
+
+| Data Type | Strategy | Tool | Isolation |
+| :--- | :--- | :--- | :--- |
+| **Unit test data** | [e.g., Fixtures — static JSON/YAML] | [e.g., Test loader] | [e.g., Loaded per test file] |
+| **Integration test data** | [e.g., Factories — programmatic generation] | [e.g., factory_boy / Faker] | [e.g., Transactional rollback per test] |
+| **E2E test data** | [e.g., Seeded database snapshot] | [e.g., Seed script in Docker entrypoint] | [e.g., Fresh container per run] |
+| **Staging / demo data** | [e.g., Anonymized production snapshot] | [e.g., Custom anonymization script] | [e.g., Refreshed weekly] |
+
+**Sensitive data policy:** [e.g., No real PII, credentials, or payment data in any test environment. Synthetic data generators only.]
+
+---
+
+## 7. Security Scanning Gates
+
+| Scan Type | Tool | What It Catches | CI Gate Severity | Frequency |
+| :--- | :--- | :--- | :--- | :--- |
+| **SAST** | [e.g., Semgrep] | [e.g., SQL injection, XSS, insecure crypto] | [e.g., Block on High/Critical] | [e.g., Every PR] |
+| **DAST** | [e.g., OWASP ZAP] | [e.g., Runtime vulnerabilities, misconfigurations] | [e.g., Block on High/Critical] | [e.g., Nightly / release candidate] |
+| **Dependency scan** | [e.g., Snyk / Dependabot] | [e.g., Known CVEs in dependencies] | [e.g., Block on Critical, warn on High] | [e.g., Every PR + daily] |
+| **Secrets detection** | [e.g., TruffleHog] | [e.g., Committed API keys, passwords] | [e.g., Block unconditionally] | [e.g., Every commit] |
+
+---
+
+## 8. Acceptance Test Scenarios (Gherkin BDD)
 
 > Define the critical user pathways using Given-When-Then criteria. These scenarios guide manual verification and E2E script development.
 
-### 4.1 Scenario 1: [Name of Core Path - e.g. Customer Checkout]
+### 8.1 Scenario 1: [Name of Core Path - e.g. Customer Checkout]
 * **Given** [the starting environment state]
 * **And** [additional preconditions]
 * **When** [the user executes the target action]
 * **Then** [the expected UI state occurs]
 * **And** [the database ledger entries balance]
 
-### 4.2 Scenario 2: [Name of Edge Case - e.g. Payment Timeout]
+### 8.2 Scenario 2: [Name of Edge Case - e.g. Payment Timeout]
 * **Given** [state of system]
 * **When** [network disconnects or action fails]
 * **Then** [system handles error gracefully and prompts retry]
 
 ---
 
-## 5. CI/CD Test Runner Runsheet
+## 9. Flaky Test Handling Policy
+
+| Rule | Threshold | Action |
+| :--- | :--- | :--- |
+| **Flaky detection** | [e.g., 3 consecutive flaky failures on same code] | [e.g., Auto-move to quarantine suite] |
+| **Retry limit** | [e.g., 2 retries per test in CI] | [e.g., Pass on retry = flagged, not blocked] |
+| **Resolution SLA** | [e.g., 2 weeks in quarantine] | [e.g., Fix or delete — no permanent quarantine] |
+| **Quarantine reporting** | [e.g., Weekly quarantine count report] | [e.g., Increasing trend = infrastructure investigation] |
+
+**Quarantine suite location:** [e.g., `tests/quarantine/` — runs in separate CI job, does not block main pipeline]
+
+---
+
+## 10. Test Environment Architecture
+
+```mermaid
+graph TD
+    DEV[Developer Machine] -->|push| CI[CI Runner]
+    CI -->|Docker Compose| UNIT[Unit Test Container]
+    CI -->|Docker Compose| INT[Integration Container + DB]
+    CI -->|Docker Compose| E2E[E2E Container + Full Stack]
+    MERGE[Merge to main] -->|deploy| STAGING[Staging Environment]
+    STAGING -->|manual QA| APPROVE[Approve for Production]
+```
+
+| Environment | Provisioned By | Data Strategy | Lifespan | Mirror of Production |
+| :--- | :--- | :--- | :--- | :--- |
+| **Local dev** | Docker Compose | [e.g., Factory-generated fixtures] | [e.g., Persistent] | [e.g., Close — same Docker images] |
+| **CI** | Docker Compose (ephemeral) | [e.g., Factories + seed script] | [e.g., Per-run, destroyed after] | [e.g., Close — same images, smaller data] |
+| **Staging** | [e.g., Terraform / Helm] | [e.g., Anonymized production snapshot] | [e.g., Persistent, refreshed weekly] | [e.g., Yes — same infra, same data shape] |
+| **Production** | [e.g., Terraform / Helm] | [e.g., Real data] | [e.g., Permanent] | [N/A — this is production] |
+
+---
+
+## 11. CI/CD Test Runner Runsheet
 
 This runsheet specifies the exact commands run by the CI system on every Pull Request to enforce code quality gates.
 

@@ -1,3 +1,13 @@
+---
+title: Database Design Document
+skill: database-design-document
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Database Design Document
 
 **Domain / System:** [Name]
@@ -5,6 +15,7 @@
 **Status:** `Draft` | `In Review` | `Approved` | `Superseded`
 **Version:** 1.0.0
 **Database Engine:** [MySQL 8.x / PostgreSQL 16 / SQLite / etc.]
+**Connection Pool:** pool_size=[N], max_connections=[N], pool_timeout=[Ns], pool_recycle=[Ns]
 **Date:** YYYY-MM-DD
 **Author(s):** [Name, Role]
 **Reviewers:** [Name, Role]
@@ -76,6 +87,8 @@ erDiagram
 
 **Purpose:** [What this table stores. One sentence.]
 
+#### MySQL DDL
+
 ```sql
 CREATE TABLE [table_name] (
   -- Primary Key
@@ -132,6 +145,51 @@ CREATE TABLE [table_name] (
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci
   COMMENT='[Table purpose. Used by: [system/feature].';
+```
+
+#### PostgreSQL DDL
+
+```sql
+CREATE TABLE [table_name] (
+  -- Primary Key
+  id                  BIGSERIAL           NOT NULL,
+
+  -- Foreign Keys
+  [parent_id]         BIGINT              NOT NULL
+    REFERENCES [parent_table] (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+
+  -- Core Columns
+  [column_name]       VARCHAR(255)        NOT NULL,
+  [amount_column]     NUMERIC(19, 4)      NOT NULL DEFAULT 0.0000,
+  [status_column]     VARCHAR(20)         NOT NULL DEFAULT 'active'
+    CHECK (status_column IN ('active', 'suspended', 'cancelled')),
+  [nullable_column]   TEXT                DEFAULT NULL,
+  [flag_column]       BOOLEAN             NOT NULL DEFAULT FALSE,
+
+  -- JSON column (PostgreSQL native JSONB)
+  [metadata]          JSONB               DEFAULT '{}',
+
+  -- Timestamps
+  created_at          TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
+  deleted_at          TIMESTAMPTZ         DEFAULT NULL,
+
+  -- Constraints
+  CONSTRAINT pk_[table_name] PRIMARY KEY (id),
+  CONSTRAINT fk_[table]_[parent] FOREIGN KEY ([parent_id])
+    REFERENCES [parent_table] (id) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- Indexes
+CREATE INDEX idx_[parent_id] ON [table_name] ([parent_id]);
+CREATE INDEX idx_[status] ON [table_name] ([status_column]);
+CREATE INDEX idx_[created_at] ON [table_name] ([created_at]);
+CREATE INDEX idx_[status_date] ON [table_name] ([status_column], [created_at]);
+
+-- JSONB GIN index for metadata queries
+CREATE INDEX idx_[table_name]_metadata ON [table_name] USING GIN ([metadata]);
+
+COMMENT ON TABLE [table_name] IS '[Table purpose. Used by: [system/feature].]';
 ```
 
 ---
@@ -233,7 +291,76 @@ The following rules are enforced at the application layer (not DB constraints), 
 
 ---
 
-## 9. Migration Plan
+## 9. Connection Pooling
+
+| Parameter | Value | Rationale |
+| :--- | :--- | :--- |
+| `max_connections` (DB server) | [N] | [Based on DB server memory and workload] |
+| `pool_size` (per app instance) | [N] | [Rule of thumb: (cores * 2) + spindles; typical web app: 10-20] |
+| `pool_timeout` | [N seconds] | [Max wait for a connection before failing the request] |
+| `pool_recycle` | [N seconds] | [Must be < DB `wait_timeout` to avoid stale connections] |
+| Leak detection threshold | [N seconds] | [Log warning if connection held longer than this] |
+
+---
+
+## 10. Database Views
+
+> Views encapsulate complex read-only query logic for dashboards, reports, and admin UIs.
+
+### 10.1 `[view_name]`
+
+**Purpose:** [What this view provides - e.g., "Merchant dashboard summary with order counts and revenue totals"]
+
+```sql
+CREATE VIEW [view_name] AS
+SELECT
+  m.id AS merchant_id,
+  m.name AS merchant_name,
+  COUNT(o.id) AS total_orders,
+  SUM(o.amount) AS total_revenue
+FROM merchants m
+LEFT JOIN orders o ON o.merchant_id = m.id AND o.deleted_at IS NULL
+WHERE m.deleted_at IS NULL
+GROUP BY m.id, m.name;
+```
+
+**Security note:** [Does this view restrict column access? e.g., "Excludes password_hash and internal fields"]
+
+**Performance note:** [Is this view performant? Do we need a materialized view or summary table?]
+
+---
+
+## 11. Multi-Tenant Data Isolation
+
+**Pattern:** `Shared database, shared schema` | `Shared database, separate schema` | `Separate database per tenant`
+
+**Tenant identification:** `tenant_id` column on all tenant-scoped tables
+
+**Enforcement strategy:**
+- Repository layer: Every query includes `WHERE tenant_id = ?` bound from authenticated user context
+- [Additional enforcement: row-level security (PostgreSQL), middleware, etc.]
+
+**Migration approach per tenant:**
+- [e.g., All tenants migrated together in a single migration run]
+- [e.g., Per-tenant migration with tenant_id parameter]
+
+---
+
+## 12. Backup Strategy
+
+| Component | Method | Frequency | Retention | Location | Encrypted |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Full database | [mysqldump / pg_dump / native snapshot] | [Daily] | [N days] | [Location] | Yes |
+| Incremental / WAL | [binlog archiving / WAL archiving] | [Continuous] | [N days] | [Location] | Yes |
+| Schema-only backup | [pg_dump --schema-only / mysqldump --no-data] | [On change] | [N versions] | [Git] | N/A |
+
+**Point-in-time recovery:** [Supported? How far back can we recover?]
+
+**Last restore test:** [Date and outcome]
+
+---
+
+## 13. Migration Plan
 
 ### 9.1 Migration Files
 
@@ -263,8 +390,17 @@ DROP TABLE IF EXISTS [new_table];
 
 ---
 
-## 10. Open Questions
+## 14. Open Questions
 
 | ID | Question | Impact | Owner | By |
 | :--- | :--- | :--- | :--- | :--- |
 | OQ-001 | [Schema question] | [Impact if wrong] | [Name] | YYYY-MM-DD |
+
+---
+
+## 15. Alternatives Considered
+
+| Alternative | Pros | Cons | Why Not Chosen |
+|:---|:---|:---|:---|
+| [e.g., UUID primary keys instead of auto-increment BIGINT] | [Globally unique, safe for distributed systems, no sequential leak] | [Larger storage (16 bytes vs 8), worse index locality, harder to debug manually] | [Single-region deployment with no sharding need; BIGINT is simpler and faster for our access patterns] |
+| [e.g., MongoDB (document store) instead of relational schema] | [Flexible schema, easier horizontal scaling, nested document storage] | [Weaker referential integrity, no foreign key enforcement, harder to enforce data contracts] | [Domain requires strict relational integrity between entities; ACID transactions on multi-table operations are critical] |

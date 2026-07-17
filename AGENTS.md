@@ -11,6 +11,7 @@ Read the user's request and match it to the correct skill using the trigger phra
 | Trigger Phrases | Invoke Skill |
 | :--- | :--- |
 | "I have an idea", "help me plan this", "I want to build", "turn this into documents", "full project docs", "document my project", "idea to production", "help me figure out what documents" | `using-engineering-docs` |
+| "business concept", "business plan", "who is this for", "what problem does this solve", "value proposition", "monetization model", "define the business idea", "turn my idea into a business concept" | `business-concept` |
 | "project plan", "delivery plan", "milestones for", "RACI matrix", "work breakdown structure", "project timeline", "who owns what", "project kick-off plan" | `project-plan` |
 | "user personas", "who is this for", "target user", "jobs-to-be-done", "analytics plan", "success metrics", "what should we measure", "define our users" | `user-personas-behavior` |
 | "write a spec", "requirements for", "SRS for", "TSD for", "define requirements", "functional requirements", "system requirements", "what must the system do" | `technical-specification` |

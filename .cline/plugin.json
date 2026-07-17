@@ -1,0 +1,14 @@
+{
+  "name": "engineering-docs",
+  "version": "1.2.0",
+  "description": "22 engineering documentation skills covering the complete software lifecycle: business concept, project planning, personas, specs, feasibility, UX flow, architecture, design system, API, database, ADR, access control, security, testing, implementation, deployment, SLO, operations, disaster recovery, and incident review.",
+  "author": {
+    "name": "Fattain Naime",
+    "email": "iamnaime@builderhall.com"
+  },
+  "homepage": "https://github.com/fattain-naime/engineering-docs",
+  "repository": "https://github.com/fattain-naime/engineering-docs",
+  "license": "MIT",
+  "skills": "./skills/",
+  "rules": "./.clinerules"
+}

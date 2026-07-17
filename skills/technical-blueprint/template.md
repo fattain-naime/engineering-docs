@@ -1,3 +1,13 @@
+---
+title: Technical Design Document
+skill: technical-blueprint
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Technical Design Document
 
 **Feature / Component:** [Name]
@@ -152,6 +162,11 @@ Error Responses:
 
 > **This section is mandatory.** Documenting rejected alternatives demonstrates due diligence and prevents future engineers from re-investigating paths already evaluated.
 
+| Alternative | Pros | Cons | Why Not Chosen |
+|:---|:---|:---|:---|
+| [Alternative 1] | [Pros] | [Cons] | [Reason] |
+| [Alternative 2] | [Pros] | [Cons] | [Reason] |
+
 ### Alternative 1: [Name]
 
 **Description:** [Clear description of this approach]
@@ -225,7 +240,110 @@ Error Responses:
 
 ---
 
-## 8. Test Plan
+## 8. Observability
+
+### 8.1 Logging
+
+| Log Event | Level | Fields | When Emitted |
+| :--- | :--- | :--- | :--- |
+| `[feature].request_started` | INFO | `request_id`, `user_id`, `operation` | On request received |
+| `[feature].request_completed` | INFO | `request_id`, `duration_ms`, `status` | On successful completion |
+| `[feature].request_failed` | ERROR | `request_id`, `error_code`, `error_message` | On failure |
+
+### 8.2 Metrics
+
+| Metric Name | Type | Labels | Description |
+| :--- | :--- | :--- | :--- |
+| `[feature]_requests_total` | Counter | `status`, `operation` | Total requests to this feature |
+| `[feature]_request_duration_seconds` | Histogram | `operation` | Request latency distribution |
+| `[feature]_errors_total` | Counter | `error_code` | Total errors by error code |
+
+### 8.3 Alerting
+
+| Alert | Condition | Severity | Runbook |
+| :--- | :--- | :--- | :--- |
+| [Feature] high error rate | > [X]% 5xx errors for 5 min | P2 | [Link to runbook] |
+| [Feature] high latency | p99 > [X]ms for 5 min | P2 | [Link to runbook] |
+
+---
+
+## 9. Feature Flag Strategy
+
+| Aspect | Specification |
+| :--- | :--- |
+| Flag name | `[feature_flag_name]` |
+| Type | `Boolean toggle` / `Percentage rollout` / `User allowlist` |
+| Default state | `Off` / `On` |
+| Rollout phases | 1. Internal (dev) -> 2. Staging -> 3. Canary (5%) -> 4. Full rollout |
+| Cleanup plan | Remove flag after [N] weeks of stable full rollout |
+
+---
+
+## 10. Data Migration
+
+### 10.1 Migration Type
+
+`Additive only` / `Destructive (requires downtime)` / `Online (pt-online-schema-change)`
+
+### 10.2 Migration Steps
+
+| Step | Command / Action | Reversible? | Estimated Duration |
+| :--- | :--- | :--- | :--- |
+| 1. [e.g., Add column] | `ALTER TABLE ... ADD COLUMN ...` | Yes | [N seconds] |
+| 2. [e.g., Backfill data] | `UPDATE ... SET ... WHERE ...` | Yes (restore from backup) | [N minutes] |
+| 3. [e.g., Add index] | `CREATE INDEX ...` | Yes (`DROP INDEX`) | [N minutes] |
+
+### 10.3 Backward Compatibility
+
+- [ ] Old code runs against new schema without errors
+- [ ] New code runs against old schema without errors (during rollback window)
+- [ ] Data backfill does not interfere with live traffic
+
+### 10.4 Rollback Script
+
+```sql
+-- Rollback: reverse migration steps in order
+-- Step 1: [reverse action]
+-- Step 2: [reverse action]
+```
+
+---
+
+## 11. Documentation Updates
+
+| Document | Update Required | Owner | Status |
+| :--- | :--- | :--- | :--- |
+| OpenAPI spec | [New endpoints, modified schemas] | [Name] | `Planned` |
+| Runbook | [New monitoring, troubleshooting procedures] | [Name] | `Planned` |
+| User guide | [New feature documentation] | [Name] | `Planned` |
+| ADR | [If significant architectural decision made] | [Name] | `Planned` / `N/A` |
+
+---
+
+## 12. Dependencies and Blockers
+
+### 12.1 Upstream Dependencies (What must be done first?)
+
+| Dependency | Type | Owner | Status | Blocking? |
+| :--- | :--- | :--- | :--- | :--- |
+| [e.g., Database migration for new table] | Internal | [Name] | `Complete` / `In Progress` | Yes |
+| [e.g., Third-party API access approval] | External | [Vendor] | `Pending` | Yes |
+
+### 12.2 Downstream Dependents (What depends on this?)
+
+| Dependent | Team | Impact if Delayed |
+| :--- | :--- | :--- |
+| [e.g., Mobile app feature X] | [Team] | [Impact] |
+
+### 12.3 Decision Dependencies
+
+| Decision | Options | Decision Owner | Needed By |
+| :--- | :--- | :--- | :--- |
+| [e.g., Redis vs Memcached for session store] | [Option A vs Option B] | [Name] | YYYY-MM-DD |
+
+---
+
+## 13. Test Plan
 
 | Test Type | What Is Verified | Tools / Method | Pass Criterion |
 | :--- | :--- | :--- | :--- |
@@ -245,7 +363,7 @@ Error Responses:
 
 ---
 
-## 9. Rollout Plan
+## 14. Rollout Plan
 
 ### Deployment Strategy
 
@@ -263,7 +381,7 @@ Error Responses:
 
 ---
 
-## 10. Rollback Plan
+## 15. Rollback Plan
 
 > **This section is mandatory.** If this change causes a production incident, what exact steps does the on-call engineer take to revert it?
 
@@ -287,7 +405,7 @@ Roll back immediately if any of the following occur:
 
 ---
 
-## 11. Open Questions
+## 16. Open Questions
 
 > 🔵 Questions that must be resolved before implementation starts.
 
@@ -297,7 +415,7 @@ Roll back immediately if any of the following occur:
 
 ---
 
-## 12. Milestones
+## 17. Milestones
 
 | Milestone | Description | Target Date | Owner |
 | :--- | :--- | :--- | :--- |
@@ -309,7 +427,7 @@ Roll back immediately if any of the following occur:
 
 ---
 
-## 13. References
+## 18. References
 
 - [Link to related spec, ADR, ticket, or prior discussion]
 - [Link to external standard or library documentation]

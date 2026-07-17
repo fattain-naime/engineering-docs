@@ -1,3 +1,13 @@
+---
+title: API Design Document
+skill: api-design-document
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # API Design Document
 
 **API Name:** [Service / API Name]
@@ -348,7 +358,477 @@ Retry-After: 30
 
 ---
 
-## 9. OpenAPI 3.1 Snippet
+## 9. Idempotency
+
+> POST operations are not naturally idempotent. For endpoints that create resources or trigger side effects, require an `Idempotency-Key` header.
+
+**Endpoints requiring idempotency keys:**
+| Endpoint | Key Storage Duration | Behavior on Duplicate |
+| :--- | :--- | :--- |
+| `POST /v1/[resource]` | 24 hours | Return cached response (no re-execution) |
+| `POST /v1/[resource]/[id]/[action]` | 24 hours | Return cached response |
+
+**Header:** `Idempotency-Key: <client-generated-UUID>`
+
+**Error on mismatch:** HTTP 422 `idempotency-key-mismatch` if same key used with different request body.
+
+---
+
+## 10. Webhook Specification
+
+> Outbound callbacks to consumer-registered endpoints.
+
+### 10.1 Event Catalog
+
+| Event | Trigger | Payload Summary |
+| :--- | :--- | :--- |
+| `[resource].created` | New resource created | Full resource object |
+| `[resource].updated` | Resource modified | Changed fields only |
+| `[resource].deleted` | Resource removed | Resource ID + deletion timestamp |
+
+### 10.2 Delivery Configuration
+
+| Aspect | Specification |
+| :--- | :--- |
+| Signature scheme | HMAC-SHA256 with per-consumer secret |
+| Signature header | `X-Webhook-Signature` |
+| Timestamp header | `X-Webhook-Timestamp` (unix epoch, reject if > 5 min old) |
+| Max retries | [N] attempts |
+| Backoff | Exponential with jitter |
+| Timeout per attempt | [N] seconds |
+| Dead-letter | After max retries, event stored in DLQ for manual inspection |
+| Delivery guarantee | At-least-once (consumers must handle duplicates) |
+
+### 10.3 Endpoint Registration
+
+**`POST /v1/webhooks`** — Register a new webhook endpoint.
+
+Request:
+```json
+{
+  "url": "https://consumer.example.com/webhooks",
+  "events": ["payment.completed", "payment.failed"],
+  "secret": "whsec_auto_generated"
+}
+```
+
+**Verification:** Consumer must respond to a `POST` with a challenge token within 10 seconds to prove endpoint ownership.
+
+---
+
+## 11. File Upload/Download
+
+### 11.1 File Upload
+
+**Content-Type:** `multipart/form-data`
+
+| Constraint | Value |
+| :--- | :--- |
+| Max file size | [N MB] |
+| Allowed MIME types | [e.g., image/jpeg, image/png, application/pdf] |
+| MIME validation | By content inspection (magic bytes), not file extension |
+| Storage | [e.g., S3 / local filesystem outside webroot] |
+
+**Endpoint:** `POST /v1/[resource]/[id]/files`
+
+### 11.2 File Download
+
+**Endpoint:** `GET /v1/[resource]/[id]/files/{fileId}`
+
+| Aspect | Specification |
+| :--- | :--- |
+| Response | Streaming with `Content-Disposition: attachment` |
+| Large files | Signed URL redirect (pre-signed S3 URL, valid for N minutes) |
+| Range requests | Supported (`Accept-Ranges: bytes`) |
+
+---
+
+## 12. CORS Configuration
+
+| Directive | Value |
+| :--- | :--- |
+| `Access-Control-Allow-Origin` | [Whitelist: `https://app.example.com`, `https://admin.example.com`] |
+| `Access-Control-Allow-Methods` | `GET, POST, PUT, PATCH, DELETE, OPTIONS` |
+| `Access-Control-Allow-Headers` | `Authorization, Content-Type, Idempotency-Key, X-Request-ID` |
+| `Access-Control-Expose-Headers` | `X-RateLimit-Limit, X-RateLimit-Remaining, X-Request-ID` |
+| `Access-Control-Allow-Credentials` | `true` (if cookies/auth required) |
+| `Access-Control-Max-Age` | `86400` (24 hours) |
+
+---
+
+## 13. Batch Operations
+
+### 13.1 Batch Create
+
+**Endpoint:** `POST /v1/[resource]/batch`
+
+Request:
+```json
+{
+  "items": [
+    { "field_a": "value1", "field_b": 100 },
+    { "field_a": "value2", "field_b": 200 }
+  ]
+}
+```
+
+| Constraint | Value |
+| :--- | :--- |
+| Max items per batch | [N] |
+| Behavior | `all-or-nothing` (transactional) / `partial-success` (per-item status) |
+| Rate limit impact | Each item counts as 1 request toward rate limits |
+
+### 13.2 Batch Response (Partial Success)
+
+```json
+{
+  "results": [
+    { "index": 0, "status": "created", "id": "res_001" },
+    { "index": 1, "status": "error", "error": { "code": "validation_error", "detail": "..." } }
+  ],
+  "summary": { "total": 2, "succeeded": 1, "failed": 1 }
+}
+```
+
+---
+
+## 14. Caching Strategy
+
+| Response Type | Cacheable? | Cache-Control Header | Vary |
+| :--- | :--- | :--- | :--- |
+| `GET /v1/[resource]/{id}` | Yes (public) | `max-age=60` | - |
+| `GET /v1/[resource]/{id}` (user-specific) | Yes (private) | `private, max-age=30` | `Authorization` |
+| `GET /v1/[resource]` (list) | No | `no-store` | - |
+| `POST / PUT / PATCH / DELETE` | No | `no-store` | - |
+
+**ETag support:** Every GET response includes an `ETag` header. Clients may send `If-None-Match` to receive 304 Not Modified.
+
+**CDN caching:** [Applicable? Which responses? Cache key?]
+
+---
+
+## 15. Health Check Endpoints
+
+| Endpoint | Purpose | Success Response | Failure Response |
+| :--- | :--- | :--- | :--- |
+| `GET /health` | Liveness - is the process running? | `200 OK` | N/A (process is dead if no response) |
+| `GET /health/ready` | Readiness - can the service handle requests? | `200 OK` | `503 Service Unavailable` |
+| `GET /health/detailed` | Dependency status (internal only) | `200` with per-dependency status | `503` if any critical dependency is down |
+
+**Readiness checks:**
+- [ ] Database connection pool has available connections
+- [ ] Cache (Redis) is reachable
+- [ ] Queue (if applicable) is reachable
+- [ ] Critical external dependencies are healthy
+
+---
+
+## 16. Soft-Delete vs Hard-Delete
+
+| Resource | Deletion Strategy | Rationale | Restore Supported? |
+| :--- | :--- | :--- | :--- |
+| [e.g., Payment Link] | Soft-delete | Audit trail, merchant may need to reference historical links | Yes - `PATCH` to set `status=active` |
+| [e.g., File Upload] | Hard-delete | Storage cost, no audit need | No |
+| [e.g., User Account] | Soft-delete + GDPR hard-delete | Soft-delete for business logic; hard-delete on GDPR erasure request | Soft: Yes / Hard: No |
+
+**Default behavior:** `GET` endpoints exclude soft-deleted resources. Add `?include_deleted=true` for admin access.
+
+---
+
+## 17. OpenAPI 3.1 Snippet
+
+> Expand this snippet to cover all CRUD operations for the primary resource.
+
+```yaml
+openapi: "3.1.0"
+info:
+  title: "[API Name]"
+  version: "1.0.0"
+  description: "[API description]"
+
+servers:
+  - url: "https://api.[domain].com/v1"
+    description: Production
+  - url: "https://staging-api.[domain].com/v1"
+    description: Staging
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    PaymentLink:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "pl_01HXYZ123"
+        amount:
+          type: string
+          format: decimal
+          example: "99.99"
+        currency:
+          type: string
+          example: "USD"
+        status:
+          type: string
+          enum: [active, expired, paid, cancelled]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PaymentLinkCreate:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount:
+          type: string
+          format: decimal
+        currency:
+          type: string
+        description:
+          type: string
+          maxLength: 255
+        expires_at:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+
+    ErrorResponse:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        request_id:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentLink"
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+            total_pages:
+              type: integer
+            has_next:
+              type: boolean
+            has_prev:
+              type: boolean
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+      description: Client-generated UUID for idempotent POST requests
+
+paths:
+  /merchants/{merchantId}/payment-links:
+    get:
+      summary: List payment links (paginated)
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, expired, paid, all]
+            default: all
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        "200":
+          description: Success
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+    post:
+      summary: Create a payment link
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentLinkCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentLink"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /merchants/{merchantId}/payment-links/{id}:
+    get:
+      summary: Get a single payment link
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentLink"
+        "404":
+          description: Not found
+
+    patch:
+      summary: Update a payment link
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: If-Match
+          in: header
+          required: false
+          schema:
+            type: string
+          description: ETag for conditional update (prevents lost updates)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                expires_at:
+                  type: string
+                  format: date-time
+                metadata:
+                  type: object
+      responses:
+        "200":
+          description: Updated
+        "404":
+          description: Not found
+        "412":
+          description: Precondition failed (ETag mismatch)
+
+    delete:
+      summary: Delete a payment link (soft-delete)
+      parameters:
+        - name: merchantId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+        "409":
+          description: Conflict (has payments, cannot delete)
+```
 
 ```yaml
 openapi: "3.1.0"
@@ -463,7 +943,7 @@ paths:
 
 ---
 
-## 10. Breaking vs Non-Breaking Changes
+## 18. Breaking vs Non-Breaking Changes
 
 ### Non-Breaking (Backward-Compatible) - No version bump required
 - Adding new optional request fields
@@ -481,7 +961,7 @@ paths:
 
 ---
 
-## 11. Security Checklist
+## 19. Security Checklist
 
 - [ ] Every endpoint requires authentication (no anonymous endpoints)
 - [ ] Authorization checked at service layer, not just routing layer
@@ -491,3 +971,12 @@ paths:
 - [ ] Rate limiting applied to all write operations
 - [ ] `request_id` on every response for traceability
 - [ ] No internal error details exposed in 500 responses
+
+---
+
+## 20. Alternatives Considered
+
+| Alternative | Pros | Cons | Why Not Chosen |
+|:---|:---|:---|:---|
+| [e.g., GraphQL instead of REST] | [Flexible querying, single endpoint, no over-fetching] | [Harder to cache, more complex auth, steeper learning curve for consumers] | [REST is the team's strength; consumer base expects REST; caching is critical for performance] |
+| [e.g., Header-based versioning instead of URI versioning] | [Cleaner URLs, more "pure" REST] | [Harder to test in browser, invisible to casual inspection, breaks simple curl workflows] | [URI versioning is explicit, cacheable, and easier for API consumers to adopt incrementally] |

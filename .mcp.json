@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "engineering-docs": {
+      "command": "node",
+      "args": ["bin/validate.js"],
+      "description": "Engineering Docs validation server - provides tools for validating document completeness, checking cross-references, and generating indexes."
+    }
+  }
+}

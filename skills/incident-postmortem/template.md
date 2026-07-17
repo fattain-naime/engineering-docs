@@ -1,8 +1,19 @@
+---
+title: Incident Post-Mortem
+skill: incident-postmortem
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Incident Post-Mortem
 
 **Incident ID:** INC-[YYYYMMDD]-[NNN]
 **Incident Title:** [Short, descriptive title - e.g., "Payment Gateway 22-Minute Outage Due to DB Connection Exhaustion"]
-**Severity:** `SEV-1` | `SEV-2` | `SEV-3` | `SEV-4`
+**Severity:** `SEV-1` | `SEV-2` | `SEV-3` | `SEV-4` (auto-classified - see decision tree below)
+**Incident Type:** `Actual Incident` | `Near-Miss` (near-miss: caught before user impact)
 **Status:** `Draft` | `In Review` | `Final`
 **Date of Incident:** YYYY-MM-DD
 **Duration:** [N hours N minutes]
@@ -19,6 +30,61 @@
 
 ---
 
+## 0. Severity Classification & Incident Commander
+
+### 0.1 Severity Classification Decision Tree
+
+> Use this decision tree to classify severity. Re-classify as more information becomes available.
+
+```
+START
+  |
+  v
+Is the service completely unreachable for ALL users?
+  |-- YES --> SEV-1
+  |-- NO --> v
+  Is a significant user-facing feature broken (>10% of users affected)?
+    |-- YES --> SEV-2
+    |-- NO --> v
+    Is performance degraded (latency, error rate elevated)?
+      |-- YES, sustained > 5 min --> SEV-3
+      |-- YES, brief < 5 min --> SEV-4
+      |-- NO --> v
+      Is there a minor, non-user-facing issue?
+        |-- YES --> SEV-4
+        |-- NO --> Not an incident (monitor)
+```
+
+**Classification justification:** [Why was this severity chosen? Reference the decision tree path.]
+
+**Re-classification log:**
+
+| Time | Previous Severity | New Severity | Reason |
+| :--- | :--- | :--- | :--- |
+| [HH:MM] | [SEV-X] | [SEV-X] | [e.g., "Impact broadened from 5% to 20% of users"] |
+
+### 0.2 Incident Commander (SEV-1 / SEV-2 only)
+
+> For SEV-3 and SEV-4, the on-call engineer handles the incident without a formal IC.
+
+**Incident Commander:** [Name]
+**IC designated at:** [HH:MM]
+**IC handoff(s):** [If IC changed during the incident, document: from [Name] to [Name] at [HH:MM], status briefing summary]
+
+**IC Responsibilities during this incident:**
+
+| Responsibility | Status | Notes |
+| :--- | :--- | :--- |
+| Declared incident and set severity | `Done` at [HH:MM] | [Initial severity: SEV-X] |
+| Designated roles (comms lead, tech lead, scribe) | `Done` at [HH:MM] | [Names] |
+| Ran incident bridge (Slack/call) | `Done` | [Channel: #inc-YYYYMMDD-description] |
+| Made go/no-go decisions on mitigation | `Done` | [Key decisions made] |
+| Ensured external communications sent on schedule | `Done` | [Communication log in Section 7] |
+| Declared incident resolved | `Done` at [HH:MM] | |
+| Scheduled postmortem | `Done` | [Meeting: YYYY-MM-DD HH:MM] |
+
+---
+
 ## 1. Executive Summary
 
 > 3-5 sentences. What happened, when, how long, what was the impact, what fixed it. Written for a non-technical audience. Should be the only section a senior executive needs to read.
@@ -28,6 +94,8 @@
 ---
 
 ## 2. Impact Assessment
+
+> **If this is a near-miss:** Document the *potential* impact if the issue had not been caught or had self-resolved. Estimate what would have happened if the near-miss had become a real incident.
 
 ### 2.1 User Impact
 
@@ -107,12 +175,14 @@
 
 > These are the actionable root causes that action items must address. There should be 3-5.
 
-| # | Root Cause | Type |
-| :--- | :--- | :--- |
-| RC-1 | No database performance testing / query profiling in CI pipeline | Testing gap |
-| RC-2 | No alert on DB connection pool utilization (only alerted on full exhaustion) | Observability gap |
-| RC-3 | Staging database has < 0.1% of production data volume, masking performance regressions | Environment parity gap |
-| RC-4 | No deployment gate checking for slow queries using `EXPLAIN ANALYZE` | Deployment control gap |
+| # | Root Cause | Type | Category (for trending) |
+| :--- | :--- | :--- | :--- |
+| RC-1 | No database performance testing / query profiling in CI pipeline | Testing gap | `Testing gap` |
+| RC-2 | No alert on DB connection pool utilization (only alerted on full exhaustion) | Observability gap | `Observability gap` |
+| RC-3 | Staging database has < 0.1% of production data volume, masking performance regressions | Environment parity gap | `Architecture gap` |
+| RC-4 | No deployment gate checking for slow queries using `EXPLAIN ANALYZE` | Deployment control gap | `Deployment control gap` |
+
+> **Category values for trending:** `Testing gap` | `Observability gap` | `Deployment control gap` | `Architecture gap` | `Process gap` | `Knowledge gap` | `Third-party dependency`
 
 ### 4.4 What Went Well
 
@@ -147,6 +217,22 @@
 | AI-004 | Add `EXPLAIN ANALYZE` query validation step to CI pipeline: fail build if any new query has `rows_examined` > 100K | CI/CD | [Name] | YYYY-MM-DD | CI fails on a test query with missing index | `Open` |
 | AI-005 | Add load test for [feature that caused incident]: simulate 1K concurrent users in CI | Testing | [Name] | YYYY-MM-DD | Load test runs in CI and passes at p99 < 200ms | `Open` |
 
+### 5.1 Action Item Tracking Process
+
+> Action items without tracking are promises that will be forgotten.
+
+**Tracking system:** [Jira / Linear / GitHub Issues - link to board/filter]
+**Review cadence:** Weekly review by postmortem author until all items are closed
+**Escalation policy:**
+
+| Overdue Duration | Escalation |
+| :--- | :--- |
+| > 1 week with no progress | Escalate to team lead |
+| > 2 weeks | Escalate to engineering management |
+| > 2 weeks (SEV-1 items) | Escalate to engineering VP / CTO |
+
+**Postmortem review meeting:** Scheduled for [YYYY-MM-DD HH:MM] - reviews draft postmortem, validates timeline and root cause, ensures action items are agreed upon and assigned.
+
 ---
 
 ## 6. Lessons Learned
@@ -161,7 +247,25 @@
 
 ---
 
-## 7. Communication Log
+## 7. Statistical Analysis (for quarterly trending)
+
+> Populate this section when aggregating postmortems for quarterly review.
+
+| Metric | This Incident | Team Average (last quarter) | Trend |
+| :--- | :--- | :--- | :--- |
+| Time to detect (MTTD) | [N minutes] | [N minutes] | `Improving` / `Stable` / `Worsening` |
+| Time to mitigate | [N minutes] | [N minutes] | `Improving` / `Stable` / `Worsening` |
+| Time to recover (MTTR) | [N minutes] | [N minutes] | `Improving` / `Stable` / `Worsening` |
+| Action items generated | [N] | [N] | - |
+| Root cause category | [Category from 4.3] | [Most frequent category last quarter] | - |
+
+**Repeat root cause?** `Yes` / `No` - If yes, reference prior incident: [INC-YYYYMMDD-NNN]
+
+**Quarterly trend summary:** [To be filled during quarterly review. Is the number of postmortems increasing or decreasing? Are MTTR and MTTD improving? Which root cause category is most frequent?]
+
+---
+
+## 8. Communication Log
 
 > Track all external communications made during the incident.
 
@@ -175,24 +279,58 @@
 
 ---
 
-## 8. Appendix
+## 9. Appendix
 
-### 8.1 Relevant Monitoring Screenshots
+### 9.1 Relevant Monitoring Screenshots
 
 > Attach or link to monitoring graphs showing the incident signature.
 
 - [Link to error rate graph during incident]
 - [Link to DB connection count graph during incident]
 
-### 8.2 Relevant Log Excerpts
+### 9.2 Relevant Log Excerpts
 
 ```
 [HH:MM:SS] CRITICAL: PDOException: SQLSTATE[HY000]: too many connections in /var/www/...
 [HH:MM:SS] ERROR: Maximum connection count 500 reached
 ```
 
-### 8.3 Related Incidents
+### 9.3 Related Incidents
 
 | Incident ID | Date | Description | Relationship |
 | :--- | :--- | :--- | :--- |
 | INC-YYYYMMDD-NNN | YYYY-MM-DD | [Similar incident] | Same root cause / Similar pattern |
+
+---
+
+## 10. Incident Response Tooling
+
+> Document the tools used for incident response so any engineer can use them.
+
+| Tool | Purpose | Configuration Link | Access |
+| :--- | :--- | :--- | :--- |
+| [PagerDuty] | Alerting, on-call rotation, escalation | [Link to service config] | [Roles with access] |
+| [OpsGenie] | Alert routing, on-call schedules | [Link to team config] | [Roles with access] |
+| [incident.io / FireHydrant / Rootly] | Incident management (declare, update, resolve) | [Link to workspace] | [Roles with access] |
+| [Slack] | Incident channel: `#inc-YYYYMMDD-short-description` | [Bot integrations: status updates] | [All engineers] |
+| [Status page] | External status updates | [Link to status page admin] | [Roles with access] |
+| [Video bridge] | Incident bridge call | [Standing bridge URL] | [All engineers] |
+
+**Incident declaration template (Slack):**
+```
+INCIDENT DECLARED
+Severity: [SEV-1/2/3/4]
+Title: [Short description]
+Incident Commander: [Name]
+Channel: #inc-YYYYMMDD-[short-description]
+Bridge: [URL]
+```
+
+**Status page update templates:**
+
+| Stage | Template |
+| :--- | :--- |
+| Investigating | "We are investigating [description of issue]. We will update within [N minutes]." |
+| Identified | "The root cause has been identified as [description]. We are working on [mitigation]." |
+| Monitoring | "A fix has been applied. We are monitoring for stability." |
+| Resolved | "The incident has been resolved. [Brief summary of what happened and what we're doing to prevent recurrence.]" |

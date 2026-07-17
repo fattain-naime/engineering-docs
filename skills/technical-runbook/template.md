@@ -1,3 +1,13 @@
+---
+title: Technical Runbook
+skill: technical-runbook
+status: draft
+owner_reviewed: false
+last_updated: 2026-07-17
+depends_on: []
+supersedes: ""
+---
+
 # Technical Runbook
 
 **Service:** [Service Name]
@@ -521,7 +531,309 @@ ls -lh /var/backups/mysql/emergency_*.sql
 
 ---
 
-## 8. Change Log
+## 8. Certificate Management
+
+### 8.1 Certificate Inventory
+
+| Domain | Issuer | Type | Expiry Date | Auto-Renew? | Service(s) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| [api.example.com] | [Let's Encrypt / DigiCert] | [DV / OV / EV] | [YYYY-MM-DD] | `Yes` / `No` | [Nginx, Load Balancer] |
+| [admin.example.com] | [Issuer] | [Type] | [YYYY-MM-DD] | `Yes` / `No` | [Service] |
+
+### 8.2 Certificate Rotation Procedure
+
+**Last Verified:** YYYY-MM-DD
+
+**Automated renewal (Let's Encrypt / certbot):**
+```bash
+# Check certbot renewal status
+sudo certbot certificates
+
+# Force renewal (if needed)
+sudo certbot renew --force-renewal
+
+# Reload Nginx to pick up new cert
+sudo systemctl reload nginx
+
+# Verify new cert
+echo | openssl s_client -connect [domain]:443 -servername [domain] 2>/dev/null | openssl x509 -noout -dates
+```
+
+**Manual renewal (purchased certificate):**
+```bash
+# Generate new CSR
+openssl req -new -newkey rsa:2048 -nodes \
+  -keyout /etc/ssl/private/[domain].key \
+  -out /etc/ssl/certs/[domain].csr
+
+# After receiving cert from CA, install:
+sudo cp [new-cert].crt /etc/ssl/certs/[domain].crt
+sudo systemctl reload nginx
+
+# Verify
+curl -vI https://[domain] 2>&1 | grep -i "expire\|issuer"
+```
+
+### 8.3 Emergency Certificate Rotation (Compromised or Expired)
+
+```bash
+# If certificate is compromised or expired:
+# 1. Generate new key immediately
+openssl req -new -newkey rsa:2048 -nodes \
+  -keyout /etc/ssl/private/[domain]-new.key \
+  -out /etc/ssl/certs/[domain]-new.csr
+
+# 2. Submit to CA for emergency issuance (or use certbot)
+sudo certbot certonly --standalone -d [domain] --force-renewal
+
+# 3. Deploy new cert
+sudo systemctl reload nginx
+
+# 4. Revoke old cert (if compromised)
+sudo certbot revoke --cert-name [domain] --reason keycompromise
+```
+
+**Escalation:** If certificate cannot be renewed within [2 hours], escalate to [L2 - Lead Engineer].
+
+---
+
+## 9. Secret Rotation
+
+### 9.1 Secret Inventory
+
+| Secret | Storage Location | Consumed By | Last Rotated | Rotation Schedule | Zero-Downtime? |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| [Database password] | [Vault / AWS Secrets Manager / env file] | [App servers, queue workers] | [YYYY-MM-DD] | [Monthly] | `Yes` - dual-user rotation |
+| [API key - payment provider] | [Vault] | [App servers] | [YYYY-MM-DD] | [Quarterly] | `No` - restart required |
+| [Redis password] | [Vault] | [App servers, workers] | [YYYY-MM-DD] | [Quarterly] | `Yes` - hot reload |
+| [Encryption key] | [Vault / KMS] | [App servers] | [YYYY-MM-DD] | [Annually] | `Yes` - dual-key support |
+
+### 9.2 Database Password Rotation
+
+**Last Verified:** YYYY-MM-DD
+
+```bash
+# Step 1: Create new user with new password
+mysql -u root -p -e "
+  CREATE USER '[app_user_new]'@'%' IDENTIFIED BY '[new_password]';
+  GRANT ALL PRIVILEGES ON [database].* TO '[app_user_new]'@'%';
+  FLUSH PRIVILEGES;
+"
+
+# Step 2: Update secret store with new credentials
+# [Vault/Secrets Manager update command]
+
+# Step 3: Restart application to pick up new credentials
+sudo systemctl reload php8.3-fpm
+sudo systemctl restart [queue-worker-service]
+
+# Step 4: Verify no connections using old user
+mysql -u root -p -e "
+  SELECT user, host, db FROM information_schema.processlist WHERE user = '[app_user_old]';
+"
+# Expected: 0 rows
+
+# Step 5: Drop old user (after grace period of [24 hours])
+mysql -u root -p -e "DROP USER '[app_user_old]'@'%';"
+```
+
+### 9.3 API Key Rotation
+
+```bash
+# Step 1: Generate new key in provider dashboard
+# Step 2: Update secret store
+# [Vault/Secrets Manager update command]
+# Step 3: Restart consumers
+sudo systemctl reload php8.3-fpm
+# Step 4: Verify new key works (call provider test endpoint)
+curl -H "Authorization: Bearer [new_key]" https://[provider]/test
+# Step 5: Revoke old key (after grace period)
+```
+
+---
+
+## 10. Configuration Change
+
+### 10.1 Configuration Inventory
+
+| Configuration | Location | Type | Consumers | Hot-Reload? |
+| :--- | :--- | :--- | :--- | :--- |
+| [APP_DEBUG] | [.env / Vault] | [Environment variable] | [App servers] | `No` - restart required |
+| [Feature flag: new_checkout] | [LaunchDarkly / config file] | [Feature flag] | [App servers] | `Yes` - evaluated per request |
+| [DB_CONNECTION_TIMEOUT] | [config/database.php] | [Config file] | [App servers] | `No` - restart required |
+
+### 10.2 Configuration Change Procedure
+
+**Last Verified:** YYYY-MM-DD
+
+```bash
+# Step 1: Document current value
+cat /var/www/current/.env | grep [CONFIG_KEY]
+
+# Step 2: Apply change
+# For .env files:
+sudo sed -i 's/[CONFIG_KEY]=[old_value]/[CONFIG_KEY]=[new_value]/' /var/www/current/.env
+
+# Step 3: Pick up change
+# If hot-reload: no restart needed
+# If restart required:
+sudo systemctl reload php8.3-fpm
+
+# Step 4: Verify change took effect
+curl -s https://[domain]/health | python3 -m json.tool
+# Check logs for config reload confirmation:
+tail -f /var/log/[app]/error.log | grep -i "config"
+
+# Step 5: Rollback if needed
+sudo sed -i 's/[CONFIG_KEY]=[new_value]/[CONFIG_KEY]=[old_value]/' /var/www/current/.env
+sudo systemctl reload php8.3-fpm
+```
+
+### 10.3 Feature Flag Management
+
+| Flag | State | Authority to Toggle | Blast Radius | Rollback |
+| :--- | :--- | :--- | :--- | :--- |
+| `[flag_name]` | `ON` / `OFF` | [Name, Role] | [Which features/users affected] | [Set to OFF] |
+
+---
+
+## 11. Performance Profiling
+
+### 11.1 When to Profile
+
+Profile when:
+- p99 latency exceeds warning threshold (> 200ms) but is below critical (< 500ms)
+- A specific endpoint is slow while others are normal
+- After a deployment that introduced new database queries or external API calls
+
+### 11.2 Profiling Commands
+
+**Last Verified:** YYYY-MM-DD
+
+**Xdebug profiler (PHP):**
+```bash
+# Enable for one request via query parameter
+curl "https://[domain]/[slow-endpoint]?XDEBUG_PROFILE=1"
+
+# Cachegrind output location
+ls -lt /tmp/cachegrind.out.*
+
+# Analyze with KCachegrind (GUI) or qcachegrind
+qcachegrind /tmp/cachegrind.out.[pid]
+```
+
+**Blackfire profiler:**
+```bash
+# Profile a request
+blackfire curl https://[domain]/[slow-endpoint]
+
+# Review results at blackfire.io dashboard
+```
+
+**New Relic / Datadog APM:**
+1. Open APM dashboard: [URL]
+2. Navigate to slow transaction traces
+3. Identify slow span (DB query, external HTTP, template rendering)
+4. Check SQL query details for missing indexes
+
+**MySQL slow query log:**
+```bash
+# Check for slow queries
+tail -n 50 /var/log/mysql/slow.log
+
+# Look for high Rows_examined / Rows_sent ratio (missing index)
+grep "Rows_examined" /var/log/mysql/slow.log | awk -F'Rows_examined:' '{print $2}' | sort -n | tail -20
+```
+
+**PHP-FPM slow log:**
+```bash
+# Check for slow requests at the PHP-FPM level
+tail -n 50 /var/log/php-fpm-slow.log
+```
+
+### 11.3 Safe Production Profiling
+
+- **Sampling:** Enable profiler for 1-5% of requests only (Xdebug: use `xdebug.profiler_enable=0` + trigger; Blackfire: use sampling mode)
+- **Duration:** Disable profiling after capturing sufficient samples (10-20 slow requests)
+- **Overhead:** Xdebug adds 20-50% overhead; Blackfire adds 2-5%. Never leave Xdebug profiler enabled in production permanently.
+
+---
+
+## 12. Multi-Region / Multi-Server Procedures
+
+### 12.1 Server Inventory
+
+| Server / Instance | Region | Role | IP / Hostname | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| [web-01] | [us-east-1] | [Web server] | [10.0.1.10] | `Active` |
+| [web-02] | [us-east-1] | [Web server] | [10.0.1.11] | `Active` |
+| [web-03] | [eu-west-1] | [Web server] | [10.0.2.10] | `Active` |
+| [db-primary] | [us-east-1] | [MySQL primary] | [10.0.1.20] | `Active` |
+| [db-replica] | [us-east-1] | [MySQL replica] | [10.0.1.21] | `Active` |
+
+### 12.2 Region-Specific Procedures
+
+| Procedure | Region-Specific? | Details |
+| :--- | :--- | :--- |
+| [DNS failover] | `Yes` | [Different DNS records per region; see DR plan] |
+| [Backup location] | `Yes` | [us-east-1: s3://backups-us; eu-west-1: s3://backups-eu] |
+| [Scaling group] | `Yes` | [Each region has its own ASG with different min/max] |
+
+### 12.3 Distributed Debugging
+
+**Request tracing:**
+```bash
+# Search for a specific request across all servers
+# [Trace ID / Request ID] is set in the X-Request-ID header
+
+# On each server:
+grep "[request-id]" /var/log/[app]/error.log
+
+# Or via centralized logging:
+# [Datadog/ELK query: @request_id:"[request-id]"]
+```
+
+### 12.4 Cross-Region Failover Quick Reference
+
+> For full failover procedure, see the disaster-recovery-plan.
+
+```bash
+# Quick check: is the other region healthy?
+curl -f https://[domain-failover-region]/health
+
+# If primary region is down, update DNS:
+# [Route53 / DNS provider command to failover]
+```
+
+---
+
+## 13. Runbook Validation Drills
+
+### 13.1 Drill Schedule
+
+| Drill Date | Scenario | Engineer | Result | Gaps Found | Action Items |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| YYYY-MM-DD | [Simulated high 5xx alert] | [Name] | `Pass` / `Fail` | [Description] | [Owner, deadline] |
+| YYYY-MM-DD | [Simulated DB connection exhaustion] | [Name] | `Pass` / `Fail` | [Description] | [Owner, deadline] |
+
+### 13.2 Quarterly Review Checklist
+
+> Complete this checklist every quarter. Each unchecked item is a gap that needs resolution.
+
+- [ ] Every diagnostic command has been executed against current production; output matches documentation
+- [ ] Every alert in the Alert Index (Section 3) still exists in the monitoring system with the documented trigger conditions
+- [ ] Escalation contacts (Section 5) are current - no one has left the team or changed roles
+- [ ] Log paths and formats have not changed since last verification
+- [ ] All referenced tools and CLIs are installed and accessible on the on-call engineer's workstation
+- [ ] Certificate expiry dates (Section 8) are all > 30 days out
+- [ ] Secret rotation dates (Section 9) are all within schedule
+- [ ] "Last Verified" date updated on each procedure section
+
+**Last quarterly review:** YYYY-MM-DD | **Reviewer:** [Name] | **Next review due:** YYYY-MM-DD
+
+---
+
+## 14. Change Log
 
 | Date | Version | Author | Change |
 | :--- | :--- | :--- | :--- |

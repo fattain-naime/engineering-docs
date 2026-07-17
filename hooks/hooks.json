@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node hooks/check-progress.js",
+            "async": false
+          }
+        ]
+      }
+    ]
+  }
+}

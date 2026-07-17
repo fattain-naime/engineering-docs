@@ -1,0 +1,73 @@
+# Greenfield Test Prompt
+
+Use this prompt to test the full orchestrator pipeline in Mode A (greenfield).
+It includes enough ambiguity and detail to exercise the Phase 0 interview,
+standing constraint questions, conditional skill selection, and document generation.
+
+---
+
+## Prompt
+
+I want to build a website to sell umbrellas for rainy weather. The idea is that
+people who live in rainy cities (Seattle, London, Mumbai during monsoon season)
+need good umbrellas but the options online are either cheap garbage or overpriced
+luxury brands. I want to sit in the middle: quality umbrellas at fair prices,
+with a focus on wind resistance and durability.
+
+I'm thinking:
+- Customers browse by use case (commuter, golf, compact, golf, kids)
+- There's a "weather advisor" that recommends based on their city's average rainfall
+- We could do a subscription model where you get a new umbrella every year
+- I'd start with maybe 20-30 SKUs
+
+I'm a solo developer, I know React and Node.js, and I have about $5K to spend
+on hosting and tools for the first year. I want to launch an MVP in 3 months.
+I don't have any compliance requirements I know of. No existing systems to
+integrate with yet, but I might want to connect to a fulfillment service later.
+
+I don't know anything about payment processing or how to handle shipping rates.
+Help me turn this into everything needed to build it.
+
+---
+
+## What This Tests
+
+- Orchestrator detects Mode A (greenfield) correctly
+- Phase 0 business concept interview runs before technical docs
+- Standing constraint questions are asked (some are already answered in the prompt;
+  the agent should NOT re-ask team size, hosting, budget, timeline, regulatory,
+  integrations — but should confirm or fill gaps)
+- The agent handles "I don't know" gracefully for payment processing and shipping
+- Conditional skills are evaluated:
+  - technical-feasibility-study: probably skip (nothing technically uncertain)
+  - ux-flow-specification: include (has a customer-facing UI)
+  - database-design-document: include (product catalog, orders, subscriptions)
+  - api-design-document: include (will need REST API for the React frontend)
+  - admin-access-control-specification: include if there's an admin panel
+  - security-threat-model: include (handles payments and customer data)
+  - design-system-specification: include (customer-facing brand)
+  - technical-runbook: maybe include once there's a production deployment
+  - disaster-recovery-plan: probably skip for MVP
+  - slo-error-budget-document: probably skip for MVP
+- Right-sizing: the agent should NOT include disaster recovery or SLO docs
+  for a solo-dev MVP with $5K budget
+
+## Expected Output
+
+A `.engineering-docs/` directory with at least:
+- index.md
+- 1-business-plan.md
+- 2-project-plan.md
+- 3-user-personas.md
+- 5-technical-specification.md
+- 7-system-architecture.md
+- 14-implementation-plan.md
+- 15-test-strategy.md
+- 16-deployment-plan.md
+
+And possibly (depending on conditional skill evaluation):
+- 6-ux-flow-specification.md
+- 8-database-design.md
+- 9-api-design.md
+- 11-security-threat-model.md
+- 12-design-system.md

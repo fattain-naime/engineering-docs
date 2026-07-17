@@ -1,0 +1,70 @@
+# Brownfield Test Prompt
+
+Use this prompt to test the orchestrator pipeline in Mode B (brownfield).
+It simulates adding a new feature to an existing system and verifies that
+the orchestrator correctly limits scope to relevant skills.
+
+---
+
+## Prompt
+
+We have an existing e-commerce app built with Next.js and PostgreSQL. It handles
+product listings, a shopping cart, and checkout via Stripe. We've been running
+for about a year with ~500 orders/month.
+
+Now we want to add a loyalty rewards system. Here's the rough idea:
+- Customers earn points on every purchase (1 point per dollar spent)
+- Points can be redeemed for discounts at checkout
+- There are three tiers: Bronze (0-999 points), Silver (1000-4999), Gold (5000+)
+- Higher tiers get bonus point multipliers (1x, 1.5x, 2x)
+- Admins need a dashboard to view loyalty metrics and manually adjust points
+
+We already have user accounts and an admin panel. The Stripe integration is
+stable. Our database has users, products, orders, and order_items tables.
+
+Help me document what's needed.
+
+---
+
+## What This Tests
+
+- Orchestrator detects Mode B (brownfield) from:
+  - "existing e-commerce app" language
+  - References to an established codebase and database
+  - "add" language indicating a new feature on an existing system
+- The orchestrator does NOT re-run the full greenfield pipeline
+- The orchestrator infers or asks about the current system state
+- Only the relevant subset of skills is invoked:
+  - technical-blueprint: yes (new feature design)
+  - architecture-decision-record: maybe (if the loyalty system changes architecture)
+  - database-design-document: yes (new tables for points, tiers, redemptions)
+  - api-design-document: yes (new endpoints for loyalty CRUD)
+  - admin-access-control-specification: yes (new admin dashboard)
+  - security-threat-model: yes (points are a currency-equivalent, abuse risk)
+  - test-strategy-document: yes (scoped to loyalty feature)
+  - implementation-plan: yes (build order for the new feature)
+  - project-plan: maybe (if timeline/scope changes)
+- The orchestrator does NOT invoke:
+  - business-concept (already established)
+  - user-personas-behavior (already established)
+  - system-architecture-document (already documented)
+  - ux-flow-specification (unless the loyalty UI is complex enough)
+  - design-system-specification (existing design system should cover it)
+  - disaster-recovery-plan (no change to recovery posture)
+  - slo-error-budget-document (no change to reliability targets)
+- New documents append to the existing set (next available numbers)
+- No existing documents are overwritten
+
+## Expected Output
+
+New documents added to `.engineering-docs/` with sequence numbers continuing
+from the existing set. At minimum:
+- A technical blueprint for the loyalty feature
+- A database design update (new tables: loyalty_points, loyalty_tiers, etc.)
+- An API design update (new endpoints)
+- An admin access control update (loyalty dashboard permissions)
+- A security threat model for the loyalty system
+- A test strategy scoped to the loyalty feature
+- An implementation plan for the loyalty build
+
+Plus an updated index.md reflecting all new documents.

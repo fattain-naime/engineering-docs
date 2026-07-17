@@ -1,0 +1,94 @@
+# Direct Skill Invocation Test Prompt
+
+Use this prompt to test a single skill invoked directly, outside the orchestrator.
+This verifies that individual skills produce high-quality output with proper
+interview, structure, and content when called standalone.
+
+---
+
+## Prompt
+
+Write a technical specification for a webhook delivery system.
+
+The system needs to:
+- Accept webhook registrations from merchants (they provide a URL and select
+  which events they want)
+- Deliver event payloads as signed HTTP POST requests to registered URLs
+- Verify delivery using HMAC-SHA256 signatures with per-merchant secrets
+- Retry failed deliveries with exponential backoff (max 3 retries)
+- Track delivery status (pending, delivered, failed, expired)
+- Handle 10,000 events per minute at peak
+- Provide a dashboard where merchants can view delivery logs and replay events
+
+The system will be built in Go with PostgreSQL for persistence and Redis for
+the delivery queue. It will sit behind an API gateway that handles auth.
+
+---
+
+## What This Tests
+
+- The `technical-specification` skill is triggered (not the orchestrator)
+- The skill conducts its own clarifying interview before generating the spec
+- Questions are asked one at a time, not batched
+- The interview covers topics specific to a webhook system:
+  - Event types and payload schema
+  - Retry behavior details (backoff formula, max attempts, dead letter queue)
+  - Signature verification requirements
+  - Merchant self-service capabilities
+  - Rate limiting and throttling
+  - Monitoring and alerting
+  - SLA expectations
+- The produced document includes:
+  - Requirements using EARS syntax
+  - Functional requirements with unique IDs (FR-001, FR-002, ...)
+  - Non-functional requirements with measurable targets
+  - Acceptance criteria for each requirement
+  - Traceability matrix
+  - Assumptions tagged with assumption markers
+  - Open questions tagged and not silently resolved
+  - YAML metadata frontmatter
+
+## Variations to Test
+
+To broaden coverage, try these alternative direct-skill prompts:
+
+### system-architecture-document
+"Document the system architecture for a real-time collaborative document editor
+like Google Docs, using CRDTs for conflict resolution."
+
+### security-threat-model
+"Create a security threat model for a multi-tenant SaaS platform that stores
+customer PII and processes payments through Stripe Connect."
+
+### test-strategy-document
+"Write a test strategy for a mobile banking app built with React Native that
+integrates with three different banking APIs across different countries."
+
+### implementation-plan
+"Create an implementation plan for migrating a monolithic PHP application to a
+microservices architecture, where the first service to extract is the billing
+module."
+
+### business-concept
+"Help me define the business concept for an AI-powered recipe generator that
+creates meal plans based on dietary restrictions, available ingredients, and
+budget constraints."
+
+---
+
+## What to Look For in Any Direct Skill Invocation
+
+1. **Interview happens first.** The skill should ask clarifying questions
+   before generating any document.
+2. **One question at a time.** No batching.
+3. **Prior context is respected.** If the prompt already contains details
+   (like "Go with PostgreSQL and Redis"), the skill should NOT re-ask for
+   that information.
+4. **Assumptions are marked.** Anywhere the agent fills in a detail not
+   provided by the user, it should be tagged as an assumption.
+5. **Open questions are preserved.** If something is genuinely ambiguous,
+   it should be tagged as an open question, not silently resolved.
+6. **Output follows the skill's template.** The document structure should
+   match what the skill's SKILL.md defines.
+7. **Metadata is present.** YAML frontmatter with title, skill, status,
+   last_updated, and depends_on.

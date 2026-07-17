@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "engineering-docs",
-  "description": "21 engineering documentation skills covering the complete software lifecycle.",
+  "description": "22 engineering documentation skills covering the complete software lifecycle.",
   "owner": {
     "name": "Fattain Naime",
     "email": "iamnaime@builderhall.com"
@@ -9,8 +9,8 @@
   "plugins": [
     {
       "name": "engineering-docs",
-      "description": "21 engineering documentation skills.",
-      "version": "1.1.1",
+      "description": "22 engineering documentation skills.",
+      "version": "1.2.0",
       "source": "./",
       "author": {
         "name": "Fattain Naime",
