@@ -44,7 +44,7 @@ function Write-Header {
     Write-Color "|                                                 |" Cyan
     Write-Color "|     ENGINEERING DOCUMENTATION PLUGIN            |" Cyan
     Write-Color "|        Auto-Trigger Skill Installer             |" Cyan
-    Write-Color "|              v1.2.1 - 22 Skills                 |" Cyan
+    Write-Color "|              v1.2.2 - 22 Skills                 |" Cyan
     Write-Color "|                                                 |" Cyan
     Write-Color "+-------------------------------------------------+" Cyan
     Write-Color ""
