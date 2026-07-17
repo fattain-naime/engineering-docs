@@ -38,7 +38,7 @@ print_header() {
     echo -e "${CYAN}|                                                 |${RESET}"
     echo -e "${CYAN}|     ENGINEERING DOCUMENTATION PLUGIN            |${RESET}"
     echo -e "${CYAN}|        Auto-Trigger Skill Installer             |${RESET}"
-    echo -e "${CYAN}|              v1.2.0 - 22 Skills                 |${RESET}"
+    echo -e "${CYAN}|              v1.2.1 - 22 Skills                 |${RESET}"
     echo -e "${CYAN}|                                                 |${RESET}"
     echo -e "${CYAN}+-------------------------------------------------+${RESET}"
     echo ""

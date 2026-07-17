@@ -1,6 +1,6 @@
 {
   "skill_name": "engineering-docs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Evaluation test cases for the engineering-docs plugin orchestrator and core document skills. Covers greenfield mode, brownfield mode, and direct skill invocation.",
   "evals": [
     {

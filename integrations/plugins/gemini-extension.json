@@ -1,6 +1,6 @@
 {
   "name": "engineering-docs",
   "description": "22 engineering documentation skills covering the complete software lifecycle - from business concept through project planning, personas, architecture, API, database, security, testing, deployment, and operations.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "contextFileName": "GEMINI.md"
 }

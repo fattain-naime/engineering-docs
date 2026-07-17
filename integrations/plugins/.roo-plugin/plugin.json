@@ -1,6 +1,6 @@
 {
   "name": "engineering-docs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "displayName": "Engineering Documentation",
   "description": "22 engineering documentation skills covering the complete software lifecycle: business concept, project planning, personas, specs, feasibility, UX flow, architecture, design system, API, database, ADR, access control, security, testing, implementation, deployment, SLO, operations, disaster recovery, and incident review.",
   "author": {
