@@ -1,20 +1,17 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "engineering-docs",
   "description": "22 engineering documentation skills covering the complete software lifecycle: business concept, project planning, personas, specs, feasibility, UX flow, architecture, design system, API, database, ADR, access control, security, testing, implementation, deployment, SLO, operations, disaster recovery, and incident review.",
   "owner": {
     "name": "Fattain Naime",
     "email": "iamnaime@builderhall.com"
   },
-  "repository": "https://github.com/fattain-naime/engineering-docs",
-  "homepage": "https://github.com/fattain-naime/engineering-docs",
-  "license": "MIT",
   "plugins": [
     {
       "name": "engineering-docs",
       "description": "22 engineering documentation skills covering the complete software lifecycle.",
       "version": "1.2.0",
-      "source": "https://github.com/fattain-naime/engineering-docs",
+      "source": "./",
       "author": {
         "name": "Fattain Naime",
         "email": "iamnaime@builderhall.com"
