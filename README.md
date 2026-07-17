@@ -123,6 +123,15 @@ graph LR
 | `disaster-recovery-plan` | RTO/RPO, backup strategy, failover |
 | `incident-postmortem` | Blameless RCA with Five Whys |
 
+### Custom Agents (4 Agents)
+
+| Agent | Purpose |
+|:---|:---|
+| `documentation-generator` | Generate comprehensive documentation for software projects |
+| `architecture-reviewer` | Review system architecture for scalability, security, and maintainability |
+| `api-designer` | Design RESTful APIs following best practices |
+| `test-strategist` | Create comprehensive test strategies for software projects |
+
 ### Utility Scripts
 
 | Script | Purpose |
@@ -156,6 +165,36 @@ evals/evals.json           # Test cases for orchestrator and key skills
 evals/README.md            # How to run evals
 evals/test-prompts/        # Sample test prompts
 ```
+
+### Plugin Structure (Claude Compatible)
+
+```
+engineering-docs/
+├── .claude-plugin/
+│   └── plugin.json        # Plugin manifest
+├── .claude-plugin/
+│   └── marketplace.json   # Marketplace manifest
+├── skills/                # 22 skills (SKILL.md files)
+├── agents/                # 4 custom agents
+├── hooks/                 # Event handlers
+├── .mcp.json              # MCP server configuration
+├── bin/                   # Executable scripts
+├── scripts/               # Utility scripts
+├── evals/                 # Test framework
+├── integrations/          # Other agent platform configs
+│   ├── agents/            # Agent configs (CLAUDE.md, GEMINI.md, etc.)
+│   └── plugins/           # Plugin configs (.cline/, .copilot/, etc.)
+└── docs/                  # Documentation and research
+```
+
+**Claude Guidelines Compliance:**
+- ✅ Components at plugin root (not inside `.claude-plugin/`)
+- ✅ Skills in `skills/` directory with `SKILL.md`
+- ✅ Agents in `agents/` directory with frontmatter
+- ✅ Hooks in `hooks/hooks.json`
+- ✅ MCP in `.mcp.json`
+- ✅ Kebab-case naming
+- ✅ Validation passes: `claude plugin validate .`
 
 ---
 
