@@ -1,8 +1,5 @@
 blank_issues_enabled: true
 contact_links:
-  - name: GitHub Discussions
-    url: https://github.com/fattain-naime/engineering-docs/discussions
-    about: Ask questions and share ideas
   - name: Documentation
     url: https://github.com/fattain-naime/engineering-docs#readme
     about: Read the documentation
