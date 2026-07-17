@@ -1,0 +1,53 @@
+name: Feature Request
+description: Suggest a new skill, improvement, or feature
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to improve engineering-docs? We'd love to hear it!
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Request Type
+      description: What kind of request is this?
+      options:
+        - New skill
+        - Improvement to existing skill
+        - New agent configuration
+        - New utility script
+        - Documentation improvement
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this solve?
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should it work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any other approaches you've considered?
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or examples?

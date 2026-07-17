@@ -1,0 +1,45 @@
+name: Question
+description: Ask a question about using the plugin
+title: "[Question]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help? Check the [README](https://github.com/fattain-naime/engineering-docs#readme) first.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What would you like to know?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent Platform
+      description: Which agent are you using?
+      options:
+        - Claude Code
+        - Gemini CLI
+        - Cursor
+        - Windsurf
+        - Copilot CLI
+        - Goose
+        - Pi
+        - OpenCode
+        - Kilo Code
+        - Roo Code
+        - Cline
+        - Kimi Code
+        - Codex
+        - Factory Droid
+        - Other
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Any additional context?
