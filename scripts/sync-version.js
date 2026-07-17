@@ -43,7 +43,7 @@ const VERSION_FILES = [
   '.claude-plugin/plugin.json',
   '.claude-plugin/marketplace.json',
   'marketplace.json',
-  'bin/install.js',
+  'scripts/install.js',
   'scripts/setup.sh',
   'scripts/setup.ps1',
   'README.md',

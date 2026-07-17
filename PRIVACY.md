@@ -35,7 +35,7 @@ When the Plugin generates documentation:
 
 - Skills are markdown files loaded locally by the AI agent
 - Scripts execute locally on the user's machine
-- The MCP server (`bin/validate.js`) runs locally and reads files only
+- The MCP server (`scripts/validate.js`) runs locally and reads files only
 - Hooks (`hooks/check-progress.js`) run locally and read status only
 
 **Exception:** The AI agent platform (e.g., Claude Code, Gemini CLI) may require network access to communicate with its AI model provider. This is handled by the agent platform, not the Plugin.

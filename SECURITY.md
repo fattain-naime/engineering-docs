@@ -44,8 +44,8 @@ This plugin:
 
 When using this plugin with AI agents:
 - Skills are markdown instructions — they don't execute code directly
-- Scripts in `scripts/` and `bin/` are utility tools that run locally
-- The MCP server (`bin/validate.js`) only reads files, doesn't modify them
+- Scripts in `scripts/` and `scripts/` are utility tools that run locally
+- The MCP server (`scripts/validate.js`) only reads files, doesn't modify them
 - Hooks (`hooks/check-progress.js`) only read status, don't modify anything
 
 ### Best Practices

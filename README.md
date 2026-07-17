@@ -163,7 +163,7 @@ graph LR
 
 ```bash
 .mcp.json          # MCP server configuration
-bin/validate.js    # Validation server (validate_document_set, check_consistency, generate_index)
+scripts/validate.js    # Validation server (validate_document_set, check_consistency, generate_index)
 ```
 
 ### Hooks
@@ -193,7 +193,7 @@ engineering-docs/
 ├── agents/                # 4 custom agents
 ├── hooks/                 # Event handlers
 ├── .mcp.json              # MCP server configuration
-├── bin/                   # Executable scripts (install.js, validate.js, test-skills.js)
+├── scripts/               # All scripts (install, validate, test, utilities) (install.js, validate.js, test-skills.js)
 ├── scripts/               # Utility scripts + setup scripts
 ├── evals/                 # Test framework
 └── integrations/          # Other agent platform configs
@@ -391,7 +391,7 @@ claude plugin validate .
 npm test
 
 # Test MCP server
-node bin/validate.js
+node scripts/validate.js
 ```
 
 ---
