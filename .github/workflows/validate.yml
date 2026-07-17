@@ -1,0 +1,85 @@
+name: Validate Plugin
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          for f in $(find . -name "*.json" -not -path "./node_modules/*" -not -path "./.git/*"); do
+            if ! python3 -m json.tool "$f" > /dev/null 2>&1; then
+              echo "ERROR: Invalid JSON in $f"
+              exit 1
+            fi
+            echo "  ✓ $f"
+          done
+
+      - name: Check SKILL.md frontmatter
+        run: |
+          echo "Checking SKILL.md files..."
+          for skill_dir in skills/*/; do
+            skill_md="$skill_dir/SKILL.md"
+            if [ ! -f "$skill_md" ]; then
+              echo "ERROR: Missing SKILL.md in $skill_dir"
+              exit 1
+            fi
+            if ! head -1 "$skill_md" | grep -q "^---"; then
+              echo "ERROR: Missing frontmatter in $skill_md"
+              exit 1
+            fi
+            echo "  ✓ $skill_dir"
+          done
+
+      - name: Check template.md files
+        run: |
+          echo "Checking template.md files..."
+          for skill_dir in skills/*/; do
+            template_md="$skill_dir/template.md"
+            if [ ! -f "$template_md" ]; then
+              echo "ERROR: Missing template.md in $skill_dir"
+              exit 1
+            fi
+            echo "  ✓ $skill_dir"
+          done
+
+      - name: Validate marketplace.json
+        run: |
+          echo "Validating marketplace.json..."
+          if [ -f ".claude-plugin/marketplace.json" ]; then
+            python3 -m json.tool ".claude-plugin/marketplace.json" > /dev/null
+            echo "  ✓ .claude-plugin/marketplace.json"
+          fi
+
+      - name: Summary
+        run: |
+          echo "========================================="
+          echo "✅ All validations passed!"
+          echo "========================================="
+          echo ""
+          echo "Plugin structure:"
+          echo "  Skills: $(ls -d skills/*/ | wc -l)"
+          echo "  Agents: $(ls agents/*.md 2>/dev/null | wc -l)"
+          echo "  Hooks: $(ls hooks/*.js 2>/dev/null | wc -l)"
+          echo "  Scripts: $(ls scripts/*.js 2>/dev/null | wc -l)"
