@@ -15,7 +15,7 @@ Your coding agent is powerful, but it doesn't know your project's architecture, 
 - **Turn raw ideas into complete blueprints** — business concept → technical spec → architecture → deployment plan
 - **Ask the right questions** — tool-call interviews with 2-3 targeted questions per skill (no repeated questions)
 - **Generate production-ready documents** — ISO/IEC/IEEE 29148, C4 Model, STRIDE, Google SRE standards
-- **Work across 13+ agents** — Claude Code, Copilot, Cursor, Gemini CLI, Goose, Pi, and more
+- **Work across 14+ agents** — Claude Code, Copilot, Cursor, Gemini CLI, Goose, Pi, and more
 
 ---
 
@@ -34,14 +34,14 @@ Or install for your specific agent:
 | **Cursor** | `/add-plugin engineering-docs` |
 | **Goose** | `goose configure` → add extension |
 | **Pi** | `pi install git:github.com/fattain-naime/engineering-docs` |
-| **OpenCode** | `Fetch and follow instructions from https://raw.githubusercontent.com/fattain-naime/engineering-docs/main/.opencode/INSTALL.md` |
+| **OpenCode** | `npx engineering-docs --opencode` |
 | **Kilo Code** | Install from Kilo Code plugin marketplace |
 | **Roo Code** | Install from Roo Code plugin marketplace |
 | **Cline** | `npx engineering-docs --cline` |
 | **Kimi Code** | `/plugins install https://github.com/fattain-naime/engineering-docs` |
 | **Codex** | Install from Codex plugin marketplace |
-| **Copilot CLI** | `copilot plugin install engineering-docs@superpowers-marketplace` |
-| **Factory Droid** | `droid plugin install engineering-docs@superpowers` |
+| **Copilot CLI** | `npx engineering-docs --copilot` |
+| **Factory Droid** | `npx engineering-docs --factory` |
 
 See [Installation](#installation) for detailed instructions.
 
@@ -177,12 +177,12 @@ engineering-docs/
 ├── agents/                # 4 custom agents
 ├── hooks/                 # Event handlers
 ├── .mcp.json              # MCP server configuration
-├── bin/                   # Executable scripts
-├── scripts/               # Utility scripts
+├── bin/                   # Executable scripts (install.js, validate.js, test-skills.js)
+├── scripts/               # Utility scripts + setup scripts
 ├── evals/                 # Test framework
 └── integrations/          # Other agent platform configs
-    ├── agents/            # Agent configs (CLAUDE.md, GEMINI.md, etc.)
-    └── plugins/           # Plugin configs (.cline/, .copilot/, etc.)
+    ├── agents/            # Agent configs (AGENTS.md, CLAUDE.md, GEMINI.md)
+    └── plugins/           # Plugin configs for 13+ platforms
 ```
 
 **Claude Guidelines Compliance:**
@@ -263,23 +263,24 @@ pi install git:github.com/fattain-naime/engineering-docs
 npx engineering-docs --opencode
 ```
 
-Or fetch install instructions:
-```
-Fetch and follow instructions from https://raw.githubusercontent.com/fattain-naime/engineering-docs/main/.opencode/INSTALL.md
-```
-
 #### Kilo Code
 
 ```bash
-npx engineering-docs --kimi
+npx engineering-docs --kilo
 ```
 
-Or install from Kimi Code plugin marketplace.
+Or install from Kilo Code plugin marketplace.
 
 #### Codex / GitHub Copilot
 
 ```bash
 npx engineering-docs --codex
+```
+
+#### Copilot CLI
+
+```bash
+npx engineering-docs --copilot
 ```
 
 #### Cline
@@ -296,25 +297,49 @@ Copies `.clinerules` to your project root.
 npx engineering-docs --factory
 ```
 
+#### Roo Code
+
+```bash
+npx engineering-docs --roo
+```
+
+#### Kimi Code
+
+```bash
+npx engineering-docs --kimi
+```
+
+Or install inside Kimi Code:
+```text
+/plugins install https://github.com/fattain-naime/engineering-docs
+```
+
 ### Cross-Platform Scripts
 
 ```bash
 # Windows (PowerShell)
 pwsh scripts\setup.ps1
 pwsh scripts\setup.ps1 -Target gemini
+pwsh scripts\setup.ps1 -Target claude
 
 # Linux / macOS (Bash)
 chmod +x scripts/setup.sh
 ./scripts/setup.sh
 ./scripts/setup.sh --gemini
+./scripts/setup.sh --claude
 ```
+
+**Supported targets:** gemini, claude, local, cursor, kimi, codex, goose, pi, opencode, kilo, roo, cline, factory, copilot
 
 ### Safe-Write Behavior
 
 All install methods use **safe-write** for agent config files:
 - `AGENTS.md` — Created only if it doesn't exist
-- `GEMINI.md` — Created only if it doesn't exist
 - `CLAUDE.md` — Created only if it doesn't exist
+- `GEMINI.md` — Created only if it doesn't exist
+- `COPILOT.md` — Created only if it doesn't exist
+- `GOOSE.md` — Created only if it doesn't exist
+- `PI.md` — Created only if it doesn't exist
 
 **Your customizations are always preserved.**
 
@@ -325,18 +350,33 @@ All install methods use **safe-write** for agent config files:
 | Platform | Manifest Format | Installation Path |
 |:---|:---|:---|
 | **Claude Code** | `.claude-plugin/plugin.json` | `~/.claude/plugins/engineering-docs/` |
-| **Gemini CLI** | `gemini-extension.json` | `~/.gemini/config/plugins/engineering-docs/` |
-| **Cursor / Windsurf** | `.cursor-plugin/plugin.json` | `./.cursor/rules/engineering-docs-*.mdc` |
-| **Kimi Code** | `.kimi-plugin/plugin.json` | `~/.kimi-code/plugins/engineering-docs/` |
-| **Codex / Copilot** | `.codex-plugin/plugin.json` | `./.codex/engineering-docs/` |
-| **OpenCode** | `.opencode/INSTALL.md` | `./.opencode/` |
-| **Goose** | `GOOSE.md` | `~/.config/goose/` |
-| **Pi** | `PI.md` | `~/.pi/` |
-| **Kilo Code** | `.kilo-plugin/plugin.json` | `~/.kilo-code/plugins/engineering-docs/` |
-| **Roo Code** | `.roo-plugin/plugin.json` | `~/.roo-code/plugins/engineering-docs/` |
-| **Cline** | `.clinerules` | `./.clinerules` |
-| **Factory Droid** | `.factory-plugin/plugin.json` | `~/.factory/plugins/engineering-docs/` |
-| **Copilot CLI** | `.copilot/COPILOT.md` | `~/.copilot/` |
+| **Gemini CLI** | `integrations/plugins/gemini-extension.json` | `~/.gemini/config/plugins/engineering-docs/` |
+| **Cursor / Windsurf** | `integrations/plugins/.cursor-plugin/plugin.json` | `./.cursor/rules/engineering-docs-*.mdc` |
+| **Kimi Code** | `integrations/plugins/.kimi-plugin/plugin.json` | `~/.kimi-code/plugins/engineering-docs/` |
+| **Codex** | `integrations/plugins/.codex-plugin/plugin.json` | `./.codex/engineering-docs/` |
+| **OpenCode** | `integrations/plugins/.opencode/plugin.json` | `./.opencode/engineering-docs/` |
+| **Goose** | `integrations/plugins/.goose/GOOSE.md` | `~/.config/goose/extensions/engineering-docs/` |
+| **Pi** | `integrations/plugins/.pi/PI.md` | `~/.pi/packages/engineering-docs/` |
+| **Kilo Code** | `integrations/plugins/.kilo-plugin/plugin.json` | `~/.kilo-code/plugins/engineering-docs/` |
+| **Roo Code** | `integrations/plugins/.roo-plugin/plugin.json` | `~/.roo-code/plugins/engineering-docs/` |
+| **Cline** | `integrations/plugins/.cline/.clinerules` | `./.clinerules` |
+| **Factory Droid** | `integrations/plugins/.factory-plugin/plugin.json` | `~/.factory/plugins/engineering-docs/` |
+| **Copilot CLI** | `integrations/plugins/.copilot/COPILOT.md` | `~/.copilot/plugins/engineering-docs/` |
+
+---
+
+## Testing
+
+```bash
+# Run plugin validation
+claude plugin validate .
+
+# Run skill tests
+npm test
+
+# Test MCP server
+node bin/validate.js
+```
 
 ---
 
