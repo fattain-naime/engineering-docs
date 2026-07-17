@@ -2,66 +2,15 @@ name: Publish Package
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'package.json'
     tags:
       - 'v*'
-  workflow_dispatch:
 
 permissions:
-  id-token: write    # Required for npm OIDC trusted publishing
-  contents: write    # Required for creating releases and tags
+  id-token: write  # Required for OIDC
+  contents: read
 
 jobs:
-  check-version:
-    runs-on: ubuntu-latest
-    outputs:
-      version_changed: ${{ steps.check.outputs.changed }}
-      new_version: ${{ steps.check.outputs.version }}
-      is_tag_push: ${{ steps.check.outputs.is_tag }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Detect version change
-        id: check
-        run: |
-          # Check if this is a tag push
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-            VERSION="${{ github.ref_name }}"
-            VERSION="${VERSION#v}"
-            echo "Tag push detected: v$VERSION"
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "is_tag=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # Otherwise check if package.json version changed
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          echo "Current version: $CURRENT_VERSION"
-
-          # Get previous version from the commit before
-          PREVIOUS_VERSION=$(git show HEAD~1:package.json 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).version" 2>/dev/null || echo "0.0.0")
-          echo "Previous version: $PREVIOUS_VERSION"
-
-          # Compare versions
-          if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
-            echo "Version changed: $PREVIOUS_VERSION -> $CURRENT_VERSION"
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          else
-            echo "No version change detected"
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
-          echo "is_tag=false" >> $GITHUB_OUTPUT
-
   publish:
-    needs: check-version
-    if: needs.check-version.outputs.version_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -75,33 +24,3 @@ jobs:
       - run: npm run build --if-present
       - run: npm test
       - run: npm publish  # Or: npm stage publish
-        # No NODE_AUTH_TOKEN needed - uses OIDC trusted publishing
-        # Requires: npm trusted publisher configured on npmjs.com
-        # GitHub repo URL must match package.json repository.url
-
-      - name: Create GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=${{ needs.check-version.outputs.new_version }}
-          if gh release view "v$VERSION" &>/dev/null; then
-            echo "Release v$VERSION already exists, skipping"
-          else
-            gh release create "v$VERSION" \
-              --title "v$VERSION Release" \
-              --generate-notes \
-              --latest
-          fi
-
-      - name: Create git tag (only for non-tag pushes)
-        if: needs.check-version.outputs.is_tag_push != 'true'
-        run: |
-          VERSION=${{ needs.check-version.outputs.new_version }}
-          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-            echo "Tag v$VERSION already exists, skipping"
-          else
-            git config user.name "Fattain Naime"
-            git config user.email "iamnaime@builderhall.com"
-            git tag -a "v$VERSION" -m "Release v$VERSION"
-            git push origin "v$VERSION"
-          fi
