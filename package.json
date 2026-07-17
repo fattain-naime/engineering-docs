@@ -9,7 +9,7 @@
   "author": "Fattain Naime <iamnaime@builderhall.com>",
   "license": "MIT",
   "scripts": {
-    "test": "echo \"success\""
+    "test": "node bin/test-skills.js"
   },
   "repository": {
     "type": "git",

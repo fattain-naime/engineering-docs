@@ -1,7 +1,12 @@
 ---
 name: test-strategist
-description: Create comprehensive test strategies for software projects. Use when the user needs to plan testing approach, define test cases, or review test coverage.
+description: |
+  Create comprehensive test strategies for software projects.
+  <example>User says: "Create a test strategy for our e-commerce platform"</example>
+  <example>User says: "What tests should we write for the payment flow?"</example>
+  <example>User says: "Review our test coverage and suggest improvements"</example>
 model: sonnet
+color: yellow
 tools:
   - Read
   - Write

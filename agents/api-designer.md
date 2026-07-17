@@ -1,7 +1,12 @@
 ---
 name: api-designer
-description: Design RESTful APIs following best practices. Use when the user needs to create API specifications, design endpoints, or review existing API designs.
+description: |
+  Design RESTful APIs following best practices.
+  <example>User says: "Design the REST API for our user management service"</example>
+  <example>User says: "Create OpenAPI spec for our payment endpoints"</example>
+  <example>User says: "Review our API design for consistency"</example>
 model: sonnet
+color: cyan
 tools:
   - Read
   - Write

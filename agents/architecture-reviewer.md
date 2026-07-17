@@ -1,7 +1,12 @@
 ---
 name: architecture-reviewer
-description: Review system architecture for scalability, security, and maintainability. Use when the user needs to evaluate an existing architecture or get feedback on design decisions.
+description: |
+  Review system architecture for scalability, security, and maintainability.
+  <example>User says: "Review our microservices architecture for potential issues"</example>
+  <example>User says: "Is our database design scalable for 10x growth?"</example>
+  <example>User says: "Check our API design for security vulnerabilities"</example>
 model: sonnet
+color: green
 tools:
   - Read
   - Glob

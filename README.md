@@ -171,8 +171,7 @@ evals/test-prompts/        # Sample test prompts
 ```
 engineering-docs/
 ├── .claude-plugin/
-│   └── plugin.json        # Plugin manifest
-├── .claude-plugin/
+│   ├── plugin.json        # Plugin manifest
 │   └── marketplace.json   # Marketplace manifest
 ├── skills/                # 22 skills (SKILL.md files)
 ├── agents/                # 4 custom agents
@@ -181,10 +180,9 @@ engineering-docs/
 ├── bin/                   # Executable scripts
 ├── scripts/               # Utility scripts
 ├── evals/                 # Test framework
-├── integrations/          # Other agent platform configs
-│   ├── agents/            # Agent configs (CLAUDE.md, GEMINI.md, etc.)
-│   └── plugins/           # Plugin configs (.cline/, .copilot/, etc.)
-└── docs/                  # Documentation and research
+└── integrations/          # Other agent platform configs
+    ├── agents/            # Agent configs (CLAUDE.md, GEMINI.md, etc.)
+    └── plugins/           # Plugin configs (.cline/, .copilot/, etc.)
 ```
 
 **Claude Guidelines Compliance:**

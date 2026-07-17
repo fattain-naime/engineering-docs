@@ -1,7 +1,12 @@
 ---
 name: documentation-generator
-description: Generate comprehensive documentation for software projects. Use when the user needs to create technical documentation, API docs, architecture documents, or any engineering documentation.
+description: |
+  Generate comprehensive documentation for software projects.
+  <example>User says: "Generate API documentation for our payment service"</example>
+  <example>User says: "Create a runbook for our deployment process"</example>
+  <example>User says: "Write technical specification for the new feature"</example>
 model: sonnet
+color: blue
 tools:
   - Read
   - Write
