@@ -49,8 +49,6 @@ See [Installation](#installation) for detailed instructions.
 
 ## How It Works
 
-![Engineering Docs Workflow](assets/workflow-animation.gif)
-
 ```mermaid
 graph LR
     A[Your Idea] --> B[Orchestrator]
