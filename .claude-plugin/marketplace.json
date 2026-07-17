@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "engineering-docs",
   "description": "22 engineering documentation skills covering the complete software lifecycle: business concept, project planning, personas, specs, feasibility, UX flow, architecture, design system, API, database, ADR, access control, security, testing, implementation, deployment, SLO, operations, disaster recovery, and incident review.",
   "owner": {
