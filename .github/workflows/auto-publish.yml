@@ -1,4 +1,4 @@
-name: Auto Publish on Version Change
+name: Publish to npm & GitHub
 
 on:
   push:
@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - 'package.json'
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -17,15 +20,27 @@ jobs:
     outputs:
       version_changed: ${{ steps.check.outputs.changed }}
       new_version: ${{ steps.check.outputs.version }}
+      is_tag_push: ${{ steps.check.outputs.is_tag }}
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Check if version changed
+      - name: Detect version change
         id: check
         run: |
-          # Get current version from package.json
+          # Check if this is a tag push
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION="${{ github.ref_name }}"
+            VERSION="${VERSION#v}"
+            echo "Tag push detected: v$VERSION"
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "is_tag=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Otherwise check if package.json version changed
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current version: $CURRENT_VERSION"
 
@@ -42,6 +57,7 @@ jobs:
             echo "No version change detected"
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
+          echo "is_tag=false" >> $GITHUB_OUTPUT
 
   publish:
     needs: check-version
@@ -62,12 +78,6 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Validate plugin
-        run: |
-          if command -v claude &> /dev/null; then
-            claude plugin validate . || echo "Claude CLI not available, skipping validation"
-          fi
-
       - name: Publish to npm
         run: npm publish
         env:
@@ -78,15 +88,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=${{ needs.check-version.outputs.new_version }}
-          gh release create "v$VERSION" \
-            --title "v$VERSION Release" \
-            --generate-notes \
-            --latest
+          if gh release view "v$VERSION" &>/dev/null; then
+            echo "Release v$VERSION already exists, skipping"
+          else
+            gh release create "v$VERSION" \
+              --title "v$VERSION Release" \
+              --generate-notes \
+              --latest
+          fi
 
-      - name: Tag the commit
+      - name: Create git tag (only for non-tag pushes)
+        if: needs.check-version.outputs.is_tag_push != 'true'
         run: |
           VERSION=${{ needs.check-version.outputs.new_version }}
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$VERSION" -m "Release v$VERSION"
-          git push origin "v$VERSION"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists, skipping"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag -a "v$VERSION" -m "Release v$VERSION"
+            git push origin "v$VERSION"
+          fi
