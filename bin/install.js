@@ -17,7 +17,7 @@ ${CYAN}${BOLD}+-------------------------------------------------+
 |                                                 |
 |     ENGINEERING DOCUMENTATION PLUGIN            |
 |        Auto-Trigger Skill Installer             |
-|              v1.2.0 - 22 Skills                 |
+|              v1.2.1 - 22 Skills                 |
 |                                                 |
 +-------------------------------------------------+${RESET}
 `);
