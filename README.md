@@ -19,6 +19,21 @@ Your coding agent is powerful, but it doesn't know your project's architecture, 
 
 ---
 
+## How It Works
+
+![Engineering Docs Plugin Workflow](assets/plugin-workflow.gif)
+
+The plugin works through a structured workflow:
+
+1. **User gives idea** → Orchestrator skill activates automatically
+2. **Mode detection** → Greenfield (new) vs Brownfield (existing)
+3. **Interview phase** → Tool-call questions with context loading
+4. **Document generation** → Sequential generation with 22 specialized skills
+5. **Consistency checks** → Cross-document verification
+6. **Master index** → Complete blueprint ready for implementation
+
+---
+
 ## Quickstart
 
 ```bash
