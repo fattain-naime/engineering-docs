@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write    # Required for OIDC npm provenance
+  id-token: write    # Required for npm OIDC trusted publishing
   contents: write    # Required for creating releases and tags
 
 jobs:
@@ -81,10 +81,11 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Publish to npm
+      - name: Publish to npm (OIDC)
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # No NODE_AUTH_TOKEN needed - uses OIDC trusted publishing
+        # Requires: npm trusted publisher configured on npmjs.com
+        # GitHub repo URL must match package.json repository.url
 
       - name: Create GitHub Release
         env:
