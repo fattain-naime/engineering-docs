@@ -22,7 +22,7 @@ Your coding agent is powerful, but it doesn't know your project's architecture, 
 
 ## How It Works
 
-![Engineering Docs Plugin Workflow](assets/plugin-workflow.gif)
+![Engineering Docs Plugin Workflow](https://raw.githubusercontent.com/fattain-naime/engineering-docs/refs/heads/main/assets/plugin-workflow.gif)
 
 The plugin works through a structured workflow:
 
