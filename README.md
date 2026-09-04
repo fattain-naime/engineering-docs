@@ -68,7 +68,7 @@ See [Installation](#installation) for detailed instructions.
 ```mermaid
 graph LR
     A[Your Idea] --> B[Orchestrator]
-    B --> C{Interview}
+    B --> C[Interview]
     C --> D[Business Concept]
     D --> E[Project Plan]
     E --> F[Technical Spec]
