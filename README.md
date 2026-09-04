@@ -1,10 +1,10 @@
 # Engineering Docs
 
-> **22 composable, auto-triggering skills** that turn your coding agent into a principal engineer — from raw idea to production-ready documentation.
+> **22 composable, auto-triggering skills** that turn your coding agent into a principal engineer - from raw idea to production-ready documentation.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/npm/v/engineering-docs.svg)](https://www.npmjs.com/package/engineering-docs)
-[![GitHub stars](https://img.shields.io/github/stars/fattain-naime/engineering-docs.svg)](https://github.com/fattain-naime/engineering-docs)
+[![npm version](https://img.shields.io/npm/v/engineering-docs.svg)](https://www.npmjs.com/package/engineering-docs) 
+[![GitHub stars](https://img.shields.io/github/stars/fattain-naime/engineering-docs.svg)](https://github.com/fattain-naime/engineering-docs) 
+[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/fattain-naime/engineering-docs)
 [![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/fattain-naime-engineering-docs)](https://www.claudepluginhub.com/plugins/fattain-naime-engineering-docs?ref=badge)
 
 ---
