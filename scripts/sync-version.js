@@ -8,6 +8,7 @@
  *
  * Only updates version references that are clearly the PLUGIN version:
  * - package.json, plugin.json, marketplace.json version fields
+ *   (including marketplace plugins[].version entries)
  * - Installer script headers (install.js, setup.sh, setup.ps1)
  * - README.md version references
  *
@@ -70,21 +71,38 @@ function updateJsonVersion(filePath, relativePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     const json = JSON.parse(content);
+    let modified = false;
 
     if (json.version && json.version !== CURRENT_VERSION) {
       const oldVersion = json.version;
       json.version = CURRENT_VERSION;
-
-      if (!DRY_RUN) {
-        fs.writeFileSync(filePath, JSON.stringify(json, null, 2) + '\n', 'utf8');
-      }
-
+      modified = true;
       changes.push({
         file: relativePath,
         field: 'version',
         old: oldVersion,
         new: CURRENT_VERSION
       });
+    }
+
+    if (Array.isArray(json.plugins)) {
+      json.plugins.forEach((plugin, i) => {
+        if (plugin && typeof plugin.version === 'string' && plugin.version !== CURRENT_VERSION) {
+          const oldVersion = plugin.version;
+          plugin.version = CURRENT_VERSION;
+          modified = true;
+          changes.push({
+            file: relativePath,
+            field: `plugins[${i}].version`,
+            old: oldVersion,
+            new: CURRENT_VERSION
+          });
+        }
+      });
+    }
+
+    if (modified && !DRY_RUN) {
+      fs.writeFileSync(filePath, JSON.stringify(json, null, 2) + '\n', 'utf8');
       filesUpdated++;
     }
   } catch (e) {
