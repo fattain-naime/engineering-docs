@@ -8,8 +8,9 @@ validate, review, and check the repository automatically, without an Anthropic A
 1. Install the [Claude GitHub App](https://github.com/apps/claude) on the repository.
 2. Add a repository secret named `OPENROUTER_API_KEY` containing your OpenRouter key.
 3. Copy `examples/claude-code-openrouter.yml` into `.github/workflows/`.
-4. Claude Code now reviews every pull request (automation mode) and can answer `@claude`
-   mentions (interactive mode).
+4. Claude Code now reviews pull requests opened from branches in this repository (automation
+   mode) and can answer `@claude` mentions (interactive mode). Fork and Dependabot pull requests
+   cannot read the secret; see [Troubleshooting](#troubleshooting).
 
 All routing is three environment variables: `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`,
 and `ANTHROPIC_API_KEY`.
@@ -121,9 +122,18 @@ jobs:
 - Use `concurrency` to cancel superseded runs, and `allowed_bots` if a scheduled run is
   attributed to a bot account.
 - Review Claude's output before merging. A free model is a suggestion engine, not an oracle.
+- On a public repository the interactive `@claude` trigger is reachable by any commenter, so
+  anyone can spend the OpenRouter key's credits. Keep the key scoped to what the workflow needs
+  and set an OpenRouter spending limit (budget) so a burst of mentions cannot drain the account.
 
 ## Troubleshooting
 
+- **Auth errors on fork or Dependabot pull requests:** GitHub does not pass repository secrets to
+  workflows triggered by `pull_request` from a fork (those runs get only a read-only
+  `GITHUB_TOKEN`), and Dependabot pull requests are treated the same way, so
+  `OPENROUTER_API_KEY` is empty and the action fails its launch check. Re-run the workflow after
+  the pull request is merged, or use `pull_request_target` with a read-only checkout of the
+  untrusted code, and never execute that code while the secret is exposed.
 - **Auth errors or model-not-found for OpenRouter models:** make sure `ANTHROPIC_API_KEY` is
   empty locally, and run `/logout` if you previously signed in to Claude Code with an
   Anthropic account.

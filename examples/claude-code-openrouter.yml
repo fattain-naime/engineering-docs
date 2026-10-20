@@ -10,6 +10,9 @@
 
 name: Claude Code Review (OpenRouter)
 
+# Note: GitHub does not pass secrets to fork or Dependabot `pull_request` runs, so
+# OPENROUTER_API_KEY is empty there and the job fails its auth check. Re-run after merge
+# or use `pull_request_target` with a read-only checkout; see the guide's Troubleshooting.
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
