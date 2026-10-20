@@ -42,7 +42,7 @@ Or install for your specific agent:
 
 | Agent | Install Command |
 |:---|:---|
-| **Claude Code** | `/plugin install engineering-docs@claude-plugins-official` |
+| **Claude Code** | `/plugin marketplace add fattain-naime/engineering-docs`<br>`/plugin install engineering-docs@engineering-docs` |
 | **Gemini CLI** | `gemini extensions install https://github.com/fattain-naime/engineering-docs` |
 | **Cursor** | `/add-plugin engineering-docs` |
 | **Goose** | `goose configure` → add extension |
@@ -190,8 +190,7 @@ engineering-docs/
 ├── agents/                # 4 custom agents
 ├── hooks/                 # Event handlers
 ├── .mcp.json              # MCP server configuration
-├── scripts/               # All scripts (install, validate, test, utilities) (install.js, validate.js, test-skills.js)
-├── scripts/               # Utility scripts + setup scripts
+├── scripts/               # Installer, validator, test runner, and utility scripts
 ├── evals/                 # Test framework
 └── integrations/          # Other agent platform configs
     ├── agents/            # Agent configs (AGENTS.md, CLAUDE.md, GEMINI.md)

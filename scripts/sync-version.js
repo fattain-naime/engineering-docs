@@ -47,6 +47,19 @@ const VERSION_FILES = [
   'scripts/setup.sh',
   'scripts/setup.ps1',
   'README.md',
+  'evals/evals.json',
+  'integrations/plugins/gemini-extension.json',
+  'integrations/plugins/.cursor-plugin/plugin.json',
+  'integrations/plugins/.goose/plugin.json',
+  'integrations/plugins/.pi/plugin.json',
+  'integrations/plugins/.opencode/plugin.json',
+  'integrations/plugins/.kilo-plugin/plugin.json',
+  'integrations/plugins/.roo-plugin/plugin.json',
+  'integrations/plugins/.cline/plugin.json',
+  'integrations/plugins/.factory-plugin/plugin.json',
+  'integrations/plugins/.copilot/plugin.json',
+  'integrations/plugins/.kimi-plugin/plugin.json',
+  'integrations/plugins/.codex-plugin/plugin.json',
 ];
 
 // Track changes

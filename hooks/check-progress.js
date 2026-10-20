@@ -72,4 +72,10 @@ function run() {
   console.log("");
 }
 
-run();
+// A SessionStart hook must never break the session: any unexpected error
+// (permissions, deleted folder mid-read, odd filesystem) exits quietly.
+try {
+  run();
+} catch (err) {
+  process.exit(0);
+}
