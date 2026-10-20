@@ -2,10 +2,7 @@
 
 > **22 composable, auto-triggering skills** that turn your coding agent into a principal engineer - from raw idea to production-ready documentation.
 
-[![npm version](https://img.shields.io/npm/v/engineering-docs.svg)](https://www.npmjs.com/package/engineering-docs) 
-[![GitHub stars](https://img.shields.io/github/stars/fattain-naime/engineering-docs.svg)](https://github.com/fattain-naime/engineering-docs) 
-[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/fattain-naime/engineering-docs)
-[![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/fattain-naime-engineering-docs)](https://www.claudepluginhub.com/plugins/fattain-naime-engineering-docs?ref=badge)
+[![npm version](https://img.shields.io/npm/v/engineering-docs.svg)](https://www.npmjs.com/package/engineering-docs) [![GitHub stars](https://img.shields.io/github/stars/fattain-naime/engineering-docs.svg)](https://github.com/fattain-naime/engineering-docs) [![Security: A - Skills Directory](https://www.skillsdirectory.com/api/skills/fattain-naime-using-engineering-docs/badge)](https://www.skillsdirectory.com/skills/fattain-naime-using-engineering-docs) [![Listed on ClaudePluginHub](https://www.claudepluginhub.com/badge/fattain-naime-engineering-docs)](https://www.claudepluginhub.com/plugins/fattain-naime-engineering-docs?ref=badge) [![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/fattain-naime/engineering-docs)
 
 ---
 
@@ -227,10 +224,6 @@ Automatically detects and copies the plugin to your agent's directory.
 #### Claude Code
 
 ```bash
-# Official marketplace
-/plugin install engineering-docs@claude-plugins-official
-
-# Or register marketplace first
 /plugin marketplace add fattain-naime/engineering-docs
 /plugin install engineering-docs@engineering-docs
 ```
