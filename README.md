@@ -387,6 +387,16 @@ npm test
 node scripts/validate.js
 ```
 
+### Automated Claude Code validation
+
+Run Claude Code in GitHub Actions through OpenRouter to validate and review changes automatically:
+
+```bash
+cp examples/claude-code-openrouter.yml .github/workflows/claude-code.yml
+```
+
+See [docs/claude-code-github-actions.md](docs/claude-code-github-actions.md) for setup, model selection, and troubleshooting.
+
 ---
 
 ## Philosophy
