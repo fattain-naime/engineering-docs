@@ -1,0 +1,112 @@
+# Claude Code plugin testing in GitHub Actions.
+#
+# Layer 1 (every PR):  claude plugin validate — static, free, no model calls.
+# Layer 2 (manual):    claude plugin eval    — real runs; needs ANTHROPIC_API_KEY
+#                      (or gateway vars) and --trust-plugin for non-interactive use.
+#
+# To use it:
+#   1. Copy this file to .github/workflows/claude-plugin-ci.yml
+#   2. Add an ANTHROPIC_API_KEY secret (or set ANTHROPIC_BASE_URL +
+#      ANTHROPIC_AUTH_TOKEN to route through a gateway such as OpenRouter)
+#   3. Open a pull request to exercise validate; run eval via workflow_dispatch
+#
+# See docs/claude-plugin-testing.md for the full command surface and exit codes.
+
+name: Claude Plugin CI
+
+on:
+  pull_request:
+    paths:
+      - '.claude-plugin/**'
+      - 'skills/**'
+      - 'agents/**'
+      - 'commands/**'
+      - 'hooks/**'
+      - '.mcp.json'
+      - 'evals/**'
+  workflow_dispatch:
+    inputs:
+      run_eval:
+        description: 'Also run claude plugin eval'
+        type: boolean
+        default: true
+      threshold:
+        description: 'Eval score threshold (0..1)'
+        type: string
+        default: '0.8'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-plugin-ci-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: plugin validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      # Pin the CLI so a model/CLI rollout is not mistaken for a plugin regression.
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@2.1.305
+
+      - name: Show CLI version
+        run: claude --version
+
+      - name: Validate plugin
+        run: claude plugin validate . --json > validate-report.json
+
+      - name: Upload validate report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validate-report
+          path: validate-report.json
+
+  eval:
+    name: plugin eval
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && inputs.run_eval
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@2.1.305
+
+      # Route through a gateway (e.g. OpenRouter) by setting base URL + token,
+      # or provide a direct ANTHROPIC_API_KEY. Do not commit either value.
+      - name: Run plugin eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_BASE_URL: ${{ vars.ANTHROPIC_BASE_URL }}
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+        run: |
+          claude plugin eval . \
+            --trust-plugin \
+            --json results.json \
+            --threshold "${{ inputs.threshold || '0.8' }}" \
+            --no-publish \
+            --max-cost-usd 20
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: |
+            results.json
+            evals/results/

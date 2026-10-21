@@ -387,15 +387,23 @@ npm test
 node scripts/validate.js
 ```
 
-### Automated Claude Code validation
+### Testing Claude Code plugins
 
-Run Claude Code in GitHub Actions through OpenRouter to validate and review changes automatically:
+Validate manifests and run behavioral evals with the official Claude Code CLI:
 
 ```bash
-cp examples/claude-code-openrouter.yml .github/workflows/claude-code.yml
+claude plugin validate .
+claude plugin eval init --bare first-case
+claude plugin eval . --trust-plugin
 ```
 
-See [docs/claude-code-github-actions.md](docs/claude-code-github-actions.md) for setup, model selection, and troubleshooting.
+See [docs/claude-plugin-testing.md](docs/claude-plugin-testing.md) for the
+full command surface, the Plugin Developer Toolkit, and CI. To gate pull
+requests on `validate` (and optionally `eval`):
+
+```bash
+cp examples/claude-plugin-ci.yml .github/workflows/claude-plugin-ci.yml
+```
 
 ---
 
