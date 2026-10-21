@@ -4,6 +4,9 @@ on:
   release:
     types:
       - published
+  # Automated releases are created with GITHUB_TOKEN, whose events GitHub
+  # suppresses — validate.yml's release job invokes this workflow directly.
+  workflow_call:
 
 permissions:
   id-token: write  # Required for OIDC

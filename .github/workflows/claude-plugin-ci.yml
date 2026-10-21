@@ -81,7 +81,6 @@ jobs:
             --trust-plugin \
             --json results.json \
             --threshold "${{ inputs.threshold || '0.8' }}" \
-            --allow-real-servers \
             --no-publish \
             --max-cost-usd 20
 

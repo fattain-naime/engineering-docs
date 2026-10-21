@@ -187,3 +187,7 @@ jobs:
               --latest
             echo "Created release: v$VERSION"
           fi
+
+  publish:
+    needs: release
+    uses: ./.github/workflows/publish.yml
