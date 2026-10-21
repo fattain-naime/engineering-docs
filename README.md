@@ -44,15 +44,15 @@ Or install for your specific agent:
 |:---|:---|
 | **Claude Code** | `/plugin marketplace add fattain-naime/engineering-docs`<br>`/plugin install engineering-docs@engineering-docs` |
 | **Gemini CLI** | `gemini extensions install https://github.com/fattain-naime/engineering-docs` |
-| **Cursor** | `/add-plugin engineering-docs` |
-| **Goose** | `goose configure` → add extension |
-| **Pi** | `pi install git:github.com/fattain-naime/engineering-docs` |
+| **Cursor** | `npx engineering-docs --cursor` |
+| **Goose** | `npx engineering-docs --goose` |
+| **Pi** | `npx engineering-docs --pi` |
 | **OpenCode** | `npx engineering-docs --opencode` |
-| **Kilo Code** | Install from Kilo Code plugin marketplace |
-| **Roo Code** | Install from Roo Code plugin marketplace |
+| **Kilo Code** | `npx engineering-docs --kilo` |
+| **Roo Code** | `npx engineering-docs --roo` |
 | **Cline** | `npx engineering-docs --cline` |
 | **Kimi Code** | `/plugins install https://github.com/fattain-naime/engineering-docs` |
-| **Codex** | Install from Codex plugin marketplace |
+| **Codex** | `npx engineering-docs --codex` |
 | **Copilot CLI** | `npx engineering-docs --copilot` |
 | **Factory Droid** | `npx engineering-docs --factory` |
 
@@ -186,6 +186,10 @@ engineering-docs/
 ├── .claude-plugin/
 │   ├── plugin.json        # Plugin manifest
 │   └── marketplace.json   # Marketplace manifest
+├── .kimi-plugin/
+│   └── plugin.json        # Kimi Code plugin manifest
+├── gemini-extension.json  # Gemini CLI extension manifest
+├── GEMINI.md              # Gemini CLI extension context file
 ├── skills/                # 22 skills (SKILL.md files)
 ├── agents/                # 4 custom agents
 ├── hooks/                 # Event handlers
@@ -193,8 +197,8 @@ engineering-docs/
 ├── scripts/               # Installer, validator, test runner, and utility scripts
 ├── evals/                 # Test framework
 └── integrations/          # Other agent platform configs
-    ├── agents/            # Agent configs (AGENTS.md, CLAUDE.md, GEMINI.md)
-    └── plugins/           # Plugin configs for 13+ platforms
+    ├── agents/            # Agent instruction files (AGENTS.md, CLAUDE.md)
+    └── plugins/           # Cline rules source (.clinerules/)
 ```
 
 **Claude Guidelines Compliance:**
@@ -233,10 +237,12 @@ Automatically detects and copies the plugin to your agent's directory.
 gemini extensions install https://github.com/fattain-naime/engineering-docs
 ```
 
-Or clone manually:
+Or with the CLI installer (installs to `~/.gemini/extensions/engineering-docs/`):
 ```bash
-git clone https://github.com/fattain-naime/engineering-docs.git ~/.gemini/config/plugins/engineering-docs
+npx engineering-docs --gemini
 ```
+
+The extension layout follows the Gemini CLI extension spec: `gemini-extension.json` + `GEMINI.md` context file + `skills/`.
 
 #### Cursor / Windsurf
 
@@ -244,7 +250,7 @@ git clone https://github.com/fattain-naime/engineering-docs.git ~/.gemini/config
 npx engineering-docs --cursor
 ```
 
-Extracts each skill to `.cursor/rules/engineering-docs-*.mdc`.
+Writes each skill to `.cursor/rules/engineering-docs-*.mdc` with Cursor's documented frontmatter (`description`, `globs`, `alwaysApply`).
 
 #### Goose
 
@@ -252,7 +258,7 @@ Extracts each skill to `.cursor/rules/engineering-docs-*.mdc`.
 npx engineering-docs --goose
 ```
 
-Or configure manually in `~/.config/goose/config.yaml`.
+Installs skills to `~/.agents/skills/` (the shared Agent Skills directory Goose reads).
 
 #### Pi
 
@@ -260,10 +266,7 @@ Or configure manually in `~/.config/goose/config.yaml`.
 npx engineering-docs --pi
 ```
 
-Or install from git:
-```bash
-pi install git:github.com/fattain-naime/engineering-docs
-```
+Safe-writes `AGENTS.md` to `~/.pi/agent/AGENTS.md`.
 
 #### OpenCode
 
@@ -271,19 +274,23 @@ pi install git:github.com/fattain-naime/engineering-docs
 npx engineering-docs --opencode
 ```
 
+Installs skills to `.opencode/skills/`.
+
 #### Kilo Code
 
 ```bash
 npx engineering-docs --kilo
 ```
 
-Or install from Kilo Code plugin marketplace.
+Safe-writes `AGENTS.md` to `~/.config/kilo/AGENTS.md`.
 
-#### Codex / GitHub Copilot
+#### Codex
 
 ```bash
 npx engineering-docs --codex
 ```
+
+Safe-writes `AGENTS.md` to `~/.codex/AGENTS.md`.
 
 #### Copilot CLI
 
@@ -291,13 +298,15 @@ npx engineering-docs --codex
 npx engineering-docs --copilot
 ```
 
+Installs to `~/.copilot/installed-plugins/engineering-docs/` (Copilot CLI reads `.claude-plugin/plugin.json`).
+
 #### Cline
 
 ```bash
 npx engineering-docs --cline
 ```
 
-Copies `.clinerules` to your project root.
+Creates `.clinerules/engineering-docs.md` (rules directory) and `.cline/skills/` in your project root, matching Cline's documented workspace layout.
 
 #### Factory Droid
 
@@ -305,11 +314,15 @@ Copies `.clinerules` to your project root.
 npx engineering-docs --factory
 ```
 
+Installs skills to `~/.factory/skills/`.
+
 #### Roo Code
 
 ```bash
 npx engineering-docs --roo
 ```
+
+Writes `~/.roo/rules/engineering-docs.md`.
 
 #### Kimi Code
 
@@ -321,6 +334,8 @@ Or install inside Kimi Code:
 ```text
 /plugins install https://github.com/fattain-naime/engineering-docs
 ```
+
+The repo-root `.kimi-plugin/plugin.json` manifest follows Kimi Code's plugin spec.
 
 ### Cross-Platform Scripts
 
@@ -341,13 +356,10 @@ chmod +x scripts/setup.sh
 
 ### Safe-Write Behavior
 
-All install methods use **safe-write** for agent config files:
+All install methods use **safe-write** for agent instruction files:
 - `AGENTS.md` — Created only if it doesn't exist
 - `CLAUDE.md` — Created only if it doesn't exist
 - `GEMINI.md` — Created only if it doesn't exist
-- `COPILOT.md` — Created only if it doesn't exist
-- `GOOSE.md` — Created only if it doesn't exist
-- `PI.md` — Created only if it doesn't exist
 
 **Your customizations are always preserved.**
 
@@ -355,21 +367,21 @@ All install methods use **safe-write** for agent config files:
 
 ## Multi-Agent Compatibility
 
-| Platform | Manifest Format | Installation Path |
+| Platform | Manifest / Layout | Installation Path |
 |:---|:---|:---|
 | **Claude Code** | `.claude-plugin/plugin.json` | `~/.claude/plugins/engineering-docs/` |
-| **Gemini CLI** | `integrations/plugins/gemini-extension.json` | `~/.gemini/config/plugins/engineering-docs/` |
-| **Cursor / Windsurf** | `integrations/plugins/.cursor-plugin/plugin.json` | `./.cursor/rules/engineering-docs-*.mdc` |
-| **Kimi Code** | `integrations/plugins/.kimi-plugin/plugin.json` | `~/.kimi-code/plugins/engineering-docs/` |
-| **Codex** | `integrations/plugins/.codex-plugin/plugin.json` | `./.codex/engineering-docs/` |
-| **OpenCode** | `integrations/plugins/.opencode/plugin.json` | `./.opencode/engineering-docs/` |
-| **Goose** | `integrations/plugins/.goose/GOOSE.md` | `~/.config/goose/extensions/engineering-docs/` |
-| **Pi** | `integrations/plugins/.pi/PI.md` | `~/.pi/packages/engineering-docs/` |
-| **Kilo Code** | `integrations/plugins/.kilo-plugin/plugin.json` | `~/.kilo-code/plugins/engineering-docs/` |
-| **Roo Code** | `integrations/plugins/.roo-plugin/plugin.json` | `~/.roo-code/plugins/engineering-docs/` |
-| **Cline** | `integrations/plugins/.cline/.clinerules` | `./.clinerules` |
-| **Factory Droid** | `integrations/plugins/.factory-plugin/plugin.json` | `~/.factory/plugins/engineering-docs/` |
-| **Copilot CLI** | `integrations/plugins/.copilot/COPILOT.md` | `~/.copilot/plugins/engineering-docs/` |
+| **Gemini CLI** | `gemini-extension.json` + `GEMINI.md` + `skills/` | `~/.gemini/extensions/engineering-docs/` |
+| **Cursor / Windsurf** | `.cursor/rules/*.mdc` (frontmatter: `description`, `globs`, `alwaysApply`) | `./.cursor/rules/engineering-docs-*.mdc` |
+| **Kimi Code** | `.kimi-plugin/plugin.json` | `~/.kimi-code/plugins/engineering-docs/` |
+| **Codex** | `AGENTS.md` instructions file | `~/.codex/AGENTS.md` |
+| **OpenCode** | Agent Skills (`SKILL.md` per skill) | `./.opencode/skills/` |
+| **Goose** | Agent Skills (`SKILL.md` per skill) | `~/.agents/skills/` |
+| **Pi** | `AGENTS.md` instructions file | `~/.pi/agent/AGENTS.md` |
+| **Kilo Code** | `AGENTS.md` instructions file | `~/.config/kilo/AGENTS.md` |
+| **Roo Code** | Markdown rule file | `~/.roo/rules/engineering-docs.md` |
+| **Cline** | `.clinerules/*.md` + `.cline/skills/` | `./.clinerules/engineering-docs.md` |
+| **Factory Droid** | Agent Skills (`SKILL.md` per skill) | `~/.factory/skills/` |
+| **Copilot CLI** | `.claude-plugin/plugin.json` | `~/.copilot/installed-plugins/engineering-docs/` |
 
 ---
 

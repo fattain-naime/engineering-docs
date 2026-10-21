@@ -7,7 +7,7 @@
 # agent config file.
 #
 # Skill routing rules and behavioral standards are embedded in each SKILL.md loaded below.
-# For Gemini-specific trigger routing, see AGENTS.md in the same directory.
+# For Gemini-specific trigger routing, see integrations/agents/AGENTS.md.
 
 @./skills/using-engineering-docs/SKILL.md
 @./skills/project-plan/SKILL.md

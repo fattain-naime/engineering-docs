@@ -27,11 +27,6 @@
     "shortDescription": "22 engineering documentation skills for software development lifecycles",
     "longDescription": "Streamline technical specifications, system architecture documents, database designs, API designs, runbooks, and incident post-mortems using structured workflow templates.",
     "developerName": "Fattain Naime",
-    "capabilities": [
-      "Interactive",
-      "Read",
-      "Write"
-    ],
     "websiteURL": "https://github.com/fattain-naime/engineering-docs"
   }
 }
