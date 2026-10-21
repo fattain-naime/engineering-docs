@@ -7,11 +7,10 @@
 # happen once; the eval step is skipped unless this is a dispatch run.
 #
 # To use it in your own repo:
-#   1. Copy this file to .github/workflows/claude-plugin-ci.yml
-#   2. Add an ANTHROPIC_API_KEY secret (or set ANTHROPIC_BASE_URL +
+#   1. Add an ANTHROPIC_API_KEY secret (or set ANTHROPIC_BASE_URL +
 #      ANTHROPIC_AUTH_TOKEN to route through a gateway such as OpenRouter) —
 #      validate needs no secrets, eval does
-#   3. Open a pull request to exercise validate; run eval via workflow_dispatch
+#   2. Open a pull request to exercise validate; run eval via workflow_dispatch
 #
 # See docs/claude-plugin-testing.md for the full command surface and exit codes.
 
