@@ -336,8 +336,8 @@ Two layers:
 2. **`claude plugin eval`** — real model calls. Needs credentials and
    `--trust-plugin`. Pin models and set a cost ceiling.
 
-See `examples/claude-plugin-ci.yml` for a copy-paste workflow that runs
-validate on every pull request and eval on demand.
+See `.github/workflows/claude-plugin-ci.yml` for a copy-paste workflow that
+runs validate on every pull request and eval on demand.
 
 ```bash
 claude plugin eval . \
