@@ -8,6 +8,18 @@
   },
   "author": "Fattain Naime <iamnaime@builderhall.com>",
   "license": "MIT",
+  "files": [
+    "skills",
+    "agents",
+    "hooks",
+    "assets",
+    "scripts",
+    "evals",
+    "integrations",
+    ".claude-plugin",
+    ".mcp.json",
+    "CONTRIBUTING.md"
+  ],
   "scripts": {
     "test": "node scripts/test-skills.js"
   },
