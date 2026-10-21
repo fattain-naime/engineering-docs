@@ -48,15 +48,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: '26'
 
-      # Pin the CLI so a model/CLI rollout is not mistaken for a plugin regression.
       - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code@2.1.305
+        run: npm install -g @anthropic-ai/claude-code
 
       - name: Show CLI version
         run: claude --version
@@ -66,7 +65,7 @@ jobs:
 
       - name: Upload validate report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: validate-report
           path: validate-report.json
@@ -76,16 +75,16 @@ jobs:
     needs: validate
     if: github.event_name == 'workflow_dispatch' && inputs.run_eval
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: '26'
 
       - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code@2.1.305
+        run: npm install -g @anthropic-ai/claude-code
 
       # Route through a gateway (e.g. OpenRouter) by setting base URL + token,
       # or provide a direct ANTHROPIC_API_KEY. Do not commit either value.
@@ -104,7 +103,7 @@ jobs:
 
       - name: Upload eval results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: eval-results
           path: |
