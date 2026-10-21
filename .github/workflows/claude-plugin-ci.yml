@@ -70,17 +70,27 @@ jobs:
       # or provide a direct ANTHROPIC_API_KEY. Do not commit either value.
       # A failed validate step stops the job, so eval only runs on a green
       # validate.
+      #
+      # Model selection lives here, not in a settings file: eval runs start in
+      # an isolated temp home/config, so .claude/settings.json is never read.
+      # --model / --judge-model (or ANTHROPIC_MODEL in this step's env, which
+      # the runs inherit) are the only levers. CLAUDE_CODE_MAX_OUTPUT_TOKENS
+      # caps the max_tokens each request asks for — gateways such as OpenRouter
+      # bill against it and answer 402 when it exceeds the account's credits.
       - name: Run plugin eval
         if: github.event_name == 'workflow_dispatch' && inputs.run_eval
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_BASE_URL: ${{ vars.ANTHROPIC_BASE_URL }}
           ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '8192'
         run: |
           claude plugin eval . \
             --trust-plugin \
             --json results.json \
             --threshold "${{ inputs.threshold || '0.8' }}" \
+            --model claude-sonnet-5 \
+            --judge-model claude-haiku-4-5 \
             --no-publish \
             --max-cost-usd 20
 
