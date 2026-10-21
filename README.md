@@ -398,6 +398,24 @@ npm test
 node scripts/validate.js
 ```
 
+### Testing Claude Code plugins
+
+Validate manifests and run behavioral evals with the official Claude Code CLI:
+
+```bash
+claude plugin validate .
+claude plugin eval init --bare first-case
+claude plugin eval . --trust-plugin
+```
+
+See [docs/claude-plugin-testing.md](docs/claude-plugin-testing.md) for the
+full command surface, the Plugin Developer Toolkit, and CI. This repository
+gates pull requests on `validate` with
+[`.github/workflows/claude-plugin-ci.yml`](.github/workflows/claude-plugin-ci.yml);
+copy that file into your own repo's `.github/workflows/` to get the same
+gate. The `eval` step only runs on manual dispatch and needs an
+`ANTHROPIC_API_KEY` secret (or gateway variables).
+
 ---
 
 ## Philosophy
