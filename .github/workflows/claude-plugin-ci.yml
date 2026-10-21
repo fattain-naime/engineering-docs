@@ -92,6 +92,7 @@ jobs:
             --model minimax/minimax-m3.1-flash:free \
             --judge-model nvidia/nemotron-3-ultra-550b-a55b:free \
             --no-publish \
+            --allow-real-servers \
             --max-cost-usd 20
 
       - name: Upload reports
