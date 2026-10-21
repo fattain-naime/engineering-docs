@@ -2,18 +2,83 @@
 
 This directory contains evaluation test cases for the `engineering-docs` plugin. The evals verify that the orchestrator and individual document skills produce correct, high-quality output across different scenarios.
 
+There are two suites here:
+
+1. **Official Claude Code eval cases** (case directories) — runnable with `claude plugin eval .`
+2. **Legacy harness cases** (`evals.json`) — a custom JSON suite for manual/agent-harness execution
+
 ---
+
+## Official Claude Code Evals
+
+The case directories follow the [Claude Code plugin evals format](https://code.claude.com/docs/en/plugin-evals): each case is a directory with a `prompt.md` and one or more `graders/*.md` files.
+
+```
+evals/
+  orchestrator-greenfield/     # Greenfield idea should trigger the orchestrator
+    prompt.md
+    graders/
+      skill-fired.md           # tool_used grader: using-engineering-docs ran
+      criteria.md              # llm grader: discovery-before-documents behavior
+  business-concept-direct/     # Direct business-concept request
+    prompt.md
+    graders/
+      skill-fired.md
+      criteria.md
+  ignores-unrelated-request/   # Negative case: no skill should fire
+    prompt.md
+    graders/
+      no-skill-invoked.md
+  results/                     # Written by each run (gitignored)
+```
+
+### Running
+
+From the plugin root (requires Claude Code v2.1.269+ and authentication):
+
+```bash
+# Full suite, with and without the plugin (measures the plugin's contribution).
+# Grant Write/Edit so the orchestrator can actually produce .engineering-docs/ files.
+claude plugin eval . --allow-tools Write Edit
+
+# Single case, one run per arm (cheap iteration)
+claude plugin eval . --case orchestrator-greenfield --runs 1 --ablation none
+
+# CI-style: pinned models (so scores stay comparable over time), local report, cost ceiling
+claude plugin eval . \
+  --trust-plugin \
+  --json results.json \
+  --threshold 0.8 \
+  --model claude-sonnet-4-5 \
+  --judge-model claude-haiku-4-5 \
+  --no-publish \
+  --max-cost-usd 20
+```
+
+Without `--allow-tools Write Edit`, cases grant only read-only tools: the orchestrator can still demonstrate discovery and planning (which the graders reward), but it cannot write documents.
+
+The `ignores-unrelated-request` case is free (transcript-only graders, no judge model). The two skill cases include one `llm` judge grader each, which costs model calls.
+
+---
+
+## Legacy Harness Evals (`evals.json`)
+
+`evals.json` is a custom suite for manual review and third-party agent harnesses (it is NOT read by `claude plugin eval`). It contains richer assertion lists than the official cases — full positive/negative assertion checklists per skill. The sections below document its schema and manual workflow.
 
 ## Directory Structure
 
 ```
 evals/
-  evals.json              # Main eval configuration with all test cases
-  README.md               # This file
-  test-prompts/           # Reusable prompt templates for manual or automated testing
-    greenfield-idea.txt   # Sample greenfield (new product) prompt
-    brownfield-feature.txt # Sample brownfield (existing system) prompt
-    direct-skill.txt      # Sample direct skill invocation prompt
+  orchestrator-greenfield/     # Official-format case (claude plugin eval)
+  business-concept-direct/     # Official-format case
+  ignores-unrelated-request/   # Official-format negative case
+  results/                     # Eval run output (gitignored)
+  evals.json                   # Legacy harness config with all test cases
+  README.md                    # This file
+  test-prompts/                # Reusable prompt templates for manual or automated testing
+    greenfield-idea.txt        # Sample greenfield (new product) prompt
+    brownfield-feature.txt     # Sample brownfield (existing system) prompt
+    direct-skill.txt           # Sample direct skill invocation prompt
 ```
 
 ---

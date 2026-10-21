@@ -2,7 +2,7 @@
   "mcpServers": {
     "engineering-docs": {
       "command": "node",
-      "args": ["scripts/validate.js"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/validate.js"],
       "description": "Engineering Docs validation server - provides tools for validating document completeness, checking cross-references, and generating indexes."
     }
   }

@@ -8,6 +8,7 @@
  *
  * Only updates version references that are clearly the PLUGIN version:
  * - package.json, plugin.json, marketplace.json version fields
+ *   (including marketplace plugins[].version entries)
  * - Installer script headers (install.js, setup.sh, setup.ps1)
  * - README.md version references
  *
@@ -39,14 +40,16 @@ if (DRY_RUN) {
 // Files that contain the plugin version (not example versions)
 const VERSION_FILES = [
   'package.json',
-  'plugin.json',
   '.claude-plugin/plugin.json',
   '.claude-plugin/marketplace.json',
-  'marketplace.json',
+  '.kimi-plugin/plugin.json',
+  'gemini-extension.json',
   'scripts/install.js',
   'scripts/setup.sh',
   'scripts/setup.ps1',
   'README.md',
+  '.github/ISSUE_TEMPLATE/bug_report.yml',
+  'evals/evals.json',
 ];
 
 // Track changes
@@ -57,21 +60,38 @@ function updateJsonVersion(filePath, relativePath) {
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     const json = JSON.parse(content);
+    let modified = false;
 
     if (json.version && json.version !== CURRENT_VERSION) {
       const oldVersion = json.version;
       json.version = CURRENT_VERSION;
-
-      if (!DRY_RUN) {
-        fs.writeFileSync(filePath, JSON.stringify(json, null, 2) + '\n', 'utf8');
-      }
-
+      modified = true;
       changes.push({
         file: relativePath,
         field: 'version',
         old: oldVersion,
         new: CURRENT_VERSION
       });
+    }
+
+    if (Array.isArray(json.plugins)) {
+      json.plugins.forEach((plugin, i) => {
+        if (plugin && typeof plugin.version === 'string' && plugin.version !== CURRENT_VERSION) {
+          const oldVersion = plugin.version;
+          plugin.version = CURRENT_VERSION;
+          modified = true;
+          changes.push({
+            file: relativePath,
+            field: `plugins[${i}].version`,
+            old: oldVersion,
+            new: CURRENT_VERSION
+          });
+        }
+      });
+    }
+
+    if (modified && !DRY_RUN) {
+      fs.writeFileSync(filePath, JSON.stringify(json, null, 2) + '\n', 'utf8');
       filesUpdated++;
     }
   } catch (e) {
@@ -116,6 +136,24 @@ function updateTextVersion(filePath, relativePath) {
         changes.push({
           file: relativePath,
           field: 'header',
+          old: foundVersion,
+          new: CURRENT_VERSION
+        });
+      }
+    }
+
+    // Pattern: placeholder: "X.Y.Z" (issue-template version hints)
+    const placeholderPattern = /(placeholder:\s*")([\d]+\.[\d]+\.[\d]+)(")/g;
+    while ((match = placeholderPattern.exec(content)) !== null) {
+      const foundVersion = match[2];
+      if (foundVersion !== CURRENT_VERSION) {
+        const oldMatch = match[0];
+        const newMatch = match[1] + CURRENT_VERSION + match[3];
+        content = content.replace(oldMatch, newMatch);
+        modified = true;
+        changes.push({
+          file: relativePath,
+          field: 'placeholder',
           old: foundVersion,
           new: CURRENT_VERSION
         });

@@ -1,13 +1,14 @@
 {
+  "description": "Remind the session about in-progress engineering documentation when it starts, resumes, clears, compacts, or forks.",
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|clear|compact",
+        "matcher": "startup|resume|clear|compact|fork",
         "hooks": [
           {
             "type": "command",
-            "command": "node hooks/check-progress.js",
-            "async": false
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/check-progress.js"]
           }
         ]
       }

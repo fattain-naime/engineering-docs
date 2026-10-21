@@ -29,6 +29,10 @@ jobs:
       - name: Build (if present)
         run: npm run build --if-present
 
+      - name: Sync version references
+        if: github.event_name == 'push'
+        run: node scripts/sync-version.js
+
       - name: Run tests
         run: npm test
 

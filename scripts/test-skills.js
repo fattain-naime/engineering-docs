@@ -315,6 +315,16 @@ function validateSkill(skillPath) {
     return;
   }
 
+  // Keep SKILL.md focused: every skill has a 500-line ceiling, and detailed
+  // reference material belongs in companion files (e.g. reference.md).
+  const lines = content.split(/\r?\n/);
+  if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+  if (lines.length > 500) {
+    console.log(`  ✗ ${skillName}: SKILL.md is ${lines.length} lines (limit 500 — move reference material to a separate file)`);
+    failed++;
+    return;
+  }
+
   const frontmatter = parseFrontmatter(content);
   if (frontmatter.error) {
     console.log(`  ✗ ${skillName}: Invalid YAML at frontmatter line ${frontmatter.error.line}: ${frontmatter.error.message}`);
