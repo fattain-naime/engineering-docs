@@ -48,6 +48,7 @@ const VERSION_FILES = [
   'scripts/setup.sh',
   'scripts/setup.ps1',
   'README.md',
+  '.github/ISSUE_TEMPLATE/bug_report.yml',
   'evals/evals.json',
   'integrations/plugins/gemini-extension.json',
   'integrations/plugins/.cursor-plugin/plugin.json',
@@ -147,6 +148,24 @@ function updateTextVersion(filePath, relativePath) {
         changes.push({
           file: relativePath,
           field: 'header',
+          old: foundVersion,
+          new: CURRENT_VERSION
+        });
+      }
+    }
+
+    // Pattern: placeholder: "X.Y.Z" (issue-template version hints)
+    const placeholderPattern = /(placeholder:\s*")([\d]+\.[\d]+\.[\d]+)(")/g;
+    while ((match = placeholderPattern.exec(content)) !== null) {
+      const foundVersion = match[2];
+      if (foundVersion !== CURRENT_VERSION) {
+        const oldMatch = match[0];
+        const newMatch = match[1] + CURRENT_VERSION + match[3];
+        content = content.replace(oldMatch, newMatch);
+        modified = true;
+        changes.push({
+          file: relativePath,
+          field: 'placeholder',
           old: foundVersion,
           new: CURRENT_VERSION
         });

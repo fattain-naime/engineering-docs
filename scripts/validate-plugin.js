@@ -96,6 +96,27 @@ if (pluginJson.error) {
   } else {
     ok('plugin.json author present');
   }
+  // Directory-listing field (manifest reference): Anthropic's directory reads
+  // `icon` from plugin.json; the docs show it as a "./"-prefixed path to an
+  // image file inside the plugin (e.g. "./logo.png").
+  if (p.icon !== undefined) {
+    if (typeof p.icon !== 'string' || !p.icon.startsWith('./') || p.icon.includes('..')) {
+      fail('plugin.json icon', `expected "./"-prefixed path inside the plugin, got ${JSON.stringify(p.icon)}`);
+    } else if (!fs.existsSync(path.join(ROOT, p.icon))) {
+      fail('plugin.json icon', `file not found: ${p.icon}`);
+    } else {
+      ok(`plugin.json icon ${p.icon} exists`);
+    }
+  }
+  // The other directory-listing fields must be https URLs when present.
+  for (const field of ['documentationUrl', 'supportUrl', 'privacyPolicyUrl', 'termsOfServiceUrl']) {
+    if (p[field] === undefined) continue;
+    if (typeof p[field] !== 'string' || !p[field].startsWith('https://')) {
+      fail(`plugin.json ${field}`, `expected https:// URL, got ${JSON.stringify(p[field])}`);
+    } else {
+      ok(`plugin.json ${field} is an https:// URL`);
+    }
+  }
 }
 
 console.log('\nMarketplace:');
