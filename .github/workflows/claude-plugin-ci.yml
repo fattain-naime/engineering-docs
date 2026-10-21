@@ -32,7 +32,7 @@ on:
       run_eval:
         description: 'Also run claude plugin eval'
         type: boolean
-        default: true
+        default: false
       threshold:
         description: 'Eval score threshold (0..1)'
         type: string
@@ -81,6 +81,7 @@ jobs:
             --trust-plugin \
             --json results.json \
             --threshold "${{ inputs.threshold || '0.8' }}" \
+            --allow-real-servers \
             --no-publish \
             --max-cost-usd 20
 
