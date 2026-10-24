@@ -12,10 +12,6 @@
 #      validate needs no secrets, eval does.
 #   2. Open a pull request to exercise validate; run eval via workflow_dispatch.
 #
-# MCP servers are answered from evals/mocks/<server>/, so the plugin's real
-# server process never starts in CI. If you add a server to .mcp.json, add a
-# matching mock directory; do not re-add --allow-real-servers.
-#
 # See docs/claude-plugin-testing.md for the full command surface and exit codes.
 
 name: Claude Plugin CI
@@ -44,11 +40,11 @@ on:
       model:
         description: 'Model under test (gateway model id if using a gateway)'
         type: string
-        default: 'nvidia/nemotron-3-ultra-550b-a55b:free'
+        default: 'beam:cloud'
       judge_model:
         description: 'Judge model'
         type: string
-        default: 'nvidia/nemotron-3-super-120b-a12b:free'
+        default: 'gpt-oss:120b'
 
 permissions:
   contents: read
@@ -97,9 +93,9 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.run_eval
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GATEWAY_URL: ${{ vars.ANTHROPIC_BASE_URL }}
-          GATEWAY_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
-          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '132000'
+          GATEWAY_URL: ${{ vars.BASE_URL_FOR_CI }}
+          GATEWAY_TOKEN: ${{ secrets.AUTH_TOKEN_FOR_CI }}
+          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '131072'
           EVAL_THRESHOLD: ${{ inputs.threshold }}
           EVAL_MODEL: ${{ inputs.model }}
           EVAL_JUDGE_MODEL: ${{ inputs.judge_model }}
@@ -126,11 +122,12 @@ jobs:
             --trust-plugin \
             --json results.json \
             --threshold "$threshold" \
-            --model "${EVAL_MODEL:-nvidia/nemotron-3-ultra-550b-a55b:free}" \
-            --judge-model "${EVAL_JUDGE_MODEL:-nvidia/nemotron-3-super-120b-a12b:free}" \
+            --model "${EVAL_MODEL:-beam:cloud}" \
+            --judge-model "${EVAL_JUDGE_MODEL:-gpt-oss:120b}" \
             --no-publish \
             --ablation none \
-            --max-cost-usd 20
+            --max-cost-usd 20 \
+            --allow-real-servers
 
       - name: Upload reports
         if: always()
