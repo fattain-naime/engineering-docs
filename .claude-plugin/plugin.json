@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "engineering-docs",
   "displayName": "Engineering Docs",
   "version": "1.2.4",
@@ -10,6 +11,10 @@
   "homepage": "https://github.com/fattain-naime/engineering-docs",
   "repository": "https://github.com/fattain-naime/engineering-docs",
   "license": "MIT",
+  "icon": "./assets/plugin-icon.png",
+  "documentationUrl": "https://edocs.iamnaime.info.bd",
+  "supportUrl": "https://github.com/fattain-naime/engineering-docs/issues",
+  "privacyPolicyUrl": "https://github.com/fattain-naime/engineering-docs/blob/main/PRIVACY.md",
   "keywords": [
     "engineering",
     "documentation",
