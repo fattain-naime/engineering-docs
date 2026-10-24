@@ -12,6 +12,10 @@
 #      validate needs no secrets, eval does.
 #   2. Open a pull request to exercise validate; run eval via workflow_dispatch.
 #
+# MCP servers are answered from evals/mocks/<server>/, so the plugin's real
+# server process never starts in CI. If you add a server to .mcp.json, add a
+# matching mock directory; do not re-add --allow-real-servers.
+#
 # See docs/claude-plugin-testing.md for the full command surface and exit codes.
 
 name: Claude Plugin CI
@@ -126,8 +130,7 @@ jobs:
             --judge-model "${EVAL_JUDGE_MODEL:-nvidia/nemotron-3-super-120b-a12b:free}" \
             --no-publish \
             --ablation none \
-            --max-cost-usd 20 \
-            --allow-real-servers
+            --max-cost-usd 20
 
       - name: Upload reports
         if: always()

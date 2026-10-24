@@ -1,0 +1,19 @@
+{
+  "tools": [
+    {
+      "name": "validate_document_set",
+      "description": "Check that all required documents exist in .engineering-docs/ and have valid frontmatter.",
+      "inputSchema": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "check_consistency",
+      "description": "Verify cross-document consistency: dependency references, entity names, and terminology.",
+      "inputSchema": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "generate_index",
+      "description": "Generate a master index markdown from all documents in .engineering-docs/.",
+      "inputSchema": { "type": "object", "properties": {} }
+    }
+  ]
+}
