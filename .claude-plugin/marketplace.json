@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "engineering-docs",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "22 engineering documentation skills covering the complete software lifecycle: business concept, project planning, personas, specs, feasibility, UX flow, architecture, design system, API, database, ADR, access control, security, testing, implementation, deployment, SLO, operations, disaster recovery, and incident review.",
   "owner": {
     "name": "Fattain Naime",
@@ -12,7 +12,7 @@
       "name": "engineering-docs",
       "displayName": "Engineering Docs",
       "description": "22 engineering documentation skills covering the complete software lifecycle.",
-      "version": "1.2.3",
+      "version": "1.2.4",
       "category": "Documentation",
       "tags": [
         "engineering",

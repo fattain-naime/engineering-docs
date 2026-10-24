@@ -13,7 +13,7 @@ body:
     attributes:
       label: Plugin Version
       description: What version of engineering-docs are you using?
-      placeholder: "1.2.3"
+      placeholder: "1.2.4"
     validations:
       required: true
 
