@@ -1,16 +1,16 @@
 # Claude Code plugin testing in GitHub Actions.
 #
-# Layer 1 (every PR):  claude plugin validate — static, free, no model calls.
-# Layer 2 (manual):    claude plugin eval    — real runs; needs ANTHROPIC_API_KEY
+# Layer 1 (every PR):  claude plugin validate - static, free, no model calls.
+# Layer 2 (manual):    claude plugin eval    - real runs; needs ANTHROPIC_API_KEY
 #                      (or gateway vars) and --trust-plugin for non-interactive use.
 # Both layers share one job so checkout, Node, and the Claude Code install
 # happen once; the eval step is skipped unless this is a dispatch run.
 #
 # To use it in your own repo:
-#   1. Add an ANTHROPIC_API_KEY secret (or set ANTHROPIC_BASE_URL +
-#      ANTHROPIC_AUTH_TOKEN to route through a gateway such as OpenRouter) —
-#      validate needs no secrets, eval does
-#   2. Open a pull request to exercise validate; run eval via workflow_dispatch
+#   1. Add an ANTHROPIC_API_KEY secret (or set ANTHROPIC_BASE_URL variable +
+#      ANTHROPIC_AUTH_TOKEN secret to route through a gateway such as OpenRouter).
+#      validate needs no secrets, eval does.
+#   2. Open a pull request to exercise validate; run eval via workflow_dispatch.
 #
 # See docs/claude-plugin-testing.md for the full command surface and exit codes.
 
@@ -37,13 +37,22 @@ on:
         description: 'Eval score threshold (0..1)'
         type: string
         default: '0.8'
+      model:
+        description: 'Model under test (gateway model id if using a gateway)'
+        type: string
+        default: 'nvidia/nemotron-3-ultra-550b-a55b:free'
+      judge_model:
+        description: 'Judge model'
+        type: string
+        default: 'nvidia/nemotron-3-super-120b-a12b:free'
 
 permissions:
   contents: read
 
 concurrency:
-  group: claude-plugin-ci-${{ github.repository }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: claude-plugin-ci-${{ github.workflow }}-${{ github.ref }}
+  # Only supersede stale PR runs. Never cancel an in-flight (paid) eval run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   plugin:
@@ -52,6 +61,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v7
         with:
@@ -64,33 +75,55 @@ jobs:
         run: claude --version
 
       - name: Validate plugin
-        run: claude plugin validate . --json > validate-report.json
+        run: |
+          set -o pipefail
+          claude plugin validate . --json | tee validate-report.json
 
-      # Route through a gateway (e.g. OpenRouter) by setting base URL + token,
-      # or provide a direct ANTHROPIC_API_KEY. Do not commit either value.
-      # A failed validate step stops the job, so eval only runs on a green
-      # validate.
+      # A failed validate step stops the job, so eval only runs on a green validate.
       #
-      # Model selection lives here, not in a settings file: eval runs start in
-      # an isolated temp home/config, so .claude/settings.json is never read.
-      # --model / --judge-model (or ANTHROPIC_MODEL in this step's env, which
-      # the runs inherit) are the only levers. CLAUDE_CODE_MAX_OUTPUT_TOKENS
-      # caps the max_tokens each request asks for — gateways such as OpenRouter
-      # bill against it and answer 402 when it exceeds the account's credits.
+      # All dispatch inputs and secrets are passed through env, never interpolated
+      # into the script, to avoid shell injection.
+      #
+      # Model selection lives here, not in a settings file: eval runs start in an
+      # isolated temp home/config, so .claude/settings.json is never read.
+      # CLAUDE_CODE_MAX_OUTPUT_TOKENS caps the max_tokens each request asks for;
+      # gateways such as OpenRouter bill against it and answer 402 when it exceeds
+      # the account's credits.
       - name: Run plugin eval
         if: github.event_name == 'workflow_dispatch' && inputs.run_eval
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ANTHROPIC_BASE_URL: ${{ vars.ANTHROPIC_BASE_URL }}
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          GATEWAY_URL: ${{ vars.ANTHROPIC_BASE_URL }}
+          GATEWAY_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
           CLAUDE_CODE_MAX_OUTPUT_TOKENS: '132000'
+          EVAL_THRESHOLD: ${{ inputs.threshold }}
+          EVAL_MODEL: ${{ inputs.model }}
+          EVAL_JUDGE_MODEL: ${{ inputs.judge_model }}
         run: |
+          set -euo pipefail
+
+          # Empty values must be unset, not exported as empty strings.
+          [ -n "${ANTHROPIC_API_KEY:-}" ] || unset ANTHROPIC_API_KEY
+          [ -z "${GATEWAY_URL:-}" ]   || export ANTHROPIC_BASE_URL="$GATEWAY_URL"
+          [ -z "${GATEWAY_TOKEN:-}" ] || export ANTHROPIC_AUTH_TOKEN="$GATEWAY_TOKEN"
+
+          if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
+            echo "::error::No credentials. Set ANTHROPIC_API_KEY, or ANTHROPIC_BASE_URL (variable) + ANTHROPIC_AUTH_TOKEN (secret)."
+            exit 1
+          fi
+
+          threshold="${EVAL_THRESHOLD:-0.8}"
+          if ! [[ "$threshold" =~ ^(0(\.[0-9]+)?|1(\.0+)?)$ ]]; then
+            echo "::error::threshold must be a number between 0 and 1, got '$threshold'"
+            exit 1
+          fi
+
           claude plugin eval . \
             --trust-plugin \
             --json results.json \
-            --threshold "${{ inputs.threshold || '0.8' }}" \
-            --model nvidia/nemotron-3-ultra-550b-a55b:free \
-            --judge-model nvidia/nemotron-3-super-120b-a12b:free \
+            --threshold "$threshold" \
+            --model "${EVAL_MODEL:-nvidia/nemotron-3-ultra-550b-a55b:free}" \
+            --judge-model "${EVAL_JUDGE_MODEL:-nvidia/nemotron-3-super-120b-a12b:free}" \
             --no-publish \
             --ablation none \
             --max-cost-usd 20 \
@@ -105,4 +138,5 @@ jobs:
             validate-report.json
             results.json
             evals/results/
-            
+          if-no-files-found: ignore
+          retention-days: 14
