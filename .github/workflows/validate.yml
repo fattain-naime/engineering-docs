@@ -212,8 +212,22 @@ jobs:
           fi
 
   publish:
-    needs: release
+    needs: [sync-version, release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
-      id-token: write  # npm provenance / trusted publishing (OIDC)
+      actions: write  # dispatch publish.yml
       contents: read
-    uses: ./.github/workflows/publish.yml
+    steps:
+      # Not `uses: ./.github/workflows/publish.yml`: with a reusable workflow the
+      # OIDC token names validate.yml as the workflow, and npm trusted publishing
+      # rejects it with a misleading E404. Dispatching makes publish.yml the
+      # top-level workflow. Events from GITHUB_TOKEN are suppressed except
+      # workflow_dispatch, which is why this works.
+      - name: Dispatch publish workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.sync-version.outputs.new_version }}
+        run: |
+          gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref "v$VERSION"
+          echo "Dispatched publish.yml for v$VERSION: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/workflows/publish.yml"

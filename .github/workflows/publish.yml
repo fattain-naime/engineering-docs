@@ -5,8 +5,11 @@ on:
     types:
       - published
   # Automated releases are created with GITHUB_TOKEN, whose events GitHub
-  # suppresses — validate.yml's release job invokes this workflow directly.
-  workflow_call:
+  # suppresses, so validate.yml's release job dispatches this workflow instead.
+  # It is dispatched (not called as a reusable workflow) on purpose: npm trusted
+  # publishing matches the TOP-LEVEL workflow file, so publish.yml must be the
+  # entry workflow of the run for the npmjs.com trusted publisher to accept it.
+  workflow_dispatch:
 
 permissions:
   id-token: write  # Required for OIDC
