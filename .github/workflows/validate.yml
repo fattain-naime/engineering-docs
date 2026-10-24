@@ -214,9 +214,9 @@ jobs:
   publish:
     needs: [sync-version, release]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     permissions:
-      actions: write  # dispatch publish.yml
+      actions: write  # dispatch publish.yml, and read the run to wait on it
       contents: read
     steps:
       # Not `uses: ./.github/workflows/publish.yml`: with a reusable workflow the
@@ -229,5 +229,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.sync-version.outputs.new_version }}
         run: |
+          started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref "v$VERSION"
-          echo "Dispatched publish.yml for v$VERSION: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/workflows/publish.yml"
+
+          # Find the run we just dispatched, then wait for it so a failed npm
+          # publish fails this job instead of passing silently.
+          run_id=""
+          for _ in $(seq 1 30); do
+            run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow publish.yml \
+              --event workflow_dispatch --branch "v$VERSION" --created ">=$started" \
+              --json databaseId --jq '.[0].databaseId // empty')
+            [ -n "$run_id" ] && break
+            sleep 5
+          done
+          if [ -z "$run_id" ]; then
+            echo "::error::Could not find the dispatched publish.yml run for v$VERSION"
+            exit 1
+          fi
+          echo "Publish run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$run_id"
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 10
