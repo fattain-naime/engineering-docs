@@ -212,8 +212,39 @@ jobs:
           fi
 
   publish:
-    needs: release
+    needs: [sync-version, release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
-      id-token: write  # npm provenance / trusted publishing (OIDC)
+      actions: write  # dispatch publish.yml, and read the run to wait on it
       contents: read
-    uses: ./.github/workflows/publish.yml
+    steps:
+      # Not `uses: ./.github/workflows/publish.yml`: with a reusable workflow the
+      # OIDC token names validate.yml as the workflow, and npm trusted publishing
+      # rejects it with a misleading E404. Dispatching makes publish.yml the
+      # top-level workflow. Events from GITHUB_TOKEN are suppressed except
+      # workflow_dispatch, which is why this works.
+      - name: Dispatch publish workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.sync-version.outputs.new_version }}
+        run: |
+          started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          gh workflow run publish.yml --repo "$GITHUB_REPOSITORY" --ref "v$VERSION"
+
+          # Find the run we just dispatched, then wait for it so a failed npm
+          # publish fails this job instead of passing silently.
+          run_id=""
+          for _ in $(seq 1 30); do
+            run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow publish.yml \
+              --event workflow_dispatch --branch "v$VERSION" --created ">=$started" \
+              --json databaseId --jq '.[0].databaseId // empty')
+            [ -n "$run_id" ] && break
+            sleep 5
+          done
+          if [ -z "$run_id" ]; then
+            echo "::error::Could not find the dispatched publish.yml run for v$VERSION"
+            exit 1
+          fi
+          echo "Publish run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$run_id"
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 10
