@@ -93,7 +93,8 @@ jobs:
             --judge-model nvidia/nemotron-3-super-120b-a12b:free \
             --no-publish \
             --ablation none \
-            --max-cost-usd 20
+            --max-cost-usd 20 \
+            --allow-real-servers
 
       - name: Upload reports
         if: always()
