@@ -29,8 +29,20 @@ evals/
     prompt.md
     graders/
       no-skill-invoked.md
+  mocks/                       # Suite-wide MCP stand-ins (see "MCP mocks" below)
+    engineering-docs/
+      validate_document_set.md
+      check_consistency.md
+      generate_index.md
+      _tools.json
   results/                     # Written by each run (gitignored)
 ```
+
+### MCP mocks
+
+The plugin ships one MCP server, `engineering-docs` (see `.mcp.json`). During an eval run, `claude plugin eval` does not start it. Each tool is answered from `evals/mocks/engineering-docs/<tool>.md` instead, so runs are deterministic and nothing executes outside the sandbox. The mocks return what the real server returns in a fresh workspace with no `.engineering-docs/` folder, which is also the greenfield starting state the cases assume. `_tools.json` keeps the real tool descriptions and schemas.
+
+If you add a tool to `scripts/validate.js` or a server to `.mcp.json`, add a matching mock file. Do not pass `--allow-real-servers` in CI.
 
 ### Running
 

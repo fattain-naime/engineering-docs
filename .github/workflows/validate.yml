@@ -10,16 +10,22 @@ on:
       - main
 
 permissions:
-  id-token: write
-  contents: write
+  contents: read
+
+# Serialize runs per ref so two quick pushes to main cannot race on the
+# version-sync commit, tag and release. Never cancel a run that may release.
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
 
@@ -99,25 +105,36 @@ jobs:
     needs: validate
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
     outputs:
       version_changed: ${{ steps.check.outputs.changed }}
       new_version: ${{ steps.check.outputs.version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
 
       - name: Check if version changed
         id: check
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "Current version: $CURRENT_VERSION"
 
-          PREVIOUS_VERSION=$(git show HEAD~1:package.json 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).version" 2>/dev/null || echo "0.0.0")
+          # Compare against the commit the push started from, so a version bump
+          # in any commit of a multi-commit push is detected (HEAD~1 only sees the last one).
+          BASE="$BEFORE_SHA"
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            BASE="HEAD~1"
+          fi
+          PREVIOUS_VERSION=$(git show "$BASE:package.json" 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version" 2>/dev/null || echo "0.0.0")
           echo "Previous version: $PREVIOUS_VERSION"
 
           if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
@@ -145,7 +162,7 @@ jobs:
           if git diff --quiet; then
             echo "No version sync changes needed"
           else
-            git add -A
+            git add -u
             git commit -m "chore: sync version references to $(node -p "require('./package.json').version") [skip ci]"
             git push origin main
             echo "Version sync changes committed"
@@ -155,14 +172,21 @@ jobs:
     needs: sync-version
     if: needs.sync-version.outputs.version_changed == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.sync-version.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
+          # Tag the tip of main so the tag includes the version-sync commit
+          # pushed by the previous job, not the stale triggering commit.
+          ref: main
           fetch-depth: 0
 
       - name: Create git tag
         run: |
-          VERSION=${{ needs.sync-version.outputs.new_version }}
           if git rev-parse "v$VERSION" >/dev/null 2>&1; then
             echo "Tag v$VERSION already exists, skipping"
           else
@@ -177,7 +201,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=${{ needs.sync-version.outputs.new_version }}
           if gh release view "v$VERSION" &>/dev/null; then
             echo "Release v$VERSION already exists, skipping"
           else
@@ -190,4 +213,7 @@ jobs:
 
   publish:
     needs: release
+    permissions:
+      id-token: write  # npm provenance / trusted publishing (OIDC)
+      contents: read
     uses: ./.github/workflows/publish.yml
