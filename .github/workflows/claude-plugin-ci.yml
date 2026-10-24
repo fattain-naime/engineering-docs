@@ -89,10 +89,11 @@ jobs:
             --trust-plugin \
             --json results.json \
             --threshold "${{ inputs.threshold || '0.8' }}" \
-            --model openrouter/free \
-            --judge-model openrouter/free \
+            --model nvidia/nemotron-3-ultra-550b-a55b:free \
+            --judge-model nvidia/nemotron-3-super-120b-a12b:free \
             --no-publish \
-            --allow-real-servers
+            --ablation none \
+            --max-cost-usd 20
 
       - name: Upload reports
         if: always()
