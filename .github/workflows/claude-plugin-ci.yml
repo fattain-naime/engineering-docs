@@ -161,13 +161,13 @@ jobs:
 
           # Summarize the result before exiting so a failing score is still readable.
           if [ -f results.json ]; then
-            model="$(jq -r '.suite.modelOverride // "unknown"' results.json 2>/dev/null || echo unknown)"
-            judge="$(jq -r '.suite.judgeModel // "unknown"' results.json 2>/dev/null || echo unknown)"
-            suite_threshold="$(jq -r '.suite.threshold // "unknown"' results.json 2>/dev/null || echo unknown)"
+            model="${EVAL_MODEL:-beam:cloud}"
+            judge="${EVAL_JUDGE_MODEL:-gpt-oss:120b}"
+            suite_threshold="$threshold"
             overall_score="$(jq -r '.aggregates.overallScore // "unknown"' results.json 2>/dev/null || echo unknown)"
             cases_total="$(jq -r '.aggregates.casesTotal // 0' results.json 2>/dev/null || echo 0)"
             cases_passed="$(jq -r '.aggregates.casesPassed // 0' results.json 2>/dev/null || echo 0)"
-            pass_rate="$(jq -r '.aggregates.overallPassRate // "unknown"' results.json 2>/dev/null || echo unknown)"
+            pass_rate="$(awk -v p="${cases_passed:-0}" -v t="${cases_total:-0}" 'BEGIN { if (t+0 > 0) printf "%.4g", p/t; else print "unknown" }')"
             {
               echo "### Claude Plugin Eval Summary"
               echo
