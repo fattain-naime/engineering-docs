@@ -102,7 +102,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GATEWAY_URL: ${{ vars.BASE_URL_FOR_CI }}
           GATEWAY_TOKEN: ${{ secrets.AUTH_TOKEN_FOR_CI }}
-          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '131072'
+          CLAUDE_CODE_MAX_OUTPUT_TOKENS: '8192'
           EVAL_THRESHOLD: ${{ inputs.threshold }}
           EVAL_MODEL: ${{ inputs.model }}
           EVAL_JUDGE_MODEL: ${{ inputs.judge_model }}
@@ -209,6 +209,7 @@ jobs:
 
       - name: Upload reports
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: plugin-ci-reports
@@ -216,7 +217,7 @@ jobs:
             validate-report.json
             results.json
             evals/results/
-            /tmp/claude-eval-*
+            /tmp/claude-eval-*/out/trace.jsonl
           if-no-files-found: ignore
           retention-days: 14
 
