@@ -40,7 +40,7 @@ on:
       model:
         description: 'Model under test (gateway model id if using a gateway)'
         type: string
-        default: 'beam:cloud'
+        default: 'qwen3-coder:480b-cloud'
       judge_model:
         description: 'Judge model'
         type: string
@@ -139,12 +139,13 @@ jobs:
             --trust-plugin
             --json results.json
             --threshold "$threshold"
-            --model "${EVAL_MODEL:-beam:cloud}"
+            --model "${EVAL_MODEL:-qwen3-coder:480b-cloud}"
             --judge-model "${EVAL_JUDGE_MODEL:-gpt-oss:120b}"
             --no-publish
             --ablation none
             --max-cost-usd 20
             --keep-temp
+            --allow-tools Write Edit
           )
           # --allow-real-servers is deliberately NOT passed: every MCP server is
           # mocked under evals/mocks/engineering-docs/. A new server in .mcp.json
@@ -161,7 +162,7 @@ jobs:
 
           # Summarize the result before exiting so a failing score is still readable.
           if [ -f results.json ]; then
-            model="${EVAL_MODEL:-beam:cloud}"
+            model="${EVAL_MODEL:-qwen3-coder:480b-cloud}"
             judge="${EVAL_JUDGE_MODEL:-gpt-oss:120b}"
             suite_threshold="$threshold"
             overall_score="$(jq -r '.aggregates.overallScore // "unknown"' results.json 2>/dev/null || echo unknown)"
