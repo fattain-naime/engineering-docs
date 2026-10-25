@@ -18,7 +18,8 @@
 #   - push: restricted   -> feature branches only, never the default branch
 #   - shell: restricted  -> default-deny allowlist, runner secrets stay out of it
 #   - the agent is told never to merge, approve, bump versions, or edit workflows
-#   - one run per task at a time; a failed run is never retried automatically
+#   - maintenance runs one at a time; every failed CI run gets its own triage run
+#     (none is dropped); a failed agent run is never retried automatically
 #   - only triggers that run on the default branch (schedule, workflow_run,
 #     workflow_dispatch), so pull request code never runs with these secrets
 #
@@ -115,7 +116,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     concurrency:
-      group: pullfrog-ci-failure-${{ github.event.workflow_run.name || inputs.run_id }}
+      # One group per failed run. A shared group would keep only one pending run, so a
+      # burst of failures would silently drop all but the latest. Two failures with the
+      # same root cause can now triage in parallel; the prompt dedupes against open
+      # "[pullfrog] ci" issues and PRs.
+      group: pullfrog-ci-failure-${{ github.event.workflow_run.id || inputs.run_id }}
       cancel-in-progress: false
     permissions:
       id-token: write
