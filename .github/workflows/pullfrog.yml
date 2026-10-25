@@ -32,7 +32,11 @@ jobs:
           # NOTE: a model chosen in the Pullfrog console overrides this input. It only
           # takes effect when the console model is "Custom (set in workflow)" or
           # "Inherit from org". The slug must exist in the models.dev catalog.
-          model: openrouter/minimax/minimax-m3.1-flash:free
+          # Disabled: this slug is not in the models.dev openrouter catalog (only
+          # openrouter/minimax/minimax-m3.1-flash exists, with no ":free" variant), so
+          # the run would fail if the console did not override it. Until a verified
+          # slug is chosen, the model comes from the Pullfrog console.
+          # model: openrouter/minimax/minimax-m3.1-flash:free
         env:
           # add at least one provider API key
           # OpenRouter models (openrouter/...) read OPENROUTER_API_KEY. Free models
