@@ -45,7 +45,14 @@ on:
         description: 'Judge model'
         type: string
         default: 'gpt-oss:120b'
-
+      case:
+        description: 'Optional single case name glob to debug (empty = all cases)'
+        type: string
+        default: ''
+      runs:
+        description: 'Optional runs per case, 1-10 (empty = case default)'
+        type: string
+        default: ''
 permissions:
   contents: read
 
@@ -99,6 +106,8 @@ jobs:
           EVAL_THRESHOLD: ${{ inputs.threshold }}
           EVAL_MODEL: ${{ inputs.model }}
           EVAL_JUDGE_MODEL: ${{ inputs.judge_model }}
+          EVAL_CASE: ${{ inputs.case }}
+          EVAL_RUNS: ${{ inputs.runs }}
         run: |
           set -euo pipefail
 
@@ -118,16 +127,85 @@ jobs:
             exit 1
           fi
 
-          claude plugin eval . \
-            --trust-plugin \
-            --json results.json \
-            --threshold "$threshold" \
-            --model "${EVAL_MODEL:-beam:cloud}" \
-            --judge-model "${EVAL_JUDGE_MODEL:-gpt-oss:120b}" \
-            --no-publish \
-            --ablation none \
-            --max-cost-usd 20 \
-            --allow-real-servers
+          if [ -n "${EVAL_RUNS:-}" ]; then
+            if ! [[ "$EVAL_RUNS" =~ ^(10|[1-9])$ ]]; then
+              echo "::error::runs must be an integer from 1 to 10, got '$EVAL_RUNS'"
+              exit 1
+            fi
+          fi
+
+          eval_args=(
+            .
+            --trust-plugin
+            --json results.json
+            --threshold "$threshold"
+            --model "${EVAL_MODEL:-beam:cloud}"
+            --judge-model "${EVAL_JUDGE_MODEL:-gpt-oss:120b}"
+            --no-publish
+            --ablation none
+            --max-cost-usd 20
+            --keep-temp
+          )
+          # --allow-real-servers is deliberately NOT passed: every MCP server is
+          # mocked under evals/mocks/engineering-docs/. A new server in .mcp.json
+          # needs a matching mock directory before it can be used in evals.
+          if [ -n "${EVAL_CASE:-}" ]; then
+            eval_args+=(--case "$EVAL_CASE")
+          fi
+          if [ -n "${EVAL_RUNS:-}" ]; then
+            eval_args+=(--runs "$EVAL_RUNS")
+          fi
+
+          rc=0
+          claude plugin eval "${eval_args[@]}" || rc=$?
+
+          # Summarize the result before exiting so a failing score is still readable.
+          if [ -f results.json ]; then
+            model="$(jq -r '.suite.modelOverride // "unknown"' results.json 2>/dev/null || echo unknown)"
+            judge="$(jq -r '.suite.judgeModel // "unknown"' results.json 2>/dev/null || echo unknown)"
+            suite_threshold="$(jq -r '.suite.threshold // "unknown"' results.json 2>/dev/null || echo unknown)"
+            overall_score="$(jq -r '.aggregates.overallScore // "unknown"' results.json 2>/dev/null || echo unknown)"
+            cases_total="$(jq -r '.aggregates.casesTotal // 0' results.json 2>/dev/null || echo 0)"
+            cases_passed="$(jq -r '.aggregates.casesPassed // 0' results.json 2>/dev/null || echo 0)"
+            pass_rate="$(jq -r '.aggregates.overallPassRate // "unknown"' results.json 2>/dev/null || echo unknown)"
+            {
+              echo "### Claude Plugin Eval Summary"
+              echo
+              echo "- Model: \`$model\`"
+              echo "- Judge: \`$judge\`"
+              echo "- Threshold: \`$suite_threshold\`"
+              echo "- Suite score: \`$overall_score\` ($cases_passed/$cases_total cases passed, pass rate \`$pass_rate\`)"
+              echo
+              echo "| Case | Score | Failed graders (runs) |"
+              echo "|---|---|---|"
+              jq -r '
+                (.cases // [])[] |
+                .name as $name |
+                (.aggregates.score // 0) as $score |
+                ([.arms.with[]?.graders[]?] // []) as $all |
+                ([$all[].name] | unique) as $names |
+                ([
+                  $names[] | . as $g |
+                  ([ $all[] | select(.name == $g and ((.passed // false) | not)) ] | length) as $fails |
+                  ([ $all[] | select(.name == $g) ] | length) as $total |
+                  if $fails > 0 then "\($g) (\($fails)/\($total))" else empty end
+                ] | join(", ")) as $failed |
+                "| \($name) | \($score) | \(if ($failed | length) == 0 then "none" else $failed end) |"
+              ' results.json 2>/dev/null || true
+            } >> "${GITHUB_STEP_SUMMARY:-/tmp/claude-plugin-ci-step-summary.md}"
+
+            never_tools="$(jq -r '
+              ([.cases[]?.arms?.with[]?.graders[]? | select(.name == "skill-fired")] | length) as $n |
+              if $n == 0 then "false"
+              elif (all(.cases[]?.arms?.with[]?.graders[]? | select(.name == "skill-fired"); ((.passed // false) | not))) then "true"
+              else "false" end
+            ' results.json 2>/dev/null)" || never_tools="false"
+            if [ "$never_tools" = "true" ]; then
+              echo "::error::The model never invoked the Skill tool in any run. This usually means the model or gateway does not support Anthropic-style tool use; scores are therefore not a measure of plugin quality. The 'ignores-unrelated-request' case passing is not meaningful in that situation."
+            fi
+          fi
+
+          exit "$rc"
 
       - name: Upload reports
         if: always()
@@ -138,6 +216,7 @@ jobs:
             validate-report.json
             results.json
             evals/results/
+            /tmp/claude-eval-*
           if-no-files-found: ignore
           retention-days: 14
-          
+

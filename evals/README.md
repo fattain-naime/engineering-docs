@@ -73,6 +73,15 @@ The `ignores-unrelated-request` case is free (transcript-only graders, no judge 
 
 ---
 
+## Reading results
+
+(a) The model under test must support tool use, or the `skill-fired` graders fail for reasons unrelated to the plugin.
+(b) `ignores-unrelated-request` is only meaningful when the positive cases do fire `Skill`.
+(c) With `--ablation none` there is no baseline, so a score cannot be attributed to the plugin.
+(d) To debug one case cheaply, use the `case` and `runs` workflow_dispatch inputs (or locally `claude plugin eval . --case <name> --runs 1 --ablation none`).
+
+---
+
 ## Legacy Harness Evals (`evals.json`)
 
 `evals.json` is a custom suite for manual review and third-party agent harnesses (it is NOT read by `claude plugin eval`). It contains richer assertion lists than the official cases — full positive/negative assertion checklists per skill. The sections below document its schema and manual workflow.

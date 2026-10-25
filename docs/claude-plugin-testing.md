@@ -367,6 +367,7 @@ whatever the shell exports is inherited by each eval child.
 | `--strict` fails on warnings | Expected: `--strict` turns every warning into exit 1. Drop it unless you want catalog-grade cleanliness. |
 | Sandbox errors when granting `Bash` | Need a sandbox backend (bubblewrap + socat on Linux; WSL2 on Windows). Without one, runs that grant Bash refuse rather than run unconfined. |
 | Git older than 2.31 | Upgrade git, or accept that eval refuses to start. |
+| `Skill called 0x` in every run, zero mock calls, agent says it has no tools | The model or gateway is not honoring Anthropic-style tool definitions, so the `Skill` tool never fires. Confirm with the uploaded traces (`/tmp/claude-eval-*/out/trace.jsonl`): check whether any `tool_use` block for `Skill` appears. If none, re-run the eval with a model known to support tool use (for example a Claude model) to separate a plugin problem from a model/gateway problem. |
 
 ## Further reading
 
