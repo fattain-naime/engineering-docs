@@ -217,6 +217,7 @@ jobs:
             validate-report.json
             results.json
             evals/results/
+            /tmp/claude-eval-*/out/trace.jsonl
           if-no-files-found: ignore
           retention-days: 14
 
