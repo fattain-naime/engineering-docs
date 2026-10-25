@@ -1,0 +1,144 @@
+# Autonomous Pullfrog agent: runs without anyone typing a prompt.
+#
+# Pullfrog already reacts to events from its GitHub App (PR opened, @pullfrog
+# mentions, review feedback, CI failures on PRs). Those are configured in the
+# Pullfrog console, not here. This workflow adds the triggers the app does not
+# cover, using the headless action (pullfrog/pullfrog@v0):
+#
+#   1. Weekly maintenance (schedule): repo health checks, small safe fixes in one
+#      PR, everything else as one issue. Prompt: .github/pullfrog/maintenance.md
+#   2. CI failure triage (workflow_run): a failed push, release or dispatch run of
+#      "Validate & Release" or "Publish Package". Pull request runs are excluded
+#      on purpose (the Pullfrog console handles those). Prompt:
+#      .github/pullfrog/ci-failure.md
+#   3. Manual run (workflow_dispatch): pick a task, optionally add instructions,
+#      change the effort level, or set dry_run to get a report with no pushes.
+#
+# Guardrails (all enforced by the action settings below, not just by the prompts):
+#   - push: restricted   -> feature branches only, never the default branch
+#   - shell: restricted  -> default-deny allowlist, runner secrets stay out of it
+#   - the agent is told never to merge, approve, bump versions, or edit workflows
+#   - one run per task at a time; a failed run is never retried automatically
+#   - only triggers that run on the default branch (schedule, workflow_run,
+#     workflow_dispatch), so pull request code never runs with these secrets
+#
+# Setup: store a provider key in the Pullfrog console, or add GitHub secrets
+# named in the env block. Free OpenCode models need OPENCODE_API_KEY. The model
+# is chosen in the console (or add `model:` to the steps below).
+
+name: Pullfrog Autonomous
+run-name: >-
+  ${{ github.event_name == 'workflow_run'
+  && format('Pullfrog CI triage: {0} #{1}', github.event.workflow_run.name, github.event.workflow_run.id)
+  || format('Pullfrog {0}', inputs.task || 'weekly maintenance') }}
+
+on:
+  schedule:
+    - cron: '17 3 * * 1' # Mondays 03:17 UTC
+  workflow_run:
+    workflows:
+      - 'Validate & Release'
+      - 'Publish Package'
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Which task to run'
+        type: choice
+        options:
+          - maintenance
+          - ci-failure
+        default: maintenance
+      run_id:
+        description: 'ci-failure only: id of the failed workflow run to investigate'
+        type: string
+      instructions:
+        description: 'Optional extra instructions for the agent'
+        type: string
+      effort:
+        description: 'low, medium, high, xhigh, max, or a number from 0 to 1'
+        type: string
+        default: high
+      dry_run:
+        description: 'Report only: the agent may not push or open PRs'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  maintenance:
+    name: weekly maintenance
+    if: >-
+      github.repository == 'fattain-naime/engineering-docs' &&
+      (github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.task == 'maintenance'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: pullfrog-maintenance
+      cancel-in-progress: false
+    permissions:
+      id-token: write # Pullfrog mints its own short-lived GitHub App token via OIDC
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Run agent
+        uses: pullfrog/pullfrog@v0
+        with:
+          prompt: |
+            Follow the instructions in .github/pullfrog/maintenance.md exactly.
+            Trigger: ${{ github.event_name }}.
+            ${{ inputs.instructions && format('Extra instructions from the maintainer: {0}', inputs.instructions) || '' }}
+          effort: ${{ inputs.effort || 'high' }}
+          timeout: 45m
+          push: ${{ inputs.dry_run && 'disabled' || 'restricted' }}
+          shell: restricted
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+  ci-failure:
+    name: ci failure triage
+    if: >-
+      github.repository == 'fattain-naime/engineering-docs' &&
+      ((github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      contains(fromJSON('["push","workflow_dispatch","release"]'), github.event.workflow_run.event)) ||
+      (github.event_name == 'workflow_dispatch' && inputs.task == 'ci-failure' && inputs.run_id != ''))
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: pullfrog-ci-failure-${{ github.event.workflow_run.name || inputs.run_id }}
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Run agent
+        uses: pullfrog/pullfrog@v0
+        with:
+          prompt: |
+            Follow the instructions in .github/pullfrog/ci-failure.md exactly.
+            Failed run id: ${{ github.event.workflow_run.id || inputs.run_id }}
+            Workflow: ${{ github.event.workflow_run.name || 'see the run id' }}
+            Commit: ${{ github.event.workflow_run.head_sha || 'see the run id' }}
+            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id || inputs.run_id }}
+            ${{ inputs.instructions && format('Extra instructions from the maintainer: {0}', inputs.instructions) || '' }}
+          effort: ${{ inputs.effort || 'high' }}
+          timeout: 45m
+          push: ${{ inputs.dry_run && 'disabled' || 'restricted' }}
+          shell: restricted
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

@@ -29,11 +29,22 @@ jobs:
         uses: pullfrog/pullfrog@v0
         with:
           prompt: ${{ inputs.prompt }}
+          # NOTE: a model chosen in the Pullfrog console overrides this input. It only
+          # takes effect when the console model is "Custom (set in workflow)" or
+          # "Inherit from org". The slug must exist in the models.dev catalog.
           model: openrouter/minimax/minimax-m3.1-flash:free
         env:
           # add at least one provider API key
-          ANTHROPIC_BASE_URL: https://openrouter.ai/api
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # OpenRouter models (openrouter/...) read OPENROUTER_API_KEY. Free models
+          # also need OPENCODE_API_KEY (below).
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          # Disabled: this pointed an Anthropic-style gateway URL at openrouter.ai and
+          # sent the secret named CLAUDE_CODE_OAUTH_TOKEN to it as a bearer token.
+          # A non-Anthropic model runs on OpenCode and does not use these two, and a
+          # Claude subscription token should not be sent to a third party. Re-enable
+          # only with a real OpenRouter key stored under a matching secret name.
+          # ANTHROPIC_BASE_URL: https://openrouter.ai/api
+          # ANTHROPIC_AUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
