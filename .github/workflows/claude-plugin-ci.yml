@@ -113,8 +113,12 @@ jobs:
 
           # Empty values must be unset, not exported as empty strings.
           [ -n "${ANTHROPIC_API_KEY:-}" ] || unset ANTHROPIC_API_KEY
-          [ -z "${GATEWAY_URL:-}" ]   || export ANTHROPIC_BASE_URL="$GATEWAY_URL"
-          [ -z "${GATEWAY_TOKEN:-}" ] || export ANTHROPIC_AUTH_TOKEN="$GATEWAY_TOKEN"
+          # Prefer direct Anthropic credentials when both are present; only route
+          # through a gateway when API-key auth is not configured.
+          if [ -z "${ANTHROPIC_API_KEY:-}" ]; then
+            [ -z "${GATEWAY_URL:-}" ]   || export ANTHROPIC_BASE_URL="$GATEWAY_URL"
+            [ -z "${GATEWAY_TOKEN:-}" ] || export ANTHROPIC_AUTH_TOKEN="$GATEWAY_TOKEN"
+          fi
 
           if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
             echo "::error::No credentials. Set ANTHROPIC_API_KEY, or ANTHROPIC_BASE_URL (variable) + ANTHROPIC_AUTH_TOKEN (secret)."
@@ -220,4 +224,3 @@ jobs:
             /tmp/claude-eval-*/out/trace.jsonl
           if-no-files-found: ignore
           retention-days: 14
-
