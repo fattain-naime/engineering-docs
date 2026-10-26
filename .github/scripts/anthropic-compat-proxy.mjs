@@ -17,10 +17,10 @@ import http from 'node:http';
 import https from 'node:https';
 import { writeFileSync } from 'node:fs';
 
-const textOf = (content) =>
+export const textOf = (content) =>
   typeof content === 'string'
     ? content
-    : (content || []).filter((b) => b && b.type === 'text').map((b) => b.text).join('\n');
+    : (content || []).filter((b) => b && b.type === 'text').map((b) => b.text ?? '').join('\n');
 
 export function foldSystemMessages(body) {
   if (!body || !Array.isArray(body.messages)) return { body, moved: 0 };
