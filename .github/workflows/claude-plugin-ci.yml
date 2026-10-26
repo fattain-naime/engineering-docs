@@ -99,7 +99,7 @@ jobs:
       - name: Run plugin eval
         if: github.event_name == 'workflow_dispatch' && inputs.run_eval
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: '' # ${{ secrets.ANTHROPIC_API_KEY }}
           GATEWAY_URL: ${{ vars.BASE_URL_FOR_CI }}
           GATEWAY_TOKEN: ${{ secrets.AUTH_TOKEN_FOR_CI }}
           CLAUDE_CODE_MAX_OUTPUT_TOKENS: '8192'
