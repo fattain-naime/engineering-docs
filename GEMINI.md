@@ -1,7 +1,7 @@
 # Engineering Docs - Gemini Context File
 #
 # This file is the Gemini (Antigravity) context loader for the engineering-docs plugin.
-# It eagerly loads all 21 skill SKILL.md files into Gemini's context window so the
+# It eagerly loads all 22 skill SKILL.md files into Gemini's context window so the
 # agent knows each skill's intent, triggers, and workflow without needing to fetch them
 # at runtime. This file is standalone - it does not depend on AGENTS.md or any other
 # agent config file.
@@ -10,6 +10,7 @@
 # For Gemini-specific trigger routing, see integrations/agents/AGENTS.md.
 
 @./skills/using-engineering-docs/SKILL.md
+@./skills/business-concept/SKILL.md
 @./skills/project-plan/SKILL.md
 @./skills/user-personas-behavior/SKILL.md
 @./skills/technical-specification/SKILL.md
