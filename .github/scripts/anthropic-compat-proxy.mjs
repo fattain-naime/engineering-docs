@@ -11,20 +11,11 @@
 // This proxy moves those messages into the top-level `system` field, which every
 // gateway honors, and forwards everything else unchanged (streaming included).
 //
-// Env: UPSTREAM_URL (required), PROXY_PORT_FILE (required; the chosen port is
+// Env (when run as a script): UPSTREAM_URL and PROXY_PORT_FILE (the chosen port is
 // written there once listening). It binds to 127.0.0.1 on a random port.
 import http from 'node:http';
 import https from 'node:https';
 import { writeFileSync } from 'node:fs';
-
-const upstream = new URL(process.env.UPSTREAM_URL || '');
-const portFile = process.env.PROXY_PORT_FILE;
-if (!upstream.host || !portFile) {
-  console.error('UPSTREAM_URL and PROXY_PORT_FILE are required');
-  process.exit(2);
-}
-const client = upstream.protocol === 'http:' ? http : https;
-const basePath = upstream.pathname.replace(/\/$/, '');
 
 const textOf = (content) =>
   typeof content === 'string'
@@ -33,21 +24,26 @@ const textOf = (content) =>
 
 export function foldSystemMessages(body) {
   if (!body || !Array.isArray(body.messages)) return { body, moved: 0 };
-  const moved = body.messages.filter((m) => m && m.role === 'system');
+  // Only fold system messages that carry text; anything else stays in messages.
+  const isFoldable = (m) => m && m.role === 'system' && textOf(m.content) !== '';
+  const moved = body.messages.filter(isFoldable);
   if (!moved.length) return { body, moved: 0 };
-  const extra = moved.map((m) => textOf(m.content)).filter(Boolean);
+  const extra = moved.map((m) => textOf(m.content));
   const system =
     typeof body.system === 'string'
       ? [{ type: 'text', text: body.system }]
       : Array.isArray(body.system) ? body.system.slice() : [];
   for (const text of extra) system.push({ type: 'text', text });
   return {
-    body: { ...body, system, messages: body.messages.filter((m) => !m || m.role !== 'system') },
+    body: { ...body, system, messages: body.messages.filter((m) => !isFoldable(m)) },
     moved: moved.length,
   };
 }
 
-const server = http.createServer((req, res) => {
+function createServer(upstream) {
+  const client = upstream.protocol === 'http:' ? http : https;
+  const basePath = upstream.pathname.replace(/\/$/, '');
+  return http.createServer((req, res) => {
   const chunks = [];
   req.on('data', (c) => chunks.push(c));
   req.on('end', () => {
@@ -89,8 +85,21 @@ const server = http.createServer((req, res) => {
     up.end(payload);
   });
 });
+}
 
 if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+  const portFile = process.env.PROXY_PORT_FILE;
+  let upstream;
+  try {
+    upstream = new URL(process.env.UPSTREAM_URL || '');
+  } catch {
+    // handled below
+  }
+  if (!upstream || !portFile) {
+    console.error('UPSTREAM_URL (a valid URL) and PROXY_PORT_FILE are required');
+    process.exit(2);
+  }
+  const server = createServer(upstream);
   server.listen(0, '127.0.0.1', () => {
     writeFileSync(portFile, String(server.address().port));
   });
