@@ -96,6 +96,11 @@ jobs:
       # CLAUDE_CODE_MAX_OUTPUT_TOKENS caps the max_tokens each request asks for;
       # gateways such as OpenRouter bill against it and answer 402 when it exceeds
       # the account's credits.
+      # SLASH_COMMAND_TOOL_CHAR_BUDGET raises the size of the skill listing shown to
+      # the model. Claude Code sizes it from the model's context window, and for an
+      # unknown model slug (such as beam:cloud) the default is too small: the 22
+      # plugin skills were listed by name only, without descriptions, so the model
+      # could not tell which skill fit and never called Skill.
       - name: Run plugin eval
         if: github.event_name == 'workflow_dispatch' && inputs.run_eval
         env:
@@ -103,6 +108,7 @@ jobs:
           GATEWAY_URL: ${{ vars.BASE_URL_FOR_CI }}
           GATEWAY_TOKEN: ${{ secrets.AUTH_TOKEN_FOR_CI }}
           CLAUDE_CODE_MAX_OUTPUT_TOKENS: '8192'
+          SLASH_COMMAND_TOOL_CHAR_BUDGET: '40000'
           EVAL_THRESHOLD: ${{ inputs.threshold }}
           EVAL_MODEL: ${{ inputs.model }}
           EVAL_JUDGE_MODEL: ${{ inputs.judge_model }}
@@ -205,7 +211,7 @@ jobs:
               else "false" end
             ' results.json 2>/dev/null)" || never_tools="false"
             if [ "$never_tools" = "true" ]; then
-              echo "::error::The model never invoked the Skill tool in any run. This usually means the model or gateway does not support Anthropic-style tool use; scores are therefore not a measure of plugin quality. The 'ignores-unrelated-request' case passing is not meaningful in that situation."
+              echo "::error::The model never invoked the Skill tool in any run. Check the uploaded trace.jsonl files: if other tools were called, the model supports tool use but is not choosing Skill (a model-behavior problem, or the skill listing lacks descriptions); if no tool was called at all, the model or gateway likely lacks Anthropic-style tool use. Either way scores are not a measure of plugin quality. The 'ignores-unrelated-request' case passing is not meaningful in that situation."
             fi
           fi
 
