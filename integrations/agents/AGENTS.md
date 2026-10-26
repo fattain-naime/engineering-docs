@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This plugin provides **21 engineering documentation skills** covering the complete software development lifecycle - from raw project idea through planning, design, architecture, security, testing, deployment, and operations. The agent MUST automatically detect when a user needs any form of technical documentation and invoke the matching skill WITHOUT asking the user to manually select it.
+This plugin provides **22 engineering documentation skills** covering the complete software development lifecycle - from raw project idea through planning, design, architecture, security, testing, deployment, and operations. The agent MUST automatically detect when a user needs any form of technical documentation and invoke the matching skill WITHOUT asking the user to manually select it.
 
 ## Auto-Trigger Rules
 

@@ -2,11 +2,11 @@
 
 ## Purpose
 
-This file provides **Claude Code** with the complete, standalone configuration for the engineering-docs plugin. It contains all 21 skill trigger rules, behavioral standards, and Claude-specific behaviors in one self-contained file. It does not depend on AGENTS.md or any other agent config file.
+This file provides **Claude Code** with the complete, standalone configuration for the engineering-docs plugin. It contains all 22 skill trigger rules, behavioral standards, and Claude-specific behaviors in one self-contained file. It does not depend on AGENTS.md or any other agent config file.
 
 ## What This Plugin Does
 
-This plugin provides 21 engineering documentation skills covering the complete software development lifecycle - from a raw project idea through planning, design, architecture, security, testing, deployment, and operations. When a user needs any form of technical documentation, automatically detect the intent and invoke the matching skill without asking the user to pick one.
+This plugin provides 22 engineering documentation skills covering the complete software development lifecycle - from a raw project idea through planning, design, architecture, security, testing, deployment, and operations. When a user needs any form of technical documentation, automatically detect the intent and invoke the matching skill without asking the user to pick one.
 
 ## Auto-Trigger Rules
 
