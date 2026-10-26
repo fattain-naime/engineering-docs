@@ -101,6 +101,7 @@ jobs:
       # unknown model slug (such as beam:cloud) the default is too small: the 22
       # plugin skills were listed by name only, without descriptions, so the model
       # could not tell which skill fit and never called Skill.
+      # That was not the whole story: see the compatibility proxy in the script below.
       - name: Run plugin eval
         if: github.event_name == 'workflow_dispatch' && inputs.run_eval
         env:
@@ -164,6 +165,27 @@ jobs:
           fi
           if [ -n "${EVAL_RUNS:-}" ]; then
             eval_args+=(--runs "$EVAL_RUNS")
+          fi
+
+          # Gateway mode only: route Claude Code through a local shim that moves its
+          # mid-conversation "system" messages (skill listing, environment block)
+          # into the top-level system prompt. Ollama's Anthropic-compatible endpoint
+          # drops them, so beam:cloud never saw the skill list and never called Skill.
+          if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -n "${ANTHROPIC_BASE_URL:-}" ]; then
+            port_file="$(mktemp)"
+            UPSTREAM_URL="$ANTHROPIC_BASE_URL" PROXY_PORT_FILE="$port_file" \
+              node .github/scripts/anthropic-compat-proxy.mjs &
+            proxy_pid=$!
+            trap 'kill "$proxy_pid" 2>/dev/null || true' EXIT
+            for _ in $(seq 1 50); do
+              [ -s "$port_file" ] && break
+              sleep 0.1
+            done
+            if [ ! -s "$port_file" ]; then
+              echo "::error::The compatibility proxy did not start."
+              exit 1
+            fi
+            export ANTHROPIC_BASE_URL="http://127.0.0.1:$(cat "$port_file")"
           fi
 
           rc=0
